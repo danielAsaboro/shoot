@@ -71,6 +71,8 @@ lerna-debug.log*
 # Anchor/Solana (extended)
 .anchor/
 test-ledger/
+artifacts/
+**/artifacts/
 
 # Next.js (extended)
 .next/
