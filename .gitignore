@@ -1,0 +1,78 @@
+# Exclude chats directories at any level
+**/chats/
+chats/
+
+# Exclude resources directories at any level
+**/resources/
+resources/
+
+# Rust build artifacts
+/target/
+**/target/
+
+# Cargo lock file for libraries (uncomment if this is a library)
+# Cargo.lock
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Node modules (if any)
+node_modules/
+
+# Build directories
+/build/
+**/build/
+/dist/
+**/dist/
+
+# Additional Logs
+npm-debug.log*
+.pnpm-debug.log*
+lerna-debug.log*
+
+# Package Manager Cache
+.pnpm-store/
+.pnpm/
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+
+# Turbo
+.turbo/
+
+# Testing (extended)
+.nyc_output/
+
+# TypeScript (additional)
+**/*.tsbuildinfo
+
+# IDE (extended)
+.LSP*
+.LSOverride
+
+# OS (extended)
+.AppleDouble
+.LSOverride
+
+# Temporary
+*.tmp
+*.temp
+
+# Anchor/Solana (extended)
+.anchor/
+test-ledger/
+
+# Next.js (extended)
+.next/
+.vercel
+next-env.d.ts
