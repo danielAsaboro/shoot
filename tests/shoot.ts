@@ -134,7 +134,7 @@ describe("Shoot Private Perpetuals", () => {
 
   async function initCompDef(
     methodName: string,
-    initMethod: () => anchor.MethodsBuilder<typeof program.idl, any>
+    initMethod: () => any
   ): Promise<string> {
     const baseSeedCompDefAcc = getArciumAccountBaseSeed(
       "ComputationDefinitionAccount"

@@ -1,8 +1,24 @@
 'use client'
 
-import { getBasicProgram, getBasicProgramId } from '@project/anchor'
+import { AnchorProvider, Program } from '@coral-xyz/anchor'
+import { PublicKey, Cluster } from '@solana/web3.js'
+
+function getBasicProgramId(cluster: Cluster): PublicKey {
+  // Basic example program ID - replace with actual deployed program ID
+  return new PublicKey('11111111111111111111111111111111')
+}
+
+function getBasicProgram(provider: AnchorProvider, programId: PublicKey) {
+  // For now return a minimal program interface
+  return {
+    methods: {
+      greet: () => ({
+        rpc: async () => 'placeholder-signature'
+      })
+    }
+  }
+}
 import { useConnection } from '@solana/wallet-adapter-react'
-import { Cluster } from '@solana/web3.js'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useCluster } from '../cluster/cluster-data-access'
