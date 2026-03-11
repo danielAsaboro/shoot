@@ -1,0 +1,443 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── Cohorts ─────────────────────────────────────────────────────────────────
+
+model Cohort {
+  id             String   @id
+  name           String
+  presetId       String   @map("preset_id")
+  state          String   @default("upcoming") // upcoming | live | settled | archived
+  startTime      DateTime @map("start_time")
+  endTime        DateTime @map("end_time")
+  narrative      String   @default("")
+  rewardPoolUsd  Float    @map("reward_pool_usd")
+  entryFeeUsd    Float    @map("entry_fee_usd")
+  participantCap Int      @map("participant_cap")
+  specialistType String?  @map("specialist_type")
+  scoringMode    String?  @map("scoring_mode")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([state])
+  @@map("cohorts")
+}
+
+// ── Enrollments ─────────────────────────────────────────────────────────────
+
+model Enrollment {
+  id             String   @id @default(cuid())
+  wallet         String
+  cohortId       String   @map("cohort_id")
+  txSignature    String?  @map("tx_signature")
+  enrolledAt     DateTime @default(now()) @map("enrolled_at")
+  /// Snapshotted equity at enrollment time (USD). Used as the immutable
+  /// denominator for PnL% calculations, preventing mid-challenge collateral
+  /// deposits from gaming the scoring formula.
+  startingEquity Float?   @map("starting_equity")
+
+  @@unique([wallet, cohortId])
+  @@index([cohortId])
+  @@map("enrollments")
+}
+
+// ── Trader Scores ───────────────────────────────────────────────────────────
+
+model TraderScore {
+  id                    String   @id @default(cuid())
+  wallet                String
+  cohortId              String   @map("cohort_id")
+  tournamentScore       Float    @map("tournament_score")
+  pnlPercent            Float    @map("pnl_percent")
+  volumeUsd             Float    @map("volume_usd")
+  winRate               Float    @map("win_rate")
+  consistencyScore      Float    @map("consistency_score")
+  maxDrawdownPercent    Float    @map("max_drawdown_percent")
+  tradeCount            Int      @default(0) @map("trade_count")
+  activeDays            Int      @default(0) @map("active_days")
+  mutagenTotal          Float?   @map("mutagen_total")
+  mutagenTradeCount     Int?     @map("mutagen_trade_count")
+  computedAt            DateTime @default(now()) @map("computed_at")
+
+  @@unique([wallet, cohortId])
+  @@index([cohortId, tournamentScore])
+  @@map("trader_scores")
+}
+
+// ── Quest Progress ──────────────────────────────────────────────────────────
+
+model QuestProgress {
+  id          String    @id @default(cuid())
+  wallet      String
+  questId     String    @map("quest_id")
+  progress    Int       @default(0)
+  completedAt DateTime? @map("completed_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@unique([wallet, questId])
+  @@map("quest_progress")
+}
+
+// ── Streak State ────────────────────────────────────────────────────────────
+
+model StreakState {
+  id               String   @id @default(cuid())
+  wallet           String   @unique
+  streakDays       Int      @default(0) @map("streak_days")
+  lastActivityDate String?  @map("last_activity_date")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("streak_state")
+}
+
+// ── Sybil Flags ─────────────────────────────────────────────────────────────
+
+enum SybilFlagStatus {
+  pending
+  approved
+  rejected
+}
+
+model SybilFlag {
+  id          String          @id @default(cuid())
+  wallet      String
+  cohortId    String          @map("cohort_id")
+  flagCode    String          @map("flag_code")
+  reason      String?
+  confidence  String          @default("medium")
+  status      SybilFlagStatus @default(pending)
+  reviewedBy  String?         @map("reviewed_by")
+  reviewedAt  DateTime?       @map("reviewed_at")
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  auditLogs   SybilAuditLog[]
+
+  @@unique([wallet, cohortId, flagCode])
+  @@index([cohortId, status])
+  @@map("sybil_flags")
+}
+
+model SybilAuditLog {
+  id          String   @id @default(cuid())
+  flagId      String   @map("flag_id")
+  action      String
+  adminWallet String   @map("admin_wallet")
+  reason      String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  flag        SybilFlag @relation(fields: [flagId], references: [id])
+
+  @@index([flagId])
+  @@map("sybil_audit_log")
+}
+
+// ── Raffle Entries ──────────────────────────────────────────────────────────
+
+model RaffleEntry {
+  id        String   @id @default(cuid())
+  wallet    String
+  cohortId  String   @map("cohort_id")
+  tickets   Int      @default(1)
+  source    String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([wallet, cohortId])
+  @@map("raffle_entries")
+}
+
+// ── Equity Snapshots ────────────────────────────────────────────────────────
+
+model EquitySnapshot {
+  id         String   @id @default(cuid())
+  wallet     String
+  cohortId   String   @map("cohort_id")
+  equity     Float
+  snapshotAt DateTime @map("snapshot_at")
+
+  @@index([wallet, cohortId, snapshotAt])
+  @@map("equity_snapshots")
+}
+
+// ── Daily Missions ──────────────────────────────────────────────────────────
+
+model DailyMission {
+  id          String   @id @default(cuid())
+  date        String
+  missionType String   @map("mission_type")
+  cohortId    String   @map("cohort_id")
+  params      String?
+
+  results     DailyMissionResult[]
+
+  @@unique([date, missionType, cohortId])
+  @@map("daily_missions")
+}
+
+model DailyMissionResult {
+  id         String    @id @default(cuid())
+  missionId  String    @map("mission_id")
+  wallet     String
+  cohortId   String    @map("cohort_id")
+  value      Float
+  rank       Int?
+  rewardedAt DateTime? @map("rewarded_at")
+
+  mission    DailyMission @relation(fields: [missionId], references: [id])
+
+  @@unique([missionId, wallet])
+  @@index([cohortId, wallet])
+  @@map("daily_mission_results")
+}
+
+// ── Trade Events (from WebSocket ClosePositionEvent) ───────────────────────
+
+model TradeEvent {
+  id               String   @id @default(cuid())
+  wallet           String
+  positionPubkey   String   @map("position_pubkey")
+  custodyMint      String   @map("custody_mint")
+  side             String
+  sizeUsd          Float    @map("size_usd")
+  price            Float
+  collateralUsd    Float    @map("collateral_usd")
+  profitUsd        Float    @map("profit_usd")
+  lossUsd          Float    @map("loss_usd")
+  netPnl           Float    @map("net_pnl")
+  borrowFeeUsd     Float    @map("borrow_fee_usd")
+  exitFeeUsd       Float    @map("exit_fee_usd")
+  positionId       String   @map("position_id")
+  percentageClosed String   @map("percentage_closed")
+  txSignature      String?  @map("tx_signature")
+  slot             String?
+  closedAt         DateTime @map("closed_at")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  @@unique([positionId, txSignature])
+  @@index([wallet, closedAt])
+  @@index([custodyMint])
+  @@map("trade_events")
+}
+
+// ── Competition Results ─────────────────────────────────────────────────────
+
+model CompetitionResult {
+  id                  String   @id @default(cuid())
+  cohortId            String   @map("cohort_id")
+  wallet              String
+  finalRank           Int      @map("final_rank")
+  finalScore          Float    @map("final_score")
+  payoutUsd           Float?   @map("payout_usd")
+  fundedStatus        String?  @map("funded_status")
+  settleTxSignature   String?  @map("settle_tx_signature")
+  completedAt         DateTime @default(now()) @map("completed_at")
+
+  @@unique([cohortId, wallet])
+  @@index([cohortId, finalRank])
+  @@map("competition_results")
+}
+
+// ── Spectator Votes ─────────────────────────────────────────────────────────
+
+model SpectatorVote {
+  id          String   @id @default(cuid())
+  matchId     String   @map("match_id")
+  voterWallet String   @map("voter_wallet")
+  votedFor    String   @map("voted_for")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@unique([matchId, voterWallet])
+  @@index([matchId])
+  @@map("spectator_votes")
+}
+
+// ── World Cup ───────────────────────────────────────────────────────────────
+
+model WorldCupSeason {
+  id         String   @id @default(cuid())
+  cupId      String   @map("cup_id")
+  state      String   @default("registration")
+  startTime  DateTime @map("start_time")
+  endTime    DateTime @map("end_time")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  groups     WorldCupGroup[]
+  matches    WorldCupMatch[]
+
+  @@map("worldcup_seasons")
+}
+
+model WorldCupGroup {
+  id        String   @id @default(cuid())
+  seasonId  String   @map("season_id")
+  groupName String   @map("group_name")
+  wallets   String[]
+
+  season    WorldCupSeason @relation(fields: [seasonId], references: [id])
+
+  @@index([seasonId])
+  @@map("worldcup_groups")
+}
+
+model WorldCupMatch {
+  id           String    @id @default(cuid())
+  seasonId     String    @map("season_id")
+  round        String
+  traderA      String    @map("trader_a")
+  traderB      String    @map("trader_b")
+  scoreA       Float?    @map("score_a")
+  scoreB       Float?    @map("score_b")
+  winner       String?
+  scheduledAt  DateTime  @map("scheduled_at")
+  completedAt  DateTime? @map("completed_at")
+
+  season       WorldCupSeason @relation(fields: [seasonId], references: [id])
+
+  @@index([seasonId, round])
+  @@map("worldcup_matches")
+}
+
+// ── Desk Membership ─────────────────────────────────────────────────────────
+
+model DeskMembership {
+  id       String   @id @default(cuid())
+  deskId   String   @map("desk_id")
+  wallet   String
+  role     String   @default("member")
+  joinedAt DateTime @default(now()) @map("joined_at")
+
+  @@unique([deskId, wallet])
+  @@index([deskId])
+  @@map("desk_memberships")
+}
+
+// ── Desks ───────────────────────────────────────────────────────────────────
+
+model Desk {
+  id             String   @id
+  cupId          String   @map("cup_id")
+  name           String
+  tier           String
+  motto          String
+  captainMission String   @map("captain_mission")
+  supporters     Int      @default(0)
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([cupId])
+  @@map("desks")
+}
+
+// ── World Cup Traders ───────────────────────────────────────────────────────
+
+model WorldCupTrader {
+  id                String   @id
+  name              String
+  alias             String
+  specialization    String
+  tag               String
+  bio               String
+  baseline          Json
+  scenarioOverrides Json?    @map("scenario_overrides")
+  manualFlags       Json?    @map("manual_flags")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  @@index([specialization])
+  @@map("worldcup_traders")
+}
+
+// ── Narrative Beats ─────────────────────────────────────────────────────────
+
+model NarrativeBeat {
+  id        String   @id @default(cuid())
+  cohortId  String   @map("cohort_id")
+  type      String
+  headline  String
+  subtext   String?
+  severity  String   @default("info")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([cohortId, createdAt])
+  @@map("narrative_beats")
+}
+
+// ── Desk Challenges (Desk Wars) ─────────────────────────────────────────────
+
+model DeskChallenge {
+  id          String    @id @default(cuid())
+  cohortId    String    @map("cohort_id")
+  deskAId     String    @map("desk_a_id")
+  deskBId     String    @map("desk_b_id")
+  scoreA      Float?    @map("score_a")
+  scoreB      Float?    @map("score_b")
+  winner      String?
+  scheduledAt DateTime  @map("scheduled_at")
+  completedAt DateTime? @map("completed_at")
+
+  @@index([cohortId])
+  @@map("desk_challenges")
+}
+
+// ── Raffle Draws ────────────────────────────────────────────────────────────
+
+model RaffleDraw {
+  id           String   @id @default(cuid())
+  cohortId     String   @map("cohort_id")
+  winnerWallet String   @map("winner_wallet")
+  prizeUsd     Float    @map("prize_usd")
+  drawnAt      DateTime @default(now()) @map("drawn_at")
+
+  @@index([cohortId])
+  @@map("raffle_draws")
+}
+
+// ── Buyback Records ─────────────────────────────────────────────────────────
+
+model BuybackRecord {
+  id          String   @id @default(cuid())
+  cohortId    String   @map("cohort_id")
+  amountUsd   Float    @map("amount_usd")
+  status      String   @default("pending") // pending | executed | failed
+  txSignature String?  @map("tx_signature")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([cohortId])
+  @@map("buyback_records")
+}
+
+// ── Agent API Keys ──────────────────────────────────────────────────────────
+
+model AgentApiKey {
+  id         String    @id @default(cuid())
+  wallet     String
+  keyHash    String    @unique @map("key_hash")
+  label      String    @default("")
+  lastUsedAt DateTime? @map("last_used_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  revokedAt  DateTime? @map("revoked_at")
+
+  @@index([wallet])
+  @@map("agent_api_keys")
+}
+
+// ── On-chain Challenge Registry ──────────────────────────────────────────────
+
+model Challenge {
+  id                String   @id @default(cuid())
+  challengeId       String   @unique @map("challenge_id")
+  tierName          String   @map("tier_name")
+  entryFeeUsdc      Int      @map("entry_fee_usdc")
+  profitTargetBps   Int      @map("profit_target_bps")
+  maxDrawdownBps    Int      @map("max_drawdown_bps")
+  dailyLossLimitBps Int      @map("daily_loss_limit_bps")
+  durationSeconds   Int      @map("duration_seconds")
+  minCapitalUsd     Float    @map("min_capital_usd")
+  participantCap    Int      @map("participant_cap")
+  txSignature       String   @map("tx_signature")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  @@map("challenges")
+}
