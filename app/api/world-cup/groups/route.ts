@@ -1,0 +1,35 @@
+import { getGroupStageSnapshot, getFullTournamentSnapshot, type WorldCupMode } from "@/lib/world-cup/provider";
+import { defaultGuardrails, defaultWeights } from "@/lib/world-cup/types";
+import type { AssetClassId, ScenarioId } from "@/lib/world-cup/types";
+import { NextRequest, NextResponse } from "next/server";
+
+export async function GET(request: NextRequest) {
+  const cupId = (request.nextUrl.searchParams.get("cupId") ?? "crypto") as AssetClassId;
+  const scenarioId = (request.nextUrl.searchParams.get("scenarioId") ?? "group_stage") as ScenarioId;
+  const walletAddress = request.nextUrl.searchParams.get("wallet") ?? undefined;
+  const full = request.nextUrl.searchParams.get("full") === "true";
+  const mode = (request.nextUrl.searchParams.get("mode") ?? "simulation") as WorldCupMode;
+
+  const weightsParam = request.nextUrl.searchParams.get("weights");
+  const guardrailsParam = request.nextUrl.searchParams.get("guardrails");
+
+  const weights = weightsParam ? JSON.parse(weightsParam) : defaultWeights;
+  const guardrails = guardrailsParam ? JSON.parse(guardrailsParam) : defaultGuardrails;
+
+  try {
+    const params = { cupId, scenarioId, weights, guardrails, walletAddress, mode };
+
+    if (full) {
+      const snapshot = getFullTournamentSnapshot(params);
+      return NextResponse.json(snapshot);
+    }
+
+    const snapshot = getGroupStageSnapshot(params);
+    return NextResponse.json(snapshot);
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : String(error) },
+      { status: 500 }
+    );
+  }
+}
