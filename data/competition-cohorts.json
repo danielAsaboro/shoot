@@ -1,0 +1,116 @@
+{
+  "config": {
+    "seasonId": "season-7",
+    "cohortDurationHours": 336,
+    "participantCap": 128,
+    "entryFeeUsd": 25,
+    "scoringWeights": {
+      "pnlPercent": 8.5,
+      "volumeUsd": 6,
+      "consistency": 0.28,
+      "winRate": 0.08,
+      "drawdownPenalty": 0.65
+    },
+    "prizePoolSplit": [0.48, 0.24, 0.14, 0.08, 0.06],
+    "fundedRewardShareBps": 450,
+    "presets": [
+      {
+        "id": "macro-sprint",
+        "name": "Macro Sprint",
+        "focus": "RWA majors",
+        "tagline": "Trade the fastest-moving FX and macro pairs over a compressed window.",
+        "questRewardPoints": 70,
+        "streakMultiplier": 1.2,
+        "raffleTickets": 4
+      },
+      {
+        "id": "carry-breaker",
+        "name": "Carry Breaker",
+        "focus": "Rates and commodities",
+        "tagline": "Reward disciplined rotation across oil, gold, and rate-sensitive narratives.",
+        "questRewardPoints": 90,
+        "streakMultiplier": 1.35,
+        "raffleTickets": 5
+      },
+      {
+        "id": "crypto-impulse",
+        "name": "Crypto Impulse",
+        "focus": "Majors and beta",
+        "tagline": "High-energy cohort for volatile crypto perp specialists.",
+        "questRewardPoints": 60,
+        "streakMultiplier": 1.15,
+        "raffleTickets": 3
+      }
+    ]
+  },
+  "cohorts": [
+    {
+      "id": "cohort-crypto-0315",
+      "name": "Crypto Impulse 03.15",
+      "presetId": "crypto-impulse",
+      "state": "live",
+      "startTime": "2026-03-15T00:00:00.000Z",
+      "endTime": "2026-03-29T00:00:00.000Z",
+      "narrative": "Two-week high-energy crypto cohort tracking real Adrena trader performance across BTC, ETH, SOL, and JitoSOL perpetuals.",
+      "rewardPoolUsd": 3750,
+      "entryFeeUsd": 25,
+      "participantCap": 128,
+      "enrolledWallets": [
+        "GZXqnVpZuyKWdUH34mgijxJVM1LEngoGWoJzEXtXGhBb",
+        "ErVgLQB4hwGe9xegP6R83E6WE1tcRokcsEY1WT9xa9po",
+        "8anmrYFmdX6ZUX6ceLfDV7vxuGtnG1v77uqGnjTkf6Wy",
+        "4N69yzFFVrdqBuQi81fdJ7w7JdX5t2hpwKh6potdKMX4",
+        "C9jxD53Thg73XgTeb2ehh2LcNjWFs4Pa1jaBCtBgcHnt",
+        "4QLQUhJEqML1cLvS3baGrHP2TJHjXgUQLE7d2LCGLsLu",
+        "56yW76VPSviUX5YnVnTmxfWYvg9nsAN2c7iUyx8uCcoS",
+        "7QYoineP55hDmikbPUwsZ57sErE1ztTvhMhwCk8zV5Pu",
+        "F179GtjoSKgeLDkFR2B5cCN4oTqFpkzQuboonojJb5Z1",
+        "6ALGMay8AmcywGAX72ho7JbSucD7zeh4hwMVyXDb9zgy"
+      ]
+    },
+    {
+      "id": "cohort-macro-0320",
+      "name": "Macro Sprint 03.20",
+      "presetId": "macro-sprint",
+      "state": "live",
+      "startTime": "2026-03-20T00:00:00.000Z",
+      "endTime": "2026-04-03T00:00:00.000Z",
+      "narrative": "Macro-focused cohort running through early April. Traders scored on real positions from Adrena's perpetual markets.",
+      "rewardPoolUsd": 2500,
+      "entryFeeUsd": 25,
+      "participantCap": 128,
+      "enrolledWallets": [
+        "GZXqnVpZuyKWdUH34mgijxJVM1LEngoGWoJzEXtXGhBb",
+        "ErVgLQB4hwGe9xegP6R83E6WE1tcRokcsEY1WT9xa9po",
+        "8anmrYFmdX6ZUX6ceLfDV7vxuGtnG1v77uqGnjTkf6Wy",
+        "DWcFRJrpzsrn624983W3qTuYccYnwLnL582gQ8CLohvY",
+        "sigMag9SUGdtwwcH23QDkA3tUCEKTnrSKLcZwF3V4ig",
+        "HjcswYCPRK576h8fJsQLALuYS4GzEyycaTRy2zCyNjqW",
+        "CDUwP2FrQBKNMmr9zsPnneb9KmqWPi453sjdz1qf2bg6",
+        "8umPs96cv2UYpnDKeUshdUx6Xd3g4CfknrrM1gUg6fbN"
+      ]
+    },
+    {
+      "id": "cohort-carry-0324",
+      "name": "Carry Breaker 03.24",
+      "presetId": "carry-breaker",
+      "state": "live",
+      "startTime": "2026-03-24T00:00:00.000Z",
+      "endTime": "2026-04-07T00:00:00.000Z",
+      "narrative": "Commodities and rate-sensitive rotation cohort. Live data from Adrena positions scored on multi-dimensional tournament formula.",
+      "rewardPoolUsd": 3000,
+      "entryFeeUsd": 25,
+      "participantCap": 128,
+      "enrolledWallets": [
+        "GZXqnVpZuyKWdUH34mgijxJVM1LEngoGWoJzEXtXGhBb",
+        "A6ELwd76fHMMCtTRRyKXEpeTjeX8C5aN2P1uYsz3qW6j",
+        "B3qwaaDGVr8qFFr2vg2sFAzETvfgzHo7QHzQCqewcsU8",
+        "8EJMQy74GJobcozVweMkcPNboGtiCee8qpzjWa5vWHM4",
+        "2o1odPv3HBNwCeQo1rUnAwPLLYc4MrLmexiWcYE7ei6N",
+        "HZHXUquiJDkgFjTErxziw97qAhpVDQbjpb58iN2ks5hp",
+        "6iGVCaVPn1AHyxvXkocQWfSH61iYxmDLDWRMzRJcFCgQ",
+        "4PcPViGTjhiuj9gLPzxnjoCRg1Hu1M3vyfHabG2JqqpH"
+      ]
+    }
+  ]
+}
