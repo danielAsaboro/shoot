@@ -1,0 +1,21 @@
+[features]
+seeds = false
+skip-lint = false
+
+[programs.devnet]
+shoot = "4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG"
+
+[programs.mainnet]
+shoot = "4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+# Set to "mainnet" for production deployment.
+# Using "devnet" for development and testing.
+cluster = "devnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
