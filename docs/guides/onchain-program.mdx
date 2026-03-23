@@ -1,0 +1,199 @@
+---
+title: "On-Chain Program"
+description: "How the Shoot Anchor program handles USDC entry fees, vaults, and settlement on Solana"
+icon: "link"
+---
+
+The Shoot program is an Anchor smart contract on Solana that handles the financial operations: collecting USDC entry fees, holding them in escrow, and distributing USDC payouts after off-chain evaluation.
+
+## Deployment
+
+| Property | Value |
+|---|---|
+| **Program ID** | `4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG` |
+| **Cluster** | Devnet |
+| **Upgrade Authority** | `CChvxUR37fry8i2Gdvyrmwu2PH8vgZeTcFwtNqLxaHDW` |
+| **Explorer** | [View on Solana Explorer](https://explorer.solana.com/address/4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG?cluster=devnet) |
+| **Source** | `programs/shoot/src/lib.rs` (465 lines) |
+
+```bash
+cd programs/shoot
+anchor build
+solana program deploy target/deploy/shoot.so \
+  --program-id target/deploy/shoot-keypair.json \
+  --url devnet
+```
+
+## Authority Model
+
+Two separate authorities enforce separation of concerns:
+
+| Authority | Role | Who |
+|---|---|---|
+| **admin** | Creates challenges, updates status, manages config | Multisig (Squads) |
+| **result_authority** | Submits scoring results, triggers settlements | Backend hot wallet |
+
+Neither authority alone can steal funds — the admin creates challenges but can't settle, and the result_authority settles but can only pay traders (never itself).
+
+## Program Architecture
+
+```
+Admin
+    ├── initialize_challenge  →  Challenge PDA + USDC Vault PDA
+    │
+Trader
+    ├── enroll               →  Enrollment PDA + USDC transfer to Vault
+    │
+Result Authority
+    ├── submit_result        →  Records pass/fail on Enrollment PDA
+    └── settle_challenge     →  USDC payout from Vault → Trader
+```
+
+## PDAs (Program Derived Addresses)
+
+| PDA | Seeds | Purpose |
+|---|---|---|
+| Challenge | `["challenge", admin, challenge_id]` | Stores challenge config (tier, fees, targets, duration) |
+| Enrollment | `["enrollment", challenge, trader]` | Stores trader's enrollment state, result, and payout |
+| Vault | `["vault", challenge]` | USDC token account holding entry fees until settlement |
+| FundedTrader | `["funded", trader]` | Persistent funded trader status with revenue share config |
+
+## Token
+
+All entry fees and payouts are denominated in **USDC** (SPL token).
+
+| Network | USDC Mint |
+|---|---|
+| Mainnet | `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` |
+| Devnet | `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU` |
+
+No SOL price oracles are needed — fees are collected and distributed in the same denomination.
+
+## Instructions
+
+### `initialize_challenge`
+
+Called by the **admin** to create a new challenge.
+
+**Parameters:**
+| Field | Type | Description |
+|---|---|---|
+| `challenge_id` | String | Unique identifier |
+| `tier_name` | String | Scout, Ranger, Veteran, Elite, or Apex |
+| `entry_fee_usdc` | u64 | Entry fee in USDC atomic units (6 decimals) |
+| `profit_target_bps` | u16 | Target profit in basis points (e.g., 800 = 8%) |
+| `max_drawdown_bps` | u16 | Max allowed drawdown in basis points |
+| `daily_loss_limit_bps` | u16 | Daily loss limit in basis points |
+| `duration_seconds` | i64 | Challenge window length |
+| `min_capital_usd` | u64 | Minimum trading capital required |
+| `participant_cap` | u16 | Maximum enrollments |
+
+**Creates:**
+- Challenge PDA with all parameters stored on-chain
+- USDC token account vault (PDA-owned) for fee escrow
+
+### `enroll`
+
+Called by a **trader** to join a challenge.
+
+**What happens:**
+1. Validates challenge is in `Active` status and under participant cap
+2. Transfers `entry_fee_usdc` from trader's USDC token account to the vault
+3. Creates Enrollment PDA with starting equity snapshot
+
+<Note>
+The `starting_equity_usd` is captured at enrollment and never changes. This prevents gaming where a trader deposits more capital mid-challenge to reduce their drawdown percentage.
+</Note>
+
+### `submit_result`
+
+Called by the **result_authority** to record the off-chain scoring outcome.
+
+**Parameters:**
+| Field | Type | Description |
+|---|---|---|
+| `status` | EnrollmentStatus | Passed, FailedDrawdown, FailedDailyLimit, or FailedTimeout |
+| `final_pnl_bps` | i32 | Final P&L in basis points |
+| `final_drawdown_bps` | u16 | Final max drawdown in basis points |
+
+This records the result but does **not** distribute funds. Settlement is a separate step.
+
+### `settle_challenge`
+
+Called by the **result_authority** after a result is submitted.
+
+**Parameters:**
+| Field | Type | Description |
+|---|---|---|
+| `payout_usdc` | u64 | USDC amount to distribute (atomic units) |
+
+**What happens:**
+1. Verifies enrollment has `Passed` status (from `submit_result`)
+2. Marks enrollment as settled (irreversible)
+3. Transfers `payout_usdc` from vault to trader's USDC token account
+
+<Warning>
+Settlement is **immutable** — once an enrollment is marked as settled, it cannot be changed. The enrollment must have a `Passed` result before settlement can proceed.
+</Warning>
+
+### `claim_funded_status`
+
+Called by the **trader** after passing an Elite or Apex challenge.
+
+Creates or upgrades a FundedTrader PDA with level and revenue share configuration.
+
+### `update_challenge_status`
+
+Called by the **admin** to transition challenge state: `Active → Settling → Closed`.
+
+## Enrollment Status
+
+```
+Active → Passed           (result_authority submits positive result)
+       → FailedDrawdown   (breached max drawdown)
+       → FailedDailyLimit (breached daily loss limit)
+       → FailedTimeout    (time expired without hitting target)
+```
+
+## Security Properties
+
+| Property | How It's Enforced |
+|---|---|
+| USDC escrow | Entry fees held in PDA-owned token account — no admin withdrawal exists |
+| Dual authority | Admin creates, result_authority settles — neither alone controls funds |
+| Capital immutability | `starting_equity_usd` set at enrollment, never updated |
+| Two-step settlement | Result must be submitted before payout can be triggered |
+| One-time settlement | `settled` flag checked before payout — prevents double-claim |
+| Participant cap | Enrollment count checked against `participant_cap` before accepting |
+| Mint validation | Token account mints verified against challenge's `usdc_mint` |
+
+## Integration with Off-Chain Engine
+
+The on-chain program handles **money** (USDC in, USDC out). Everything else is off-chain:
+
+| Responsibility | On-Chain | Off-Chain |
+|---|---|---|
+| Collect USDC entry fees | Yes | — |
+| Hold funds in escrow | Yes | — |
+| Distribute USDC payouts | Yes | — |
+| Score computation | — | Yes |
+| Sybil detection | — | Yes |
+| Leaderboard rankings | — | Yes |
+| Challenge evaluation (pass/fail) | — | Yes |
+| World Cup tournament engine | — | Yes |
+
+## Testing
+
+```bash
+cd programs/shoot
+anchor build                   # Compile .so
+npx mocha tests/shoot.test.ts  # LiteSVM tests
+```
+
+Test coverage:
+- Challenge initialization with USDC vault creation
+- Enrollment with USDC fee transfer verification
+- Two-step settlement: submit_result then settle_challenge
+- Rejection of double-settlement, wrong authority, wrong mint
+- Participant cap enforcement
+- Funded trader status claiming

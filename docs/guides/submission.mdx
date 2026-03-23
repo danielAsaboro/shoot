@@ -1,0 +1,152 @@
+---
+title: "Bounty Submission"
+description: "What we built, how we thought about it, and how it maps to the bounty deliverables"
+icon: "flag-checkered"
+---
+
+## Summary
+
+We built **Arena Hub** — a complete competition module for Adrena with two interlocking formats: rolling prop challenges (always-on) and a seasonal World Cup knockout tournament. The system is live on Railway, backed by PostgreSQL, with an Anchor program deployed to devnet for USDC entry fee collection and settlement.
+
+<Columns cols={3}>
+  <Card title="Live App" icon="globe" href="https://shoot-production-f218.up.railway.app/">
+    Deployed on Railway
+  </Card>
+  <Card title="On-Chain Program" icon="link" href="https://explorer.solana.com/address/4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG?cluster=devnet">
+    Devnet — Solana Explorer
+  </Card>
+  <Card title="Documentation" icon="book" href="https://docs-1f2b6c2c.mintlify.app/">
+    Full docs on Mintlify
+  </Card>
+</Columns>
+
+---
+
+## Deliverable Mapping
+
+The bounty asks for three deliverables. Here's exactly where each one is.
+
+### 1. Competition Design Document
+
+| Requirement | Where |
+|---|---|
+| Proposed competition format | [Competition Design](/guides/competition-design) — two formats: prop challenges + World Cup |
+| Rules, scoring mechanics, reward structure | [Scoring Engine](/guides/scoring-engine) — tournament score, Mutagen, RAROI formulas |
+| | [Revenue Model](/guides/revenue-model) — 60/25/15 fee split, funded trader revenue share |
+| Integration with Adrena's existing infrastructure | [Integration Contract](/guides/integration-contract) — API contract for upstream snapshot |
+| | [Architecture](/guides/architecture) — system flow, data pipeline, Adrena adapter |
+| Why more engaging than alternatives | [Competition Design § Competitive Analysis](/guides/competition-design) — vs Jupiter, Drift, Hyperliquid |
+| Edge cases and abuse prevention | [Sybil Detection](/guides/sybil-detection) — 3 heuristics, convergence filter, audit trail |
+
+### 2. Working Prototype or Implementation
+
+| Requirement | Where |
+|---|---|
+| Functional code that can be reviewed and tested | [GitHub repo](https://github.com/) — 93 TypeScript files in `lib/`, 30+ React components, 191 tests |
+| Integration with Adrena's existing systems | `lib/competition/adrena-live-adapter.ts` — fetches real positions from `datapi.adrena.trade` |
+| | `lib/adrena/client.ts` — Adrena Data API client (positions, pool stats, liquidity, APR) |
+| | `programs/shoot/src/lib.rs` — Anchor program deployed to devnet |
+| Documentation on how to deploy and configure | [Deployment Guide](/guides/deployment) — Railway, Docker, PostgreSQL, cron setup |
+| | [Configuration Reference](/guides/configuration) — env vars, cohort config, tier parameters |
+
+### 3. Testing & Feedback
+
+| Requirement | Where |
+|---|---|
+| Run a test competition with a small group | [Alpha Test Report](/guides/alpha-test-report) — 7-day test, 24 participants, devnet simulated profiles |
+| Collect feedback and document results | [Alpha Test Report § Survey](/guides/alpha-test-report) — NPS 59, user quotes, bug list |
+| | [Live Validation](/guides/live-validation) — pipeline tested against 22 real Adrena wallets |
+| Recommendations for iteration | [Alpha Test Report § Iteration Priorities](/guides/alpha-test-report) — P1–P7 ranked by impact/effort |
+
+---
+
+## Thinking Process
+
+### Starting Point: What Was Broken
+
+We started by studying Adrena's Season 1 competition (Jan–Apr 2025). It drove 50% of protocol volume — clearly competitions work. But five structural problems were visible:
+
+1. **Engagement cliff** — 10-week season, engagement drops after week 2
+2. **Free sybil farming** — no cost to spin up wallets and grind quests
+3. **Whale dominance** — absolute P&L rewards capital, not skill
+4. **No new-user funnel** — competition assumes you already know perps
+5. **Single-format risk** — 50% of volume depends on one seasonal leaderboard
+
+### Key Design Decision: Entry Fees as Anti-Sybil
+
+The single most important decision was making entry fees the anti-sybil mechanism. Every other approach (KYC, social verification, reputation systems) either has poor UX or is gameable. A $2 entry fee makes sybil farming economically irrational: 10 wallets costs $20 in fees plus $500+ in capital per wallet, with negative expected value. This one mechanism replaces an entire abuse prevention layer.
+
+### Key Design Decision: Two Formats, Not One
+
+Instead of improving the single leaderboard format, we designed two interlocking competition types:
+
+- **Prop Challenges** (always-on) — rolling 7–14 day cohorts with personal profit targets. Solves the engagement cliff by providing continuous entry points. Self-funding via entry fees.
+- **World Cup** (seasonal) — 4-division knockout tournament. Creates the spectacle and event-driven hype that drives social sharing. Specifically designed to push traders into RWA markets (Metals, Energy, Forex) that only Adrena offers.
+
+This diversifies engagement risk and creates two revenue channels.
+
+### Key Design Decision: Skill Over Capital
+
+We chose a multi-dimensional scoring formula instead of raw P&L:
+
+```
+Tournament Score = (PnL% × 8.5) + (log₁₀(volume) × 6)
+                 + (consistency × 0.28) + (winRate × 0.08)
+                 − (drawdown × 0.65)
+```
+
+The log-scale volume component is critical — it means a $2K trader's volume contribution is only 1.5x less than a $20K trader's, not 10x less. Combined with percentage-based P&L and a drawdown penalty, a disciplined small trader genuinely beats a reckless whale.
+
+For World Cup head-to-head matchups, we use RAROI (Risk-Adjusted ROI) — a multiplicative formula that's even more aggressive at rewarding skill. In our alpha test with 16 traders, the Pearson correlation between account size and RAROI ranking was 0.21 (statistically negligible).
+
+### Key Design Decision: RWA Adoption via Competition Format
+
+Adrena's biggest differentiator is RWA markets (Forex, Gold, Oil) via the Autonom partnership. No other Solana perp DEX has this. We designed specialist challenges that restrict traders to single asset classes, and World Cup divisions tied to asset classes (Crypto Cup, Metals Cup, Energy Cup, Forex Cup).
+
+In the alpha, the Metals Cup drew 37.5% of World Cup registrations from traders who had never touched Gold perpetuals before. The competition format is doing the RWA adoption work automatically.
+
+### Evolution During Development
+
+1. **Started** with mock data to validate UI/UX and scoring logic
+2. **Built** the Adrena live adapter to fetch real positions from `datapi.adrena.trade`
+3. **Validated** the pipeline against 22 real Adrena wallets across 3 cohorts
+4. **Ran** a 7-day UI/UX alpha with 24 participants (simulated trading profiles on devnet)
+5. **Built** the Anchor program for on-chain entry fees and settlement
+6. **Deployed** the program to devnet and the app to Railway
+7. **Implemented** Jupiter V6 buyback for the 25% ADX allocation
+8. **Shipped** documentation site on Mintlify
+
+---
+
+## What's Production-Ready vs Phase 2
+
+See [Feature Status](/guides/feature-status) for the full breakdown. In short:
+
+**Production-ready (32 features):** Scoring engine, challenge evaluation, on-chain enrollment/settlement, sybil detection, live Adrena data, quests, streaks, raffle, matchups, rivalries, narrative commentary, spectator voting, desk wars, World Cup (group stage + knockout + redemption), ADX buyback, funded ladder evaluation, cron automation, SSE streaming.
+
+**Phase 2 (2 features):** Dynamic risk events (need real-time market feed), funded trader on-chain revenue share (evaluation logic works, distribution needs admin multisig).
+
+---
+
+## Technical Highlights
+
+### On-Chain Program
+- **Anchor** smart contract with dual-authority model (admin + result_authority)
+- USDC entry fees held in PDA-derived vaults
+- Settlement distributes USDC directly to trader wallets
+- Deployed to devnet: [`4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG`](https://explorer.solana.com/address/4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG?cluster=devnet)
+
+### Testing
+- **191 unit tests** across 21 suites (scoring, sybil, enrollment, projections, World Cup, narrative, desks, funded ladder, Adrena schema normalization)
+- **Alpha test**: 24 participants, NPS 59, 35.5% Scout pass rate, 55% retry rate
+- **Live validation**: 22 real Adrena wallets, 0 API errors, 0 sybil false positives
+
+### Database
+- **18 Prisma models** covering cohorts, enrollments, scores, quests, streaks, raffle, sybil flags, World Cup, desks, narrative beats, competition results
+- PostgreSQL with proper indexing and relations
+
+### Infrastructure
+- **Railway** deployment via multi-stage Docker build
+- **Cron endpoints** as POST routes triggered by external scheduler (no Vercel dependency)
+- **SSE streaming** for real-time leaderboard + narrative updates
+- **Discord webhooks** for ops alerts (sybil flags, settlement events)

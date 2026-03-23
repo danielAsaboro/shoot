@@ -1,0 +1,211 @@
+---
+title: "Deployment Guide"
+description: "Railway deployment, PostgreSQL setup, cron configuration, and on-chain program deployment"
+icon: "rocket"
+---
+
+## Live Deployment
+
+| Component | URL |
+|---|---|
+| **App** | [shoot-production-f218.up.railway.app](https://shoot-production-f218.up.railway.app/) |
+| **Documentation** | [docs-1f2b6c2c.mintlify.app](https://docs-1f2b6c2c.mintlify.app/) |
+| **On-chain program** | [`4HVnwG8...2iMG`](https://explorer.solana.com/address/4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG?cluster=devnet) (devnet) |
+
+## Prerequisites
+
+| Component | Version | Notes |
+|---|---|---|
+| Node.js | >= 20 LTS | Frontend and API server |
+| PostgreSQL | >= 14 | **Required** — all state persisted to DB (no localStorage fallbacks) |
+| Docker | >= 24 | For production deployment |
+
+### Stack
+
+- **Next.js 16** with React 19 for the full-stack app
+- **Prisma ORM** with PostgreSQL for all server-side persistence
+- **Privy** for wallet authentication (embedded + external wallets)
+- **Adrena Data API** (`datapi.adrena.trade`) for real position data
+- **Solana** (devnet) for on-chain entry fees and settlement via the Shoot Anchor program
+
+## Local Development
+
+<Steps>
+  <Step title="Clone and install">
+    ```bash
+    git clone <repo-url>
+    cd shoot
+    npm install
+    ```
+  </Step>
+  <Step title="Environment variables">
+    Copy `.env.example` to `.env.local` and configure:
+    ```bash
+    cp .env.example .env.local
+    ```
+
+    Minimum required:
+    ```bash
+    DATABASE_URL=postgresql://user@localhost:5432/shoot?schema=public
+    NEXT_PUBLIC_COMPETITION_PROVIDER=adrena
+    NEXT_PUBLIC_PRIVY_APP_ID=your-privy-app-id
+    NEXT_PUBLIC_PRIVY_APP_SECRET=your-privy-app-secret
+    ```
+  </Step>
+  <Step title="Database setup">
+    ```bash
+    # Push schema to PostgreSQL (no migration files needed in dev)
+    npx prisma db push
+
+    # Seed initial data (cohorts, wallets, World Cup traders)
+    npx tsx prisma/seed/index.ts
+    ```
+  </Step>
+  <Step title="Run development server">
+    ```bash
+    npm run dev
+    # → http://localhost:3000
+    ```
+  </Step>
+  <Step title="Run tests">
+    ```bash
+    npm test              # 191 unit tests
+    npm run lint          # ESLint
+    npm run build         # production build check
+    ```
+  </Step>
+</Steps>
+
+## Deploy to Railway (Docker)
+
+The app is containerized with a multi-stage Dockerfile:
+
+```bash
+# Build and run locally
+docker compose up
+
+# Or deploy to Railway
+# Railway auto-detects the Dockerfile and builds on push
+```
+
+### Railway Configuration
+
+| Setting | Value |
+|---|---|
+| Build Command | `prisma generate && next build` |
+| Start Command | `node server.js` |
+| Port | `3000` |
+| Health Check | `GET /` |
+
+Set these environment variables in Railway:
+
+| Variable | Required | Description |
+|---|---|---|
+| `DATABASE_URL` | Yes | PostgreSQL connection string (Railway provides this if you add a Postgres plugin) |
+| `NEXT_PUBLIC_COMPETITION_PROVIDER` | Yes | Always `adrena` for production |
+| `NEXT_PUBLIC_PRIVY_APP_ID` | Yes | Privy app ID from dashboard.privy.io |
+| `NEXT_PUBLIC_PRIVY_APP_SECRET` | Yes | Privy app secret |
+| `NEXT_PUBLIC_SOLANA_CLUSTER` | Yes | `devnet` (or `mainnet` for production) |
+| `ADRENA_DATA_API_BASE_URL` | No | Defaults to `https://datapi.adrena.trade` |
+| `CRON_SECRET` | Yes | Bearer token for `/api/cron/*` authentication |
+| `ADMIN_SECRET` | Yes | Bearer token for `/api/admin/*` authentication |
+| `DISCORD_WEBHOOK_URL` | No | Discord webhook for competition notifications |
+| `DISCORD_OPS_WEBHOOK_URL` | No | Separate webhook for sybil alerts |
+| `BUYBACK_WALLET_KEYPAIR` | No | JSON array of secret key bytes for Jupiter ADX buyback wallet. If not set, buybacks are recorded as "pending". |
+
+### Privy Configuration
+
+1. Create app at [dashboard.privy.io](https://dashboard.privy.io)
+2. Enable: Embedded Wallets, External Wallets (Phantom, Backpack, Solflare)
+3. Set allowed origins: `https://your-domain.up.railway.app`, `http://localhost:3000`
+4. Copy App ID to `NEXT_PUBLIC_PRIVY_APP_ID`
+
+## Cron Jobs
+
+All cron endpoints are **POST requests** authenticated with a Bearer token. They are triggered by an external scheduler (Railway cron, GitHub Actions, [cron-job.org](https://cron-job.org), etc.) — this is by design to avoid Vercel cron dependency.
+
+```bash
+# Refresh scores — runs every 5 minutes
+# Fetches positions, computes metrics, updates leaderboard, runs sybil detection
+curl -X POST \
+  -H "Authorization: Bearer $CRON_SECRET" \
+  https://shoot-production-f218.up.railway.app/api/cron/refresh-scores
+
+# Rotate cohorts — runs every 15 minutes
+# Transitions cohorts: upcoming → live → settled
+curl -X POST \
+  -H "Authorization: Bearer $CRON_SECRET" \
+  https://shoot-production-f218.up.railway.app/api/cron/rotate-cohorts
+```
+
+| Endpoint | Frequency | What It Does |
+|---|---|---|
+| `POST /api/cron/refresh-scores` | Every 5 min | Fetch positions, compute scores, emit quest events, run sybil detection, auto-settle expired cohorts |
+| `POST /api/cron/rotate-cohorts` | Every 15 min | Transition cohort state machine (upcoming → live → settled) |
+
+## On-Chain Program
+
+The Shoot Anchor program handles USDC entry fees, vault escrow, and settlement on Solana.
+
+```bash
+cd programs/shoot
+
+# Build
+anchor build
+
+# Deploy to devnet
+solana config set --url https://api.devnet.solana.com
+solana program deploy target/deploy/shoot.so \
+  --program-id target/deploy/shoot-keypair.json
+```
+
+| Property | Value |
+|---|---|
+| Program ID | `4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG` |
+| Cluster | Devnet |
+| Authority | `CChvxUR37fry8i2Gdvyrmwu2PH8vgZeTcFwtNqLxaHDW` |
+| Explorer | [View on Solana Explorer](https://explorer.solana.com/address/4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG?cluster=devnet) |
+
+See [On-Chain Program](/guides/onchain-program) for full instruction documentation.
+
+## Vercel (Preview Deploys Only)
+
+A `vercel.json` exists for preview deploys during development. Production deployment targets Railway.
+
+```bash
+vercel --env NEXT_PUBLIC_PRIVY_APP_ID=your-id
+```
+
+## Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Next.js App (Railway / Docker)                             │
+│                                                             │
+│  /             → ArenaHub (Challenges + World Cup tabs)     │
+│  /profile      → Trader dashboard                          │
+│  /api/competition/*  → Prop challenge APIs                 │
+│  /api/world-cup/*    → World Cup APIs                      │
+│  /api/cron/*         → Score refresh + cohort rotation     │
+│  /api/admin/*        → Settlement + sybil review           │
+│  /api/adrena-live/*  → Real Adrena data passthrough        │
+└────────────────┬────────────────────────────────────────────┘
+                 │
+    ┌────────────┴─────────────────┐
+    │  Adrena Live Adapter         │
+    │  datapi.adrena.trade         │
+    │  → real positions + metrics  │
+    └──────────────────────────────┘
+```
+
+**Data flow:**
+1. `adrena-live-adapter.ts` reads `data/competition-cohorts.json` for enrolled wallets
+2. Fetches positions from `datapi.adrena.trade/position?user_wallet=...`
+3. `computeMetricsFromPositions()` derives PnL%, volume, win rate, consistency, drawdown
+4. `computeTournamentScore()` produces composite ranking score
+5. Sybil detection runs across the cohort
+6. `buildCompetitionSnapshotFromSources()` assembles the full snapshot for the UI
+
+## Adding New Wallets
+
+Edit `data/competition-cohorts.json` and add wallet addresses to a cohort's `enrolledWallets` array. The adapter will fetch their real positions from Adrena on the next snapshot request.

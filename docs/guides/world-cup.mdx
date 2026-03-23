@@ -1,0 +1,107 @@
+---
+title: "World Cup Engine"
+description: "How the seasonal knockout tournament works — group draws, qualifying, bracket progression, and redemption"
+icon: "earth-americas"
+---
+
+The World Cup is a seasonal knockout tournament that runs alongside rolling prop challenges. It provides the highest-stakes competitive format on the platform.
+
+## Tournament Structure
+
+<Steps>
+  <Step title="Division Selection">
+    4 divisions based on asset class: **Crypto Cup**, **Metals Cup**, **Energy Cup**, **Forex Cup**. Traders choose their division at registration.
+  </Step>
+  <Step title="Qualifying Phase (2 weeks)">
+    Top N traders per division by composite RAROI score qualify for the knockout bracket.
+  </Step>
+  <Step title="Group Stage">
+    32 qualifiers per division are drawn into 8 groups of 4. Round-robin within groups over 3 matchdays. Top 2 per group advance.
+  </Step>
+  <Step title="Knockout Phase (4 rounds)">
+    Single-elimination bracket. Head-to-head RAROI comparison per match.
+  </Step>
+  <Step title="Grand Finals">
+    Division champions compete in a 48-hour all-markets battle.
+  </Step>
+</Steps>
+
+## Scoring: RAROI
+
+World Cup uses **RAROI** (Risk-Adjusted ROI) instead of the additive tournament score. See [Scoring Engine](/guides/scoring-engine#raroi-world-cup) for the full formula.
+
+RAROI is multiplicative — it produces clear "who is the better trader" signals for 1v1 matches, unlike the tournament score which is optimized for cohort-wide rankings.
+
+## Group Draw Algorithm
+
+The draw is **seeded and deterministic** — same inputs always produce the same groups.
+
+<Steps>
+  <Step title="Seed Qualifiers">
+    Top 32 qualifiers ranked by RAROI from qualifying phase.
+  </Step>
+  <Step title="Create 4 Pots">
+    - **Pot 1** (Seeds 1–8): Strongest traders
+    - **Pot 2** (Seeds 9–16)
+    - **Pot 3** (Seeds 17–24)
+    - **Pot 4** (Seeds 25–32): Weakest qualifiers
+  </Step>
+  <Step title="Seeded Shuffle">
+    Each pot is shuffled using the seeded RNG.
+  </Step>
+  <Step title="Distribution">
+    One trader from each pot placed into each of 8 groups. This ensures every group has a mix of skill levels.
+  </Step>
+  <Step title="Group of Death Check">
+    If no group has an average seed strength in the top quartile, the algorithm swaps Pot 2 traders to strengthen the weakest group — guaranteeing at least one "Group of Death" for narrative drama.
+  </Step>
+</Steps>
+
+### Example Group
+
+| Group A | Seed | Pot |
+|---|---|---|
+| Trader Alpha | #2 | Pot 1 |
+| Trader Beta | #11 | Pot 2 |
+| Trader Gamma | #22 | Pot 3 |
+| Trader Delta | #29 | Pot 4 |
+
+## Redemption Bracket
+
+Semi-final losers aren't eliminated — they're paired in a separate redemption bracket.
+
+- The redemption winner earns the **"Comeback"** badge
+- They re-enter the season point pool
+- This keeps eliminated traders engaged instead of churning
+
+In the alpha test, **64%** of eliminated traders joined the Redemption Bracket (target was 40%).
+
+## Match Resolution
+
+Each World Cup match is resolved by comparing RAROI scores over the match window:
+
+1. Compute RAROI for both traders over the match period
+2. Apply any active risk event modifiers
+3. Higher RAROI wins
+4. If RAROI difference \< 0.5 points: draw (extra time rules apply)
+
+## Season Flow
+
+```
+Registration → Qualifying (2 weeks) → Group Draw → Group Stage (3 matchdays)
+    → Round of 16 → Quarter Finals → Semi Finals
+        → Finals (winners)
+        → Redemption Bracket (semi-final losers)
+    → Grand Finals (division champions)
+```
+
+## Division-Specific Markets
+
+| Division | Allowed Markets |
+|---|---|
+| Crypto Cup | BTC, ETH, SOL, BONK |
+| Metals Cup | XAU, XAG |
+| Energy Cup | WTI, BRENT |
+| Forex Cup | EURUSD, GBPUSD, USDJPY, AUDUSD |
+
+Trading outside your division's markets during World Cup matches results in disqualification with a `specialist_violation` flag.

@@ -1,0 +1,99 @@
+---
+title: "Sybil Detection"
+description: "How the multi-layered abuse detection system identifies coordinated wallets, wash trading, and P&L mirroring"
+icon: "shield-halved"
+---
+
+The sybil detection engine uses three **uncorrelated** detection methods. Using multiple independent signals reduces false positives — a trader must trigger multiple heuristics to be flagged with high confidence.
+
+## Detection Methods
+
+### 1. Funding Source Clustering
+
+Identifies wallets funded from the same source within a short time window.
+
+**How it works:**
+1. For each wallet in the cohort, identify the funding source (first incoming SOL transfer)
+2. Group wallets by funding source address
+3. Flag clusters where 3+ wallets were funded within a 1-hour window
+4. Elevate confidence to **"high"** if all wallets in the cluster also enrolled in the competition within 5 minutes of each other
+
+**Why it works:** Creating sybil accounts requires funding them. Doing so from a single source in a short window is a strong signal of coordinated control.
+
+| Cluster Size | Time Window | Confidence |
+|---|---|---|
+| 2 wallets | \<1 hour | Low (not flagged alone) |
+| 3+ wallets | \<1 hour | Medium |
+| 3+ wallets | \<1 hour + enrollment within 5 min | High |
+
+### 2. Trading Pattern Correlation
+
+Detects wallets executing suspiciously similar trading patterns.
+
+**How it works:**
+1. **Pre-filter:** Check activity overlap between wallet pairs (O(n) fast check) — skip pairs with no overlapping trading days
+2. **Correlation:** Compute Pearson correlation coefficient on trade timing sequences
+3. **Threshold:** Flag pairs with correlation >= 0.85
+4. **High confidence:** Correlation >= 0.95
+
+**Optimization:** With N wallets, there are N(N-1)/2 possible pairs. The system processes in batches of max 100 pairs to avoid memory issues, and the pre-filter eliminates most pairs before expensive correlation computation.
+
+**Why it works:** Automated sybil bots typically execute trades at the same relative times. Even with random delays, the correlation signal is strong enough to detect.
+
+### 3. P&L Mirroring
+
+Detects wash trading where one wallet intentionally loses to boost another.
+
+**How it works:**
+1. **Bucket split:** Separate wallets into positive-PnL and negative-PnL groups
+2. **Cross-bucket comparison:** For each positive/negative pair, check if their PnL percentages sum to within 2% of zero
+3. **Flag:** Pairs where `|pnlA + pnlB| < 2%` are flagged as potential wash trading
+
+**Why it works:** In wash trading, one account makes the opposite trades of another. The net P&L across the pair is near zero — one wins what the other loses. This is extremely unlikely to happen by chance with real traders.
+
+## Confidence Levels
+
+Each detection produces a confidence level:
+
+| Level | Meaning | Action |
+|---|---|---|
+| Low | Single weak signal | Monitored, not flagged |
+| Medium | One strong signal or two weak signals | Flagged for manual review, rewards held |
+| High | Multiple strong signals | Flagged, rewards blocked, ops alert sent |
+
+## How Flags Affect Traders
+
+Flagged traders are **not removed** from the leaderboard. Instead:
+
+- They remain visible in standings (preserving transparency)
+- They sort below all eligible traders regardless of score
+- They cannot claim rewards until ops review is complete
+- A `disqualification_reason` field explains the flag
+- Discord ops webhook fires for high-confidence flags
+
+## Abuse Flags
+
+The system tracks four types of abuse flags on each trader:
+
+| Flag | Trigger | Effect |
+|---|---|---|
+| `sybil_suspicion` | Funding cluster or pattern correlation detected | Rewards held |
+| `wash_trading_suspicion` | P&L mirroring detected | Rewards held |
+| `specialist_violation` | Traded on disallowed market during specialist challenge | Immediate DQ |
+| `manual_review` | Ops team flags for investigation | Rewards held |
+
+## Batch Processing
+
+For production cohorts with many wallets, the sybil detector uses batch processing:
+
+```
+1. Funding clusters: O(n) — single pass grouping
+2. Pattern correlation: O(n²) worst case, batched at 100 pairs
+3. P&L mirroring: O(p × q) where p=positive, q=negative buckets
+```
+
+Results are combined into `SybilCluster` objects containing:
+- List of involved wallets
+- Confidence level
+- Detection reason
+- Timestamp of detection

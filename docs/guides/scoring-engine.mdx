@@ -1,0 +1,166 @@
+---
+title: "Scoring Engine"
+description: "How tournament scoring, Mutagen, and RAROI formulas work — weights, components, and tiebreakers"
+icon: "calculator"
+---
+
+The platform runs three scoring formulas in parallel, each optimized for different contexts.
+
+## Tournament Score
+
+The primary leaderboard ranking formula. It's an **additive weighted formula** that balances multiple dimensions of trading performance.
+
+```
+Score = (PnL% × W₁) + (log₁₀(Volume) × W₂) + (Consistency × W₃) + (WinRate × W₄) − (MaxDrawdown × W₅)
+```
+
+### Score Components
+
+| Component | Weight | What It Measures |
+|---|---|---|
+| PnL% | 8.5 | Realized profit as percentage of starting equity |
+| log₁₀(Volume) | 6.0 | Trading activity — log scale prevents volume farming |
+| Consistency | 0.28 | How evenly distributed trading is across the window |
+| Win Rate | 0.08 | Percentage of profitable trades |
+| Max Drawdown | −0.65 | Peak-to-trough equity decline (penalty) |
+
+### Why These Weights
+
+- **PnL% dominates** (8.5x) because profit is the primary skill signal
+- **Volume uses log scale** to reward activity without letting whales dominate — going from $1M to $10M volume adds the same score as $100K to $1M
+- **Consistency is lightly weighted** (0.28x) to encourage regular trading without punishing concentrated strategies
+- **Drawdown is a penalty** (−0.65x) — it subtracts from the score, making risk management matter even for high-PnL traders
+
+### Tiebreakers
+
+When two traders have the same tournament score:
+
+1. Higher PnL% wins
+2. If still tied: higher volume wins
+3. If still tied: earliest timestamp of achieving the score wins
+
+### Standings Order
+
+Traders are sorted in two phases:
+1. **Eligible traders first** — anyone with abuse flags (`sybil_suspicion`, `wash_trading_suspicion`, `manual_review`) sorts below eligible traders
+2. **By score descending** — within each eligibility group
+
+### Reward Preview
+
+The top N eligible traders split the prize pool:
+
+| Rank | Share |
+|---|---|
+| 1st | 40% |
+| 2nd | 25% |
+| 3rd | 15% |
+| 4th | 10% |
+| 5th | 5% |
+| 6th+ | 5% split equally |
+
+## Mutagen Score
+
+Adrena's native scoring formula that runs alongside tournament scoring. Mutagen is **per-trade** and **multiplicative** — it rewards individual trade quality rather than aggregate performance.
+
+```
+Mutagen = (Performance + Duration) × Size Multiplier × Mission Bonus
+```
+
+### Components
+
+<Accordion title="Performance (max 0.3)">
+Linear scale capped at 7.5% PnL per trade:
+- 0% PnL → 0 performance
+- 7.5%+ PnL → 0.3 performance (max)
+- Negative PnL → 0 (no penalty, just no reward)
+</Accordion>
+
+<Accordion title="Duration (max 0.05)">
+Linear scale capped at 72 hours hold time:
+- 0h → 0 duration
+- 72h+ → 0.05 duration (max)
+- Rewards conviction — holding through volatility scores higher
+</Accordion>
+
+<Accordion title="Size Multiplier (8 tiers)">
+Interpolated from an 8-tier table based on position size:
+
+| Size | Multiplier |
+|---|---|
+| $10 | 0.01 |
+| $100 | 0.02 |
+| $1,000 | 0.05 |
+| $10,000 | 0.1 |
+| $100,000 | 0.5 |
+| $500,000 | 2.5 |
+| $1,000,000 | 5.0 |
+| $4,500,000 | 45.0 |
+
+Between tiers, values are linearly interpolated. This heavily rewards larger positions — a $1M trade gets 100x the multiplier of a $10K trade.
+</Accordion>
+
+<Accordion title="Mission Bonus (default 1.0x)">
+Multiplier for special events or promotions. Default is 1.0x (no bonus). Can be increased for time-limited campaigns.
+</Accordion>
+
+### Key Properties
+
+- **Per-trade, not aggregate** — each closed trade gets its own Mutagen score, then they're summed
+- **No penalty for losses** — negative PnL trades score 0 Mutagen, they don't subtract
+- **Size-weighted** — larger positions score exponentially more, aligning with protocol liquidity goals
+- **Aggregate across window** — total Mutagen for a cohort is the sum of all trades within the competition window
+
+## RAROI (World Cup)
+
+Risk-Adjusted Return on Investment is used exclusively for **World Cup head-to-head matches**. It's a **multiplicative** formula that rewards skill-intensive trading.
+
+```
+RAROI = ROI% × WinRateFactor × ActivityFactor − DrawdownPenalty
+```
+
+### Components
+
+| Factor | Formula | Range |
+|---|---|---|
+| WinRateFactor | min(2.0, 0.5 + (winRate/100) × 1.5) | 0.5 – 2.0 |
+| ActivityFactor | min(1.5, 0.5 + activeDays/totalDays) | 0.5 – 1.5 |
+| DrawdownPenalty | maxDrawdown% × 0.3 | 0 – unbounded |
+
+### Why Multiplicative
+
+Unlike the additive tournament score, RAROI **multiplies** factors together. This means:
+
+- A 0% ROI always produces 0 RAROI regardless of other factors
+- High win rate amplifies high ROI exponentially
+- Low activity dramatically reduces the score (AF=0.5 halves everything)
+- Drawdown penalty subtracts from the product — even great trades can be wiped by poor risk management
+
+This makes RAROI better for 1v1 matchups where you want a clear "who is the better trader" signal, while tournament score works better for cohort-wide leaderboards where you want to incentivize participation.
+
+## Challenge Evaluation
+
+Beyond scoring, the engine also evaluates whether a trader has **passed or failed** their challenge:
+
+| Check | Rule | Result |
+|---|---|---|
+| Max Drawdown | Exceeded tier's max DD% | Fail |
+| Daily Loss | Exceeded tier's daily loss limit on any day | Fail |
+| Profit Target | Reached tier's profit target % | Pass (if no other failures) |
+| Minimum Trades | At least 1 trade required | Cannot pass with 0 trades |
+| Minimum Days | At least 1 active day required | Cannot pass with 0 days |
+| Duration | Challenge window expired | Fail if target not reached |
+
+Checks run in order — a trader can fail on drawdown even if they hit the profit target.
+
+## Drawdown Calculation
+
+Drawdown is computed as maximum peak-to-trough decline using a **High Water Mark (HWM)** approach:
+
+```
+For each equity point:
+  hwm = max(hwm, equity)
+  drawdown = (hwm - equity) / hwm
+  maxDrawdown = max(maxDrawdown, drawdown)
+```
+
+This captures the worst decline from any peak, not just from starting equity. A trader who goes +20% then drops to +5% has a 12.5% drawdown, even though they're still profitable overall.

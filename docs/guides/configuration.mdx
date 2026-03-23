@@ -1,0 +1,213 @@
+---
+title: "Configuration Reference"
+description: "Complete reference for environment variables, cohort JSON schema, tier parameters, preset templates, and cron schedules"
+icon: "sliders"
+---
+
+All runtime behavior is controlled through environment variables and `data/competition-cohorts.json`. No code changes are needed to adjust tier difficulty, rotate cohorts, or add new presets.
+
+## Environment Variables
+
+Copy `.env.example` to `.env.local` and fill in your values.
+
+### Database
+
+| Variable | Required | Description |
+|---|---|---|
+| `DATABASE_URL` | Optional | PostgreSQL connection string. Format: `postgresql://user@host:5432/dbname?schema=public`. Without this, state is per-browser. |
+
+### Authentication (Privy)
+
+| Variable | Required | Description |
+|---|---|---|
+| `NEXT_PUBLIC_PRIVY_APP_ID` | Required | App ID from [dashboard.privy.io](https://dashboard.privy.io). |
+| `NEXT_PUBLIC_PRIVY_APP_SECRET` | Required | App secret key from the same dashboard. |
+
+### Competition Data
+
+| Variable | Default | Description |
+|---|---|---|
+| `NEXT_PUBLIC_COMPETITION_PROVIDER` | `adrena` | `adrena` = live data from Adrena API. `mock` = offline seeded data (for UI review only). |
+
+### Adrena APIs
+
+| Variable | Required | Description |
+|---|---|---|
+| `ADRENA_DATA_API_BASE_URL` | Optional | Adrena Data API. Default: `https://datapi.adrena.trade`. |
+| `ADRENA_COMPETITION_API_BASE_URL` | Optional | Adrena Competition Service REST API. Used as primary data source in production. |
+| `ADRENA_API_KEY` | Production | Auth key for the Adrena competition service WebSocket. Request from Adrena team. |
+| `ADRENA_WS_HOST` | Production | WebSocket hostname for live trade event streaming (e.g. `adrena-competition-service.onrender.com`). |
+
+### Solana
+
+| Variable | Default | Description |
+|---|---|---|
+| `NEXT_PUBLIC_SOLANA_RPC` | `https://api.mainnet-beta.solana.com` | Solana RPC endpoint for balance checks and transaction submission. |
+| `NEXT_PUBLIC_PROGRAM_AUTHORITY` | — | On-chain authority pubkey for the Shoot Anchor program. Required for enrollment transactions. |
+
+### Notifications
+
+| Variable | Required | Description |
+|---|---|---|
+| `DISCORD_WEBHOOK_URL` | Optional | Discord webhook for general competition events (cohort start/end, settlements). |
+| `DISCORD_OPS_WEBHOOK_URL` | Optional | Separate webhook for sybil detection alerts sent to the ops team. |
+
+### Automation
+
+| Variable | Required | Description |
+|---|---|---|
+| `CRON_SECRET` | Production | Bearer token sent in the `Authorization` header for `/api/cron/*` endpoints. Set to a random 32-character string and configure your cron scheduler to send it. |
+
+---
+
+## Cohort JSON Schema
+
+All live cohorts are defined in `data/competition-cohorts.json`. The cron job at `/api/cron/rotate-cohorts` reads this file every 15 minutes and creates new cohorts when existing ones expire.
+
+### Top-level `config`
+
+```json
+{
+  "config": {
+    "seasonId": "season-7",
+    "cohortDurationHours": 336,
+    "participantCap": 128,
+    "entryFeeUsd": 25,
+    "scoringWeights": {
+      "pnlPercent": 8.5,
+      "volumeUsd": 6,
+      "consistency": 0.28,
+      "winRate": 0.08,
+      "drawdownPenalty": 0.65
+    },
+    "prizePoolSplit": [0.48, 0.24, 0.14, 0.08, 0.06],
+    "fundedRewardShareBps": 450,
+    "presets": [...]
+  }
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `seasonId` | string | Identifier for the current season. Used to group cohorts for analytics. |
+| `cohortDurationHours` | number | Default cohort window length. `336` = 14 days. |
+| `participantCap` | number | Maximum enrolled wallets per cohort. New enrollments are rejected above this limit. |
+| `entryFeeUsd` | number | Default entry fee in USD. Overridden per cohort if set. |
+| `scoringWeights` | object | Weights for the tournament score formula (see [Scoring Engine](/guides/scoring-engine)). |
+| `prizePoolSplit` | number[] | Prize allocation for top 5 finishers. Must sum to 1.0. Default: `[0.48, 0.24, 0.14, 0.08, 0.06]`. |
+| `fundedRewardShareBps` | number | Basis points of protocol fee revenue allocated to Funded-tier traders. |
+
+### Cohort object
+
+```json
+{
+  "id": "cohort-crypto-0315",
+  "name": "Crypto Impulse 03.15",
+  "presetId": "crypto-impulse",
+  "state": "live",
+  "startTime": "2026-03-15T00:00:00.000Z",
+  "endTime": "2026-03-29T00:00:00.000Z",
+  "narrative": "...",
+  "rewardPoolUsd": 3750,
+  "entryFeeUsd": 25,
+  "participantCap": 128,
+  "enrolledWallets": ["GZXqnVpZ..."]
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | string | Unique cohort identifier. Convention: `cohort-{theme}-{MMDD}`. |
+| `name` | string | Display name shown in the UI. |
+| `presetId` | string | References a preset in `config.presets`. Inherits quest points, streak multiplier, raffle tickets. |
+| `state` | `"live"` \| `"settling"` \| `"closed"` | Cohort lifecycle state. Only `"live"` cohorts are scored. |
+| `startTime` | ISO string | Cohort window start. Used as the P&L baseline snapshot time. |
+| `endTime` | ISO string | Cohort window end. After this, the cron marks the cohort for settlement. |
+| `narrative` | string | One-sentence cohort description shown in the hub UI. |
+| `rewardPoolUsd` | number | Total prize pool in USD (60% of entry fees collected). |
+| `entryFeeUsd` | number | Entry fee for this specific cohort. |
+| `participantCap` | number | Max enrollments for this cohort. |
+| `enrolledWallets` | string[] | Solana wallet addresses enrolled in this cohort. The live adapter fetches positions for all of these. |
+
+---
+
+## Preset Templates
+
+Presets define the narrative and engagement parameters overlaid on a cohort. Each cohort references one preset by `presetId`.
+
+| Preset | Focus | Quest Points | Streak Multiplier | Raffle Tickets |
+|---|---|---|---|---|
+| `macro-sprint` | RWA majors (FX, macro pairs) | 70 | 1.2× | 4 |
+| `carry-breaker` | Rates and commodities (oil, gold) | 90 | 1.35× | 5 |
+| `crypto-impulse` | High-beta crypto perps | 60 | 1.15× | 3 |
+
+To add a new preset, append to `config.presets` in `competition-cohorts.json`:
+
+```json
+{
+  "id": "my-preset",
+  "name": "My Preset",
+  "focus": "asset class description",
+  "tagline": "One sentence shown in UI.",
+  "questRewardPoints": 80,
+  "streakMultiplier": 1.25,
+  "raffleTickets": 4
+}
+```
+
+---
+
+## Tier Parameters
+
+Challenge tiers are configured per-deployment. Pass rate guardrails recommend when to adjust:
+
+| Tier | Entry Fee | Min Capital | Profit Target | Max DD | Daily Limit | Duration | Funded Eligible |
+|---|---|---|---|---|---|---|---|
+| Scout | $2 | $50 | 8% | 5% | 3% | 7 days | No |
+| Ranger | $5 | $200 | 10% | 8% | 4% | 10 days | No |
+| Veteran | $10 | $500 | 12% | 6% | 3% | 10 days | No |
+| Elite | $25 | $2,000 | 15% | 5% | 2.5% | 14 days | Yes |
+| Apex | $50 | $5,000 | 15% | 4% | 2% | 14 days | Yes |
+
+<Note>
+**Pass rate guardrails:**
+- Pass rate > 40%: tighten profit target by 2pp or reduce max drawdown by 1pp
+- Pass rate < 15%: relax drawdown limit by 1pp or extend duration by 2 days
+- Retry rate < 20%: increase retry discount from 30% to 40%
+
+Alpha test validation: Scout achieved 35.5% (target ~35%). Ranger achieved 21.4% (target ~25%) — recommend relaxing Ranger max drawdown from 8% to 9% for first production run.
+</Note>
+
+---
+
+## Cron Schedule
+
+Automated jobs run via Vercel cron (configured in `vercel.json`):
+
+| Endpoint | Cadence | Purpose |
+|---|---|---|
+| `/api/cron/rotate-cohorts` | Every 15 minutes | Checks for expired cohorts, creates new ones from preset templates, marks settling cohorts as closed. |
+
+The cron endpoint requires the `Authorization: Bearer <CRON_SECRET>` header. Configure your cron scheduler (Vercel, cron-job.org, etc.) to include this header.
+
+### Adding a Scheduled Cohort
+
+To schedule a cohort to go live at a specific time, add it to `data/competition-cohorts.json` with `"state": "live"` and set `startTime` to the desired launch time. The cron job will begin scoring wallets once the start time is reached.
+
+---
+
+## Scoring Weight Tuning
+
+Scoring weights in `config.scoringWeights` control the tournament score formula. Changing these affects leaderboard rankings globally:
+
+| Weight | Key | Effect of Increasing |
+|---|---|---|
+| PnL% | `pnlPercent` (8.5) | Rewards raw profit more — whale-favoring |
+| Volume | `volumeUsd` (6) | Rewards activity more — benefits active traders |
+| Consistency | `consistency` (0.28) | Rewards even equity curves — benefits disciplined traders |
+| Win Rate | `winRate` (0.08) | Rewards win ratio more |
+| Drawdown penalty | `drawdownPenalty` (0.65) | Penalizes risk-taking more harshly |
+
+<Warning>
+Changing scoring weights mid-cohort is not recommended — it retroactively alters standings and may be perceived as unfair. Only change weights between cohorts.
+</Warning>

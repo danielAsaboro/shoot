@@ -1,0 +1,336 @@
+{
+  "timestamp": "2026-03-23T11:33:16.935Z",
+  "apiBaseUrl": "https://datapi.adrena.trade",
+  "totalWallets": 22,
+  "avgLatencyMs": 582,
+  "minLatencyMs": 492,
+  "maxLatencyMs": 1194,
+  "errors": [],
+  "cohorts": [
+    {
+      "cohortId": "cohort-crypto-0201",
+      "cohortName": "Crypto Impulse 02.01",
+      "window": "2026-02-01T00:00:00.000Z → 2026-02-15T00:00:00.000Z",
+      "totalWallets": 10,
+      "walletsWithTrades": 5,
+      "sybilFlagsCount": 0,
+      "standings": [
+        {
+          "wallet": "4N69yzFF...KMX4",
+          "totalPositions": 183,
+          "pnlPercent": 9.01,
+          "volumeUsd": 13293369.36,
+          "winRate": 100,
+          "tradeCount": 1,
+          "activeDays": 1,
+          "maxDrawdownPercent": 0,
+          "totalMutagen": 1.200401,
+          "tournamentScore": 141.36
+        },
+        {
+          "wallet": "56yW76VP...CcoS",
+          "totalPositions": 126,
+          "pnlPercent": 6.7,
+          "volumeUsd": 39181149.24,
+          "winRate": 50,
+          "tradeCount": 2,
+          "activeDays": 1,
+          "maxDrawdownPercent": 0,
+          "totalMutagen": 1.202272,
+          "tournamentScore": 120.52
+        },
+        {
+          "wallet": "ErVgLQB4...a9po",
+          "totalPositions": 500,
+          "pnlPercent": 4.6,
+          "volumeUsd": 20341977657.1,
+          "winRate": 61.12,
+          "tradeCount": 427,
+          "activeDays": 13,
+          "maxDrawdownPercent": 16.85,
+          "totalMutagen": 212.700788,
+          "tournamentScore": 108.85
+        },
+        {
+          "wallet": "GZXqnVpZ...GhBb",
+          "totalPositions": 37,
+          "pnlPercent": -5.85,
+          "volumeUsd": 9884848.36,
+          "winRate": 56.25,
+          "tradeCount": 16,
+          "activeDays": 6,
+          "maxDrawdownPercent": 0,
+          "totalMutagen": 1.026666,
+          "tournamentScore": 10.74
+        },
+        {
+          "wallet": "C9jxD53T...cHnt",
+          "totalPositions": 167,
+          "pnlPercent": 0,
+          "volumeUsd": 0,
+          "winRate": 0,
+          "tradeCount": 0,
+          "activeDays": 0,
+          "maxDrawdownPercent": 0,
+          "totalMutagen": 0
+        },
+        {
+          "wallet": "4QLQUhJE...LsLu",
+          "totalPositions": 155,
+          "pnlPercent": 0,
+          "volumeUsd": 0,
+          "winRate": 0,
+          "tradeCount": 0,
+          "activeDays": 0,
+          "maxDrawdownPercent": 0,
+          "totalMutagen": 0
+        },
+        {
+          "wallet": "7QYoineP...V5Pu",
+          "totalPositions": 500,
+          "pnlPercent": 0,
+          "volumeUsd": 0,
+          "winRate": 0,
+          "tradeCount": 0,
+          "activeDays": 0,
+          "maxDrawdownPercent": 0,
+          "totalMutagen": 0
+        },
+        {
+          "wallet": "F179Gtjo...b5Z1",
+          "totalPositions": 372,
+          "pnlPercent": 0,
+          "volumeUsd": 0,
+          "winRate": 0,
+          "tradeCount": 0,
+          "activeDays": 0,
+          "maxDrawdownPercent": 0,
+          "totalMutagen": 0
+        },
+        {
+          "wallet": "6ALGMay8...9zgy",
+          "totalPositions": 154,
+          "pnlPercent": 0,
+          "volumeUsd": 0,
+          "winRate": 0,
+          "tradeCount": 0,
+          "activeDays": 0,
+          "maxDrawdownPercent": 0,
+          "totalMutagen": 0
+        },
+        {
+          "wallet": "8anmrYFm...f6Wy",
+          "totalPositions": 500,
+          "pnlPercent": 3.24,
+          "volumeUsd": 5415489181.85,
+          "winRate": 63,
+          "tradeCount": 454,
+          "activeDays": 13,
+          "maxDrawdownPercent": 576.41,
+          "totalMutagen": 212.281343,
+          "tournamentScore": -269.66
+        }
+      ]
+    },
+    {
+      "cohortId": "cohort-macro-0215",
+      "cohortName": "Macro Sprint 02.15",
+      "window": "2026-02-15T00:00:00.000Z → 2026-03-01T00:00:00.000Z",
+      "totalWallets": 8,
+      "walletsWithTrades": 3,
+      "sybilFlagsCount": 0,
+      "standings": [
+        {
+          "wallet": "GZXqnVpZ...GhBb",
+          "totalPositions": 37,
+          "pnlPercent": 2.25,
+          "volumeUsd": 39803.11,
+          "winRate": 60,
+          "tradeCount": 5,
+          "activeDays": 3,
+          "maxDrawdownPercent": 15.02,
+          "totalMutagen": 0.741672,
+          "tournamentScore": 55.77
+        },
+        {
+          "wallet": "ErVgLQB4...a9po",
+          "totalPositions": 500,
+          "pnlPercent": 5.41,
+          "volumeUsd": 7587511945.67,
+          "winRate": 72.41,
+          "tradeCount": 29,
+          "activeDays": 2,
+          "maxDrawdownPercent": 107.28,
+          "totalMutagen": 7.596641,
+          "tournamentScore": 55.33
+        },
+        {
+          "wallet": "8anmrYFm...f6Wy",
+          "totalPositions": 500,
+          "pnlPercent": 1.35,
+          "volumeUsd": 7471854360.83,
+          "winRate": 47.83,
+          "tradeCount": 46,
+          "activeDays": 3,
+          "maxDrawdownPercent": 113.53,
+          "totalMutagen": 6.419091,
+          "tournamentScore": 14.77
+        },
+        {
+          "wallet": "DWcFRJrp...ohvY",
+          "totalPositions": 337,
+          "pnlPercent": 0,
+          "volumeUsd": 0,
+          "winRate": 0,
+          "tradeCount": 0,
+          "activeDays": 0,
+          "maxDrawdownPercent": 0,
+          "totalMutagen": 0
+        },
+        {
+          "wallet": "sigMag9S...V4ig",
+          "totalPositions": 268,
+          "pnlPercent": 0,
+          "volumeUsd": 0,
+          "winRate": 0,
+          "tradeCount": 0,
+          "activeDays": 0,
+          "maxDrawdownPercent": 0,
+          "totalMutagen": 0
+        },
+        {
+          "wallet": "HjcswYCP...NjqW",
+          "totalPositions": 500,
+          "pnlPercent": 0,
+          "volumeUsd": 0,
+          "winRate": 0,
+          "tradeCount": 0,
+          "activeDays": 0,
+          "maxDrawdownPercent": 0,
+          "totalMutagen": 0
+        },
+        {
+          "wallet": "CDUwP2Fr...2bg6",
+          "totalPositions": 189,
+          "pnlPercent": 0,
+          "volumeUsd": 0,
+          "winRate": 0,
+          "tradeCount": 0,
+          "activeDays": 0,
+          "maxDrawdownPercent": 0,
+          "totalMutagen": 0
+        },
+        {
+          "wallet": "8umPs96c...6fbN",
+          "totalPositions": 332,
+          "pnlPercent": 0,
+          "volumeUsd": 0,
+          "winRate": 0,
+          "tradeCount": 0,
+          "activeDays": 0,
+          "maxDrawdownPercent": 0,
+          "totalMutagen": 0
+        }
+      ]
+    },
+    {
+      "cohortId": "cohort-carry-0301",
+      "cohortName": "Carry Breaker 03.01",
+      "window": "2026-03-01T00:00:00.000Z → 2026-03-15T00:00:00.000Z",
+      "totalWallets": 8,
+      "walletsWithTrades": 1,
+      "sybilFlagsCount": 0,
+      "standings": [
+        {
+          "wallet": "GZXqnVpZ...GhBb",
+          "totalPositions": 37,
+          "pnlPercent": -3.66,
+          "volumeUsd": 812395.52,
+          "winRate": 0,
+          "tradeCount": 3,
+          "activeDays": 2,
+          "maxDrawdownPercent": 0,
+          "totalMutagen": 0.053797,
+          "tournamentScore": 18.34
+        },
+        {
+          "wallet": "A6ELwd76...qW6j",
+          "totalPositions": 141,
+          "pnlPercent": 0,
+          "volumeUsd": 0,
+          "winRate": 0,
+          "tradeCount": 0,
+          "activeDays": 0,
+          "maxDrawdownPercent": 0,
+          "totalMutagen": 0
+        },
+        {
+          "wallet": "B3qwaaDG...csU8",
+          "totalPositions": 126,
+          "pnlPercent": 0,
+          "volumeUsd": 0,
+          "winRate": 0,
+          "tradeCount": 0,
+          "activeDays": 0,
+          "maxDrawdownPercent": 0,
+          "totalMutagen": 0
+        },
+        {
+          "wallet": "8EJMQy74...WHM4",
+          "totalPositions": 138,
+          "pnlPercent": 0,
+          "volumeUsd": 0,
+          "winRate": 0,
+          "tradeCount": 0,
+          "activeDays": 0,
+          "maxDrawdownPercent": 0,
+          "totalMutagen": 0
+        },
+        {
+          "wallet": "2o1odPv3...ei6N",
+          "totalPositions": 147,
+          "pnlPercent": 0,
+          "volumeUsd": 0,
+          "winRate": 0,
+          "tradeCount": 0,
+          "activeDays": 0,
+          "maxDrawdownPercent": 0,
+          "totalMutagen": 0
+        },
+        {
+          "wallet": "HZHXUqui...s5hp",
+          "totalPositions": 137,
+          "pnlPercent": 0,
+          "volumeUsd": 0,
+          "winRate": 0,
+          "tradeCount": 0,
+          "activeDays": 0,
+          "maxDrawdownPercent": 0,
+          "totalMutagen": 0
+        },
+        {
+          "wallet": "6iGVCaVP...FCgQ",
+          "totalPositions": 110,
+          "pnlPercent": 0,
+          "volumeUsd": 0,
+          "winRate": 0,
+          "tradeCount": 0,
+          "activeDays": 0,
+          "maxDrawdownPercent": 0,
+          "totalMutagen": 0
+        },
+        {
+          "wallet": "4PcPViGT...qqpH",
+          "totalPositions": 116,
+          "pnlPercent": 0,
+          "volumeUsd": 0,
+          "winRate": 0,
+          "tradeCount": 0,
+          "activeDays": 0,
+          "maxDrawdownPercent": 0,
+          "totalMutagen": 0
+        }
+      ]
+    }
+  ]
+}

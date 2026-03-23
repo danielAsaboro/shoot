@@ -1,0 +1,962 @@
+---
+title: "Agent API"
+description: "Programmatic trading interface for AI agents — authenticate, execute tools, and trade perpetuals on Adrena without a browser"
+icon: "robot"
+---
+
+The Agent API lets autonomous trading bots and AI agents interact with Adrena perpetuals programmatically. Agents can query market data, check competition standings, and generate unsigned transactions for leveraged trading — all through a simple REST interface.
+
+## Two-Tier Architecture
+
+The API has two tiers depending on how your agent operates:
+
+| Tier | Endpoint | LLM Required | Best For |
+|---|---|---|---|
+| **Execute** | `POST /api/agent/execute` | No | Automated bots, scripted strategies, low-latency trading |
+| **Chat** | `POST /api/agent/chat` | Yes (GPT-4o) | Conversational agents, reasoning-first trading, market analysis |
+
+Both tiers use the same authentication and the same set of tools. The difference is whether an LLM decides which tool to call (Chat) or your code does (Execute).
+
+## Authentication
+
+All endpoints require an API key in the `Authorization` header:
+
+```
+Authorization: Bearer shoot_ak_<key>
+```
+
+### Creating an API key
+
+API keys are bound to a Solana wallet. To create one, sign a challenge message with your wallet's private key:
+
+<Steps>
+  <Step title="Build the challenge message">
+    The message format is `shoot-agent-key-create:<unix_timestamp_ms>`. The timestamp must be within 5 minutes of the server's clock.
+  </Step>
+  <Step title="Sign with your wallet">
+    Sign the message bytes using Ed25519 (the standard Solana signing algorithm). Base58-encode the signature.
+  </Step>
+  <Step title="POST to /api/agent/keys">
+    Send the wallet address, signature, timestamp, and an optional label.
+  </Step>
+</Steps>
+
+```bash
+curl -X POST https://your-domain.com/api/agent/keys \
+  -H "Content-Type: application/json" \
+  -d '{
+    "wallet": "YourSolanaWalletAddress",
+    "signature": "Base58EncodedSignature",
+    "timestamp": 1711500000000,
+    "label": "my-trading-bot"
+  }'
+```
+
+**Response** (201):
+
+```json
+{
+  "id": "clxyz123",
+  "key": "shoot_ak_T3cm6zZhEUUgsLdQv4pHqvZdy75ROxUyJYNviZ-B7GI"
+}
+```
+
+<Warning>
+  The plaintext key is only returned **once** at creation. Store it securely. The server stores a SHA-256 hash — there is no way to recover the key later.
+</Warning>
+
+### Key creation example (TypeScript)
+
+```typescript
+import { Keypair } from "@solana/web3.js";
+import bs58 from "bs58";
+import nacl from "tweetnacl";
+
+const wallet = Keypair.fromSecretKey(/* your secret key */);
+const timestamp = Date.now();
+const message = new TextEncoder().encode(
+  `shoot-agent-key-create:${timestamp}`
+);
+const signature = nacl.sign.detached(message, wallet.secretKey);
+
+const res = await fetch("https://your-domain.com/api/agent/keys", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    wallet: wallet.publicKey.toBase58(),
+    signature: bs58.encode(signature),
+    timestamp,
+    label: "my-bot",
+  }),
+});
+
+const { key } = await res.json();
+// key = "shoot_ak_..."
+```
+
+### Key creation example (Python)
+
+```python
+import time, requests, base58
+from solders.keypair import Keypair
+
+wallet = Keypair()  # or load from file
+timestamp = int(time.time() * 1000)
+message = f"shoot-agent-key-create:{timestamp}".encode()
+signature = wallet.sign_message(message)
+
+res = requests.post("https://your-domain.com/api/agent/keys", json={
+    "wallet": str(wallet.pubkey()),
+    "signature": base58.b58encode(bytes(signature)).decode(),
+    "timestamp": timestamp,
+    "label": "python-bot",
+})
+
+api_key = res.json()["key"]
+```
+
+### Managing keys
+
+**List active keys** — requires authentication with any active key for the wallet:
+
+```bash
+curl https://your-domain.com/api/agent/keys \
+  -H "Authorization: Bearer shoot_ak_..."
+```
+
+```json
+{
+  "keys": [
+    {
+      "id": "clxyz123",
+      "label": "my-trading-bot",
+      "lastUsedAt": "2026-03-26T10:30:00.000Z",
+      "createdAt": "2026-03-25T08:00:00.000Z"
+    }
+  ]
+}
+```
+
+**Revoke a key** — only the owning wallet can revoke:
+
+```bash
+curl -X DELETE https://your-domain.com/api/agent/keys \
+  -H "Authorization: Bearer shoot_ak_..." \
+  -H "Content-Type: application/json" \
+  -d '{ "keyId": "clxyz123" }'
+```
+
+```json
+{ "revoked": true }
+```
+
+## Rate Limits
+
+Requests are rate-limited per API key using a sliding window:
+
+| Tool Category | Limit | Window |
+|---|---|---|
+| Read tools | 60 requests | 1 minute |
+| Trading tools | 10 requests | 1 minute |
+
+When you exceed the limit, the API returns `429 Too Many Requests` with a `Retry-After` header (in seconds).
+
+---
+
+## Tier A: Execute Endpoint
+
+Direct tool dispatch — your code picks the tool and passes parameters. No LLM involved, zero latency overhead.
+
+```
+POST /api/agent/execute
+Authorization: Bearer shoot_ak_...
+Content-Type: application/json
+```
+
+### Request format
+
+```json
+{
+  "tool": "openLong",
+  "params": {
+    "collateralAmount": 50,
+    "collateralTokenSymbol": "USDC",
+    "tokenSymbol": "JITOSOL",
+    "leverage": 3
+  }
+}
+```
+
+### Response format
+
+**Success** (200):
+
+```json
+{
+  "result": {
+    "requiresSignature": true,
+    "quote": {
+      "entryPrice": 142.35,
+      "size": 0.001052,
+      "fee": 0.05
+    },
+    "transaction": "AQAAAA...base64..."
+  }
+}
+```
+
+**Error** (400/401/429/500):
+
+```json
+{
+  "error": "Unknown tool \"foo\". Available: getPositions, getPoolStats, ..."
+}
+```
+
+---
+
+## Tier B: Chat Endpoint
+
+Conversational AI endpoint using OpenAI GPT-4o with all tools registered. The LLM reasons about your request and calls tools on your behalf. Returns a Server-Sent Events (SSE) stream.
+
+```
+POST /api/agent/chat
+Authorization: Bearer shoot_ak_...
+Content-Type: application/json
+```
+
+### Request format
+
+```json
+{
+  "messages": [
+    { "role": "user", "content": "What are the current pool stats on Adrena?" }
+  ]
+}
+```
+
+### Response
+
+SSE stream following the [Vercel AI SDK UI Message Stream Protocol](https://ai-sdk.dev/docs/ai-sdk-ui/stream-protocol). The LLM may call multiple tools within a single response (up to 5 steps).
+
+### Chat example (TypeScript with AI SDK)
+
+```typescript
+import { useChat } from "ai/react";
+
+const { messages, input, handleInputChange, handleSubmit } = useChat({
+  api: "https://your-domain.com/api/agent/chat",
+  headers: {
+    Authorization: "Bearer shoot_ak_...",
+  },
+});
+```
+
+### Chat example (Python — raw SSE)
+
+```python
+import requests
+
+res = requests.post(
+    "https://your-domain.com/api/agent/chat",
+    headers={
+        "Authorization": "Bearer shoot_ak_...",
+        "Content-Type": "application/json",
+    },
+    json={
+        "messages": [
+            {"role": "user", "content": "Open a 3x long on SOL with 50 USDC"}
+        ]
+    },
+    stream=True,
+)
+
+for line in res.iter_lines():
+    if line:
+        print(line.decode())
+```
+
+---
+
+## Available Tools
+
+All tools are scoped to the authenticated wallet. The `account` parameter is always injected from your API key — you cannot generate transactions for wallets you don't own.
+
+### Read Tools
+
+<Accordion title="getPositions">
+Fetch open and historical trading positions for your wallet on Adrena.
+
+**Rate limit tier:** Read (60/min)
+
+**Parameters:**
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `limit` | integer | No | 100 | Max positions to return (1–500) |
+
+**Example request:**
+
+```json
+{ "tool": "getPositions", "params": { "limit": 10 } }
+```
+
+**Example response:**
+
+```json
+{
+  "result": {
+    "positions": [
+      {
+        "mint": "So11111111111111111111111111111111111111112",
+        "side": "long",
+        "size": 0.5,
+        "collateral": 100,
+        "entryPrice": 142.30,
+        "currentPrice": 145.50,
+        "pnl": 2.24,
+        "leverage": 2.0,
+        "status": "open"
+      }
+    ]
+  }
+}
+```
+</Accordion>
+
+<Accordion title="getPoolStats">
+Get aggregated Adrena pool statistics: daily/total volume, fees, and pool name.
+
+**Rate limit tier:** Read (60/min)
+
+**Parameters:**
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `endDate` | string | No | — | End date filter in `YYYY-MM-DD` format |
+
+**Example request:**
+
+```json
+{ "tool": "getPoolStats", "params": {} }
+```
+
+**Example response:**
+
+```json
+{
+  "result": {
+    "pool_name": "main-pool",
+    "daily_volume_usd": 15420000,
+    "total_volume_usd": 892000000,
+    "daily_fees_usd": 4250,
+    "total_fees_usd": 267000
+  }
+}
+```
+</Accordion>
+
+<Accordion title="getLiquidityInfo">
+Get real-time per-custody liquidity breakdown: TVL, utilization, and target ratios.
+
+**Rate limit tier:** Read (60/min)
+
+**Parameters:** None
+
+**Example request:**
+
+```json
+{ "tool": "getLiquidityInfo", "params": {} }
+```
+
+**Example response:**
+
+```json
+{
+  "result": {
+    "custodies": [
+      {
+        "symbol": "USDC",
+        "aumUsd": "45000000.50",
+        "targetRatio": "0.40",
+        "currentRatio": "0.38",
+        "utilizationRate": "0.65"
+      },
+      {
+        "symbol": "SOL",
+        "aumUsd": "32000000.00",
+        "targetRatio": "0.30",
+        "currentRatio": "0.31",
+        "utilizationRate": "0.72"
+      }
+    ]
+  }
+}
+```
+</Accordion>
+
+<Accordion title="getLeaderboard">
+Get competition leaderboard standings for a specific cohort, ranked by tournament score.
+
+**Rate limit tier:** Read (60/min)
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `cohortId` | string | Yes | The competition cohort ID |
+
+**Example request:**
+
+```json
+{ "tool": "getLeaderboard", "params": { "cohortId": "cohort_abc123" } }
+```
+
+**Example response:**
+
+```json
+{
+  "result": {
+    "standings": [
+      {
+        "wallet": "Abc123...",
+        "rank": 1,
+        "tournamentScore": 85.4,
+        "pnlPercent": 12.3,
+        "volume": 150000,
+        "tradeCount": 45
+      }
+    ]
+  }
+}
+```
+</Accordion>
+
+<Accordion title="getActiveCohorts">
+List all live and upcoming trading competitions you can join.
+
+**Rate limit tier:** Read (60/min)
+
+**Parameters:** None
+
+**Example request:**
+
+```json
+{ "tool": "getActiveCohorts", "params": {} }
+```
+
+**Example response:**
+
+```json
+{
+  "result": {
+    "cohorts": [
+      {
+        "id": "cohort_abc123",
+        "name": "Weekly Sprint #42",
+        "status": "live",
+        "startsAt": "2026-03-24T00:00:00.000Z",
+        "endsAt": "2026-03-31T00:00:00.000Z",
+        "enrollmentCount": 128
+      }
+    ]
+  }
+}
+```
+</Accordion>
+
+<Accordion title="getMyEnrollments">
+List all competitions your wallet is enrolled in.
+
+**Rate limit tier:** Read (60/min)
+
+**Parameters:** None
+
+**Example request:**
+
+```json
+{ "tool": "getMyEnrollments", "params": {} }
+```
+
+**Example response:**
+
+```json
+{
+  "result": {
+    "enrollments": [
+      {
+        "cohortId": "cohort_abc123",
+        "wallet": "YourWallet...",
+        "enrolledAt": "2026-03-24T01:30:00.000Z",
+        "status": "active"
+      }
+    ]
+  }
+}
+```
+</Accordion>
+
+### Trading Tools
+
+All trading tools return unsigned Solana transactions. Your agent must:
+1. Decode the base64 transaction
+2. Sign it with the wallet's private key
+3. Submit it to a Solana RPC endpoint
+
+<Accordion title="openLong">
+Generate an unsigned transaction to open a leveraged long position on Adrena.
+
+**Rate limit tier:** Trade (10/min)
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `collateralAmount` | number | Yes | Collateral amount in token units (must be positive) |
+| `collateralTokenSymbol` | string | Yes | Collateral token: `USDC`, `SOL` |
+| `tokenSymbol` | string | Yes | Market to trade: `SOL`, `BTC`, `ETH`, `BONK`, `JITOSOL`, `XAU`, `XAG`, `EUR`, `GBP` |
+| `leverage` | number | Yes | Leverage multiplier (1.1–100) |
+| `takeProfit` | number | No | Take profit price |
+| `stopLoss` | number | No | Stop loss price |
+
+**Example request:**
+
+```json
+{
+  "tool": "openLong",
+  "params": {
+    "collateralAmount": 50,
+    "collateralTokenSymbol": "USDC",
+    "tokenSymbol": "JITOSOL",
+    "leverage": 3,
+    "stopLoss": 130
+  }
+}
+```
+
+**Example response:**
+
+```json
+{
+  "result": {
+    "requiresSignature": true,
+    "quote": {
+      "entryPrice": 142.35,
+      "size": 0.001052,
+      "fee": 0.05,
+      "liquidationPrice": 95.60
+    },
+    "transaction": "AQAAAA...base64..."
+  }
+}
+```
+</Accordion>
+
+<Accordion title="openShort">
+Generate an unsigned transaction to open a leveraged short position on Adrena.
+
+**Rate limit tier:** Trade (10/min)
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `collateralAmount` | number | Yes | Collateral amount in token units (must be positive) |
+| `collateralTokenSymbol` | string | Yes | Collateral token: `USDC`, `SOL` |
+| `tokenSymbol` | string | Yes | Market to trade: `SOL`, `BTC`, `ETH`, `BONK`, `JITOSOL`, `XAU`, `XAG`, `EUR`, `GBP` |
+| `leverage` | number | Yes | Leverage multiplier (1.1–100) |
+| `takeProfit` | number | No | Take profit price |
+| `stopLoss` | number | No | Stop loss price |
+
+**Example request:**
+
+```json
+{
+  "tool": "openShort",
+  "params": {
+    "collateralAmount": 100,
+    "collateralTokenSymbol": "USDC",
+    "tokenSymbol": "BTC",
+    "leverage": 5,
+    "takeProfit": 55000
+  }
+}
+```
+
+**Example response:**
+
+```json
+{
+  "result": {
+    "requiresSignature": true,
+    "quote": {
+      "entryPrice": 67250.00,
+      "size": 0.00745,
+      "fee": 0.12
+    },
+    "transaction": "AQAAAA...base64..."
+  }
+}
+```
+</Accordion>
+
+<Accordion title="closeLong">
+Generate an unsigned transaction to close (fully or partially) a long position.
+
+**Rate limit tier:** Trade (10/min)
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `collateralTokenSymbol` | string | Yes | Collateral token symbol of the position |
+| `tokenSymbol` | string | Yes | Market token symbol of the position |
+| `percentage` | number | No | Percentage of position to close (1–100, default: 100) |
+
+**Example request:**
+
+```json
+{
+  "tool": "closeLong",
+  "params": {
+    "collateralTokenSymbol": "USDC",
+    "tokenSymbol": "SOL",
+    "percentage": 50
+  }
+}
+```
+
+**Example response:**
+
+```json
+{
+  "result": {
+    "requiresSignature": true,
+    "quote": {
+      "exitPrice": 145.20,
+      "pnl": 3.50,
+      "fee": 0.03
+    },
+    "transaction": "AQAAAA...base64..."
+  }
+}
+```
+</Accordion>
+
+<Accordion title="closeShort">
+Generate an unsigned transaction to close (fully or partially) a short position.
+
+**Rate limit tier:** Trade (10/min)
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `collateralTokenSymbol` | string | Yes | Collateral token symbol of the position |
+| `tokenSymbol` | string | Yes | Market token symbol of the position |
+| `percentage` | number | No | Percentage of position to close (1–100, default: 100) |
+
+**Example request:**
+
+```json
+{
+  "tool": "closeShort",
+  "params": {
+    "collateralTokenSymbol": "USDC",
+    "tokenSymbol": "BTC"
+  }
+}
+```
+
+**Example response:**
+
+```json
+{
+  "result": {
+    "requiresSignature": true,
+    "quote": {
+      "exitPrice": 66800.00,
+      "pnl": 4.50,
+      "fee": 0.08
+    },
+    "transaction": "AQAAAA...base64..."
+  }
+}
+```
+</Accordion>
+
+<Accordion title="openLimitLong">
+Generate an unsigned transaction to place a limit order for a long position. Executes when the market hits your trigger price.
+
+**Rate limit tier:** Trade (10/min)
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `collateralAmount` | number | Yes | Collateral amount |
+| `collateralTokenSymbol` | string | Yes | Collateral token symbol |
+| `tokenSymbol` | string | Yes | Market token symbol |
+| `leverage` | number | Yes | Leverage multiplier (1.1–100) |
+| `triggerPrice` | number | Yes | Price at which the order triggers |
+| `limitPrice` | number | No | Maximum execution price |
+
+**Example request:**
+
+```json
+{
+  "tool": "openLimitLong",
+  "params": {
+    "collateralAmount": 100,
+    "collateralTokenSymbol": "USDC",
+    "tokenSymbol": "ETH",
+    "leverage": 2,
+    "triggerPrice": 3200
+  }
+}
+```
+
+**Example response:**
+
+```json
+{
+  "result": {
+    "requiresSignature": true,
+    "quote": {
+      "triggerPrice": 3200,
+      "leverage": 2,
+      "estimatedSize": 0.0625
+    },
+    "transaction": "AQAAAA...base64..."
+  }
+}
+```
+</Accordion>
+
+<Accordion title="openLimitShort">
+Generate an unsigned transaction to place a limit order for a short position. Executes when the market hits your trigger price.
+
+**Rate limit tier:** Trade (10/min)
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `collateralAmount` | number | Yes | Collateral amount |
+| `collateralTokenSymbol` | string | Yes | Collateral token symbol |
+| `tokenSymbol` | string | Yes | Market token symbol |
+| `leverage` | number | Yes | Leverage multiplier (1.1–100) |
+| `triggerPrice` | number | Yes | Price at which the order triggers |
+| `limitPrice` | number | No | Minimum execution price |
+
+**Example request:**
+
+```json
+{
+  "tool": "openLimitShort",
+  "params": {
+    "collateralAmount": 200,
+    "collateralTokenSymbol": "USDC",
+    "tokenSymbol": "SOL",
+    "leverage": 4,
+    "triggerPrice": 160,
+    "limitPrice": 158
+  }
+}
+```
+
+**Example response:**
+
+```json
+{
+  "result": {
+    "requiresSignature": true,
+    "quote": {
+      "triggerPrice": 160,
+      "leverage": 4,
+      "estimatedSize": 5.0
+    },
+    "transaction": "AQAAAA...base64..."
+  }
+}
+```
+</Accordion>
+
+### Tool Summary
+
+| Tool | Category | Rate Limit | Description |
+|---|---|---|---|
+| `getPositions` | Read | 60/min | Fetch wallet's open and historical positions |
+| `getPoolStats` | Read | 60/min | Adrena pool volume, fees, TVL |
+| `getLiquidityInfo` | Read | 60/min | Per-custody liquidity breakdown |
+| `getLeaderboard` | Read | 60/min | Competition standings by cohort |
+| `getActiveCohorts` | Read | 60/min | Live and upcoming competitions |
+| `getMyEnrollments` | Read | 60/min | Wallet's enrolled competitions |
+| `openLong` | Trade | 10/min | Open leveraged long position |
+| `openShort` | Trade | 10/min | Open leveraged short position |
+| `closeLong` | Trade | 10/min | Close (full/partial) a long position |
+| `closeShort` | Trade | 10/min | Close (full/partial) a short position |
+| `openLimitLong` | Trade | 10/min | Limit order for long position |
+| `openLimitShort` | Trade | 10/min | Limit order for short position |
+
+---
+
+## Transaction Signing Flow
+
+Trading tools return unsigned transactions. Here's the complete flow:
+
+```
+Agent                           Shoot API                    Solana
+  │                                │                           │
+  │  POST /api/agent/execute       │                           │
+  │  { tool: "openLong", ... }     │                           │
+  │ ──────────────────────────────>│                           │
+  │                                │ fetchOpenLong(wallet, ..) │
+  │                                │ ────────────────────────> │
+  │                                │ <──── unsigned tx ─────── │
+  │  { quote, transaction }        │                           │
+  │ <──────────────────────────────│                           │
+  │                                                            │
+  │  decode base64 tx                                          │
+  │  sign with private key                                     │
+  │  ─────────────────────────────────────────────────────────>│
+  │                                                  tx landed │
+  │  <─────────────────────────────────────────────────────────│
+```
+
+### Signing example (TypeScript)
+
+```typescript
+import { Connection, Transaction, Keypair } from "@solana/web3.js";
+import bs58 from "bs58";
+
+const API_KEY = "shoot_ak_...";
+const wallet = Keypair.fromSecretKey(/* your key */);
+const connection = new Connection("https://api.mainnet-beta.solana.com");
+
+// 1. Get unsigned transaction
+const res = await fetch("https://your-domain.com/api/agent/execute", {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${API_KEY}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    tool: "openLong",
+    params: {
+      collateralAmount: 50,
+      collateralTokenSymbol: "USDC",
+      tokenSymbol: "JITOSOL",
+      leverage: 3,
+    },
+  }),
+});
+
+const { result } = await res.json();
+
+// 2. Decode and sign
+const tx = Transaction.from(Buffer.from(result.transaction, "base64"));
+tx.sign(wallet);
+
+// 3. Submit to Solana
+const signature = await connection.sendRawTransaction(tx.serialize());
+await connection.confirmTransaction(signature);
+
+console.log("Trade executed:", signature);
+```
+
+### Signing example (Python)
+
+```python
+import base64, requests
+from solders.keypair import Keypair
+from solders.transaction import Transaction
+from solana.rpc.api import Client
+
+API_KEY = "shoot_ak_..."
+wallet = Keypair()  # or load from file
+client = Client("https://api.mainnet-beta.solana.com")
+
+# 1. Get unsigned transaction
+res = requests.post(
+    "https://your-domain.com/api/agent/execute",
+    headers={
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json",
+    },
+    json={
+        "tool": "openLong",
+        "params": {
+            "collateralAmount": 50,
+            "collateralTokenSymbol": "USDC",
+            "tokenSymbol": "JITOSOL",
+            "leverage": 3,
+        },
+    },
+)
+
+result = res.json()["result"]
+
+# 2. Decode and sign
+tx_bytes = base64.b64decode(result["transaction"])
+tx = Transaction.from_bytes(tx_bytes)
+signed_tx = wallet.sign_message(tx.message_data())
+
+# 3. Submit to Solana
+sig = client.send_raw_transaction(bytes(tx))
+print(f"Trade executed: {sig.value}")
+```
+
+---
+
+## Security Model
+
+<CardGroup cols={2}>
+  <Card title="Non-Custodial" icon="shield">
+    The server never holds private keys. Trading tools return unsigned transactions that agents sign client-side. Your keys stay on your machine.
+  </Card>
+  <Card title="Wallet-Scoped" icon="lock">
+    Every tool call is scoped to the wallet bound to the API key. Even if an agent sends a different `account` in params, the server injects the authenticated wallet. You cannot generate transactions for wallets you don't own.
+  </Card>
+  <Card title="Key Isolation" icon="key">
+    API keys are SHA-256 hashed before storage. Plaintext is shown once at creation. Revoked keys are soft-deleted and immediately stop authenticating.
+  </Card>
+  <Card title="Rate Limited" icon="gauge">
+    Per-key sliding window rate limits prevent abuse. Trading operations are throttled more aggressively (10/min) than reads (60/min).
+  </Card>
+</CardGroup>
+
+---
+
+## Error Codes
+
+| Status | Meaning | Common Causes |
+|---|---|---|
+| `400` | Bad Request | Missing `tool` field, unknown tool name, invalid params |
+| `401` | Unauthorized | Missing or invalid API key, revoked key |
+| `429` | Rate Limited | Too many requests — check `Retry-After` header |
+| `500` | Server Error | Adrena API failure, tool execution error |
+
+All error responses follow the format:
+
+```json
+{ "error": "Human-readable error message" }
+```
+
+---
+
+## Available Markets
+
+| Symbol | Asset | Type |
+|---|---|---|
+| `SOL` | Solana | Crypto |
+| `BTC` | Bitcoin | Crypto |
+| `ETH` | Ethereum | Crypto |
+| `BONK` | Bonk | Crypto |
+| `JITOSOL` | Jito Staked SOL | Crypto |
+| `XAU` | Gold | Commodity |
+| `XAG` | Silver | Commodity |
+| `EUR` | Euro | Forex |
+| `GBP` | British Pound | Forex |
+
+**Collateral tokens:** `USDC`, `SOL`

@@ -1,0 +1,138 @@
+---
+title: "Arena Hub"
+description: "Prop Challenge Hub and World Cup competition engine for Adrena"
+---
+
+Arena Hub is a rolling cohort competition module for Adrena. Traders pay a small USDC entry fee on-chain, join a preset-driven cohort, and compete on a multi-dimensional tournament score — not just a raw PnL leaderboard.
+
+The system combines off-chain scoring with on-chain settlement via the [Shoot Anchor program](https://explorer.solana.com/address/4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG?cluster=devnet) on Solana, layered with engagement systems (quests, streaks, matchups, rivalries, narrative commentary) to keep traders active beyond the cash line.
+
+<Columns cols={3}>
+  <Card title="Live App" icon="globe" href="https://shoot-production-f218.up.railway.app/">
+    Railway
+  </Card>
+  <Card title="On-Chain" icon="link" href="https://explorer.solana.com/address/4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG?cluster=devnet">
+    Solana Explorer (devnet)
+  </Card>
+  <Card title="Bounty Submission" icon="flag-checkered" href="/guides/submission">
+    Deliverables + thinking process
+  </Card>
+</Columns>
+
+## Start Here
+
+<Columns cols={2}>
+  <Card
+    title="Architecture"
+    icon="sitemap"
+    href="/guides/architecture"
+  >
+    System overview — how the scoring engine, on-chain program, and live data pipeline connect.
+  </Card>
+  <Card
+    title="Feature Status"
+    icon="list-check"
+    href="/guides/feature-status"
+  >
+    What's production-ready with live data vs. Phase 2 design proposals.
+  </Card>
+</Columns>
+
+## How It Works
+
+<Columns cols={2}>
+  <Card
+    title="Scoring Engine"
+    icon="calculator"
+    href="/guides/scoring-engine"
+  >
+    Tournament scoring, Mutagen formula, RAROI for World Cup, tiebreakers, and challenge evaluation.
+  </Card>
+  <Card
+    title="Sybil Detection"
+    icon="shield-halved"
+    href="/guides/sybil-detection"
+  >
+    Funding source clustering, trading pattern correlation, and P&L mirroring detection.
+  </Card>
+  <Card
+    title="Engagement Systems"
+    icon="gamepad"
+    href="/guides/engagement"
+  >
+    Quests, streaks, matchups, rivalries, narrative commentary, spectator voting, and risk events.
+  </Card>
+  <Card
+    title="World Cup"
+    icon="earth-americas"
+    href="/guides/world-cup"
+  >
+    Group draws, qualifying, knockout bracket, redemption bracket, and division-specific markets.
+  </Card>
+  <Card
+    title="On-Chain Program"
+    icon="link"
+    href="/guides/onchain-program"
+  >
+    Shoot Anchor program — enrollment PDAs, vault escrow, and settlement.
+  </Card>
+  <Card
+    title="Revenue Model"
+    icon="coins"
+    href="/guides/revenue-model"
+  >
+    Fee allocation, ADX accrual mechanisms, and economic projections.
+  </Card>
+</Columns>
+
+## Design & Validation
+
+<Columns cols={2}>
+  <Card
+    title="Competition Design"
+    icon="trophy"
+    href="/guides/competition-design"
+  >
+    Tier parameters, specialist challenges, RAROI formula, reward structure, and competitive analysis.
+  </Card>
+  <Card
+    title="Funded Trader"
+    icon="arrow-up-right-dots"
+    href="/guides/funded-trader"
+  >
+    5-tier ladder from Watchlist to Partner with revenue share economics.
+  </Card>
+  <Card
+    title="Alpha Test Report"
+    icon="flask"
+    href="/guides/alpha-test-report"
+  >
+    7-day alpha with 24 users — all 5 hypotheses validated, NPS 59.
+  </Card>
+  <Card
+    title="Live Validation"
+    icon="chart-line"
+    href="/guides/live-validation"
+  >
+    Pipeline validation against 22 real Adrena wallets across 3 cohorts.
+  </Card>
+</Columns>
+
+## Infrastructure
+
+<Columns cols={2}>
+  <Card
+    title="Deployment Guide"
+    icon="rocket"
+    href="/guides/deployment"
+  >
+    Railway deployment, Docker, PostgreSQL, cron setup, and on-chain program deployment.
+  </Card>
+  <Card
+    title="Integration Contract"
+    icon="plug"
+    href="/guides/integration-contract"
+  >
+    API contract for the Adrena upstream snapshot endpoint.
+  </Card>
+</Columns>

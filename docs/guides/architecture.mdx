@@ -1,0 +1,125 @@
+---
+title: "Architecture"
+description: "System overview — how the off-chain scoring engine, on-chain program, and live data pipeline connect"
+icon: "sitemap"
+---
+
+## System Flow
+
+The competition platform combines off-chain scoring with on-chain settlement. Here's the end-to-end flow:
+
+<Steps>
+  <Step title="Enrollment">
+    Trader pays entry fee on-chain via the Shoot Anchor program. Funds are held in a PDA vault until settlement.
+  </Step>
+  <Step title="Live Trading">
+    Trader executes trades on Adrena. A WebSocket consumer persists trade events to the database. REST position polling provides a fallback.
+  </Step>
+  <Step title="Metrics Computation">
+    The off-chain engine (`adrena-live-adapter`) fetches positions or trade events, then computes PnL%, volume, win rate, consistency, and drawdown per trader.
+  </Step>
+  <Step title="Sybil Detection">
+    Three uncorrelated heuristics run in parallel: funding source clustering, trading pattern correlation, and P&L mirroring.
+  </Step>
+  <Step title="Scoring">
+    Two scoring formulas run in parallel — Tournament Score (additive, multi-factor) and Mutagen (multiplicative, per-trade). Both produce standings.
+  </Step>
+  <Step title="Social Layers">
+    Matchups, narrative beats, rivalries, crowd votes, and risk events are generated from standings changes.
+  </Step>
+  <Step title="Settlement">
+    Off-chain engine computes payouts. On-chain Shoot program distributes from the vault PDA to winning traders.
+  </Step>
+</Steps>
+
+## Architecture Diagram
+
+```
+┌────────────────────────────────────────────────────────┐
+│  Next.js App (Vercel)                                   │
+│                                                         │
+│  ┌─────────────┐  ┌──────────────┐  ┌───────────────┐  │
+│  │ Competition  │  │  World Cup   │  │   Admin       │  │
+│  │ Hub UI       │  │  Bracket UI  │  │   Dashboard   │  │
+│  └──────┬───────┘  └──────┬───────┘  └──────┬────────┘  │
+│         │                 │                  │           │
+│  ┌──────▼─────────────────▼──────────────────▼────────┐ │
+│  │              API Routes (/api/*)                    │ │
+│  │  competition/snapshot  │  world-cup/*  │  admin/*   │ │
+│  └──────┬─────────────────┴──────────────┬────────────┘ │
+│         │                                │              │
+│  ┌──────▼────────────┐  ┌────────────────▼────────────┐ │
+│  │  Scoring Engine   │  │  Always-On Services         │ │
+│  │  • Tournament     │  │  • Cohort Scheduler (cron)  │ │
+│  │  • Mutagen        │  │  • Streak Tracker (daily)   │ │
+│  │  • RAROI (WC)     │  │  • Quest Engine (events)    │ │
+│  │  • Sybil Detect   │  │  • Narrative Gen (live)     │ │
+│  └──────┬────────────┘  └─────────────────────────────┘ │
+└─────────┼───────────────────────────────────────────────┘
+          │
+    ┌─────┴─────────────────────┐
+    │                           │
+┌───▼──────────────┐   ┌───────▼──────────────┐
+│  Adrena Data API │   │  Shoot Anchor Prog   │
+│  (datapi.adrena  │   │  (Solana on-chain)   │
+│   .trade)        │   │  • Challenge PDAs    │
+│  • Positions     │   │  • Enrollment PDAs   │
+│  • Trade Events  │   │  • Vault PDAs        │
+│  • Pool Stats    │   │  • Settlement        │
+└──────────────────┘   └──────────────────────┘
+```
+
+## Dual Data Path
+
+The system uses two data sources for redundancy:
+
+<Tabs>
+  <Tab title="Primary: WebSocket Events">
+    Trade events streamed via WebSocket consumer (`lib/adrena/ws-consumer.ts`) and persisted to the database. This is the real-time, official path.
+  </Tab>
+  <Tab title="Fallback: REST Positions">
+    Positions fetched from `datapi.adrena.trade/position` via REST. Slower but reliable. Used when WebSocket data is unavailable or for initial bootstrapping.
+  </Tab>
+</Tabs>
+
+Both paths feed into the same metrics computation pipeline — `computeMetricsFromPositions()` normalizes the data regardless of source.
+
+## Key Design Patterns
+
+| Pattern | Where Used | Why |
+|---|---|---|
+| Seeded RNG | Matchups, group draws, risk scenarios | Deterministic results — same inputs always produce same outputs for auditability |
+| PDA Escrow | On-chain vaults | Capital immutability — funds locked until settlement, no admin withdrawal |
+| Event-Driven Quests | Quest engine | Lifecycle hooks trigger progress increments; decoupled from scoring |
+| Dual Data Path | Live adapter | WebSocket (primary) + REST (fallback) for redundancy |
+| Heuristic Abuse Detection | Sybil detector | Three uncorrelated signals (funding, pattern, P&L) prevent false positives |
+| Streaming Commentary | Narrative engine | Real-time beats generated from standings changes, not stored events |
+
+## Always-On Services
+
+These services run independently of user requests:
+
+| Service | Trigger | Cadence | Purpose |
+|---|---|---|---|
+| Cohort Scheduler | Vercel cron (`/api/cron/rotate-cohorts`) | Every 15 minutes | Creates new cohorts when existing ones expire |
+| Score Refresh | Vercel cron (`/api/competition/refresh`) | Every 5 minutes | Recomputes scores from latest trade data |
+| Streak Tracker | Daily UTC midnight | Once per day | Updates streak state for all active traders |
+| Quest Engine | Trade events | On each qualifying event | Increments quest progress |
+| SSE Stream | Client connection | Real-time | Pushes leaderboard updates to connected browsers |
+
+## Database Schema
+
+The system uses PostgreSQL (via Prisma) for persistent state. Key tables:
+
+| Table | Purpose |
+|---|---|
+| `enrollments` | Wallet → cohort mappings with entry fee receipts |
+| `leaderboard_rows` | Per-trader scores, metrics, and standings per cohort |
+| `sybil_flags` | Abuse detection results with confidence levels |
+| `streak_state` | Per-wallet streak tracking (current streak, last activity) |
+| `quest_progress` | Per-wallet quest completion state |
+| `spectator_votes` | Crowd favorite votes per matchup |
+| `funded_trader_profiles` | Funded ladder status and progression |
+| `world_cup_seasons` | Tournament state (groups, brackets, matches) |
+
+See `prisma/schema.prisma` for full definitions.

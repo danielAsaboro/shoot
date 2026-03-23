@@ -1,0 +1,75 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "willow",
+  "name": "Arena Hub",
+  "colors": {
+    "primary": "#16A34A",
+    "light": "#07C983",
+    "dark": "#15803D"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "index",
+              "guides/submission",
+              "guides/architecture",
+              "guides/feature-status"
+            ]
+          },
+          {
+            "group": "How It Works",
+            "pages": [
+              "guides/scoring-engine",
+              "guides/sybil-detection",
+              "guides/engagement",
+              "guides/world-cup",
+              "guides/onchain-program",
+              "guides/revenue-model",
+              "guides/agent-api"
+            ]
+          },
+          {
+            "group": "Competition Design",
+            "pages": [
+              "guides/competition-design",
+              "guides/funded-trader"
+            ]
+          },
+          {
+            "group": "Infrastructure",
+            "pages": [
+              "guides/deployment",
+              "guides/configuration",
+              "guides/integration-contract"
+            ]
+          },
+          {
+            "group": "Validation",
+            "pages": [
+              "guides/alpha-test-report",
+              "guides/live-validation"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "claude",
+      "cursor"
+    ]
+  }
+}
