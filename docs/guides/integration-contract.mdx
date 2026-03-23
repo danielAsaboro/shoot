@@ -1,0 +1,97 @@
+---
+title: "Integration Contract"
+description: "API contract specification for the Adrena upstream snapshot endpoint"
+icon: "plug"
+---
+
+This is the backend handoff for the `adrena` provider path.
+
+## Endpoint
+
+| Route | URL |
+|---|---|
+| App provider expects | `GET {ADRENA_COMPETITION_API_BASE_URL}/snapshot` |
+| Example local route | `/api/adrena-upstream/snapshot` |
+| Source-mapped local route | `/api/adrena-upstream/mapped-snapshot` |
+| Machine-readable schema + example | `/api/adrena-upstream/schema` |
+
+## Query Parameters
+
+| Parameter | Type | Description |
+|---|---|---|
+| `wallet` | string (optional) | Wallet address used to personalize viewer state |
+| `enrolledCohortId` | string (optional) | Cohort ID used to personalize viewer enrollment |
+
+## Response Contract
+
+The upstream response must match schema version `adrena-competition-snapshot-v1`.
+
+Top-level fields:
+
+- `meta`
+- `config`
+- `season`
+- `viewer`
+- `cohorts`
+
+## Backend Source Records
+
+The following records need to exist on the backend:
+
+- Competition config / preset definitions
+- Season aggregates
+- Cohort definitions
+- Leaderboard rows per cohort
+- Abuse review rows per cohort
+- Viewer profile state
+- Viewer quest progress / raffle / streak state
+
+The repo includes a concrete mapping layer in `lib/competition/adrena-source-adapters.ts` showing how these source records become the normalized snapshot contract.
+
+## Field Rules
+
+<Warning>
+All of the following rules are enforced at runtime — invalid payloads fail fast with descriptive field-level errors.
+</Warning>
+
+- All timestamps must be ISO strings.
+- Numeric values must be numbers, not strings.
+- `viewer.enrolled_cohort_id` and `viewer.reward_preview` may be `null`.
+- Suspicious accounts should remain present in `cohorts[].standings`; use `eligible=false` and `disqualification_reason` instead of dropping them.
+- Reward rows should already be sorted and rank-aligned with standings.
+
+## Normalization Behavior
+
+- The app validates upstream payloads at runtime before using them.
+- Invalid payloads fail fast with descriptive field-level errors.
+- The client consumes only the internal normalized snapshot shape after validation.
+
+## Local Verification
+
+```bash
+NEXT_PUBLIC_COMPETITION_PROVIDER=adrena \
+ADRENA_COMPETITION_API_BASE_URL=http://localhost:3000/api/adrena-upstream \
+npm run dev
+```
+
+Then check:
+
+```bash
+# Raw upstream snapshot
+curl http://localhost:3000/api/adrena-upstream/snapshot
+
+# Mapped from source records
+curl http://localhost:3000/api/adrena-upstream/mapped-snapshot
+
+# Schema definition + example payload
+curl http://localhost:3000/api/adrena-upstream/schema
+
+# Full app provider path
+curl "http://localhost:3000/api/competition/snapshot?wallet=wallet-example-1234&enrolledCohortId=cohort-macro-0319"
+```
+
+## Backend Implementation Notes
+
+- If Adrena has richer internal fields, map them upstream and keep this route as the stable contract boundary.
+- Version the schema by changing `meta.schema_version` and adding a new normalizer when breaking changes are needed.
+- Keep source-specific heuristics outside the UI repo; this repo should only consume the stable snapshot contract.

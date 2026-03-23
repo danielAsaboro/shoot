@@ -1,0 +1,88 @@
+# Funded Trader Progression — Design Proposal
+
+## What This Prototype Builds
+
+The evaluation engine is fully implemented: a 5-tier ladder (Watchlist →
+Funded → Senior Funded → Captain → Partner) that computes trader eligibility
+based on season points, best placement finish, and consecutive active weeks.
+
+**Implemented:**
+- Ladder configuration with point thresholds, finish requirements, and week minimums
+- `evaluateFundedLevel()` — walks the ladder top-down to find highest qualifying level
+- `computePromotionProgress()` — percentage progress toward the next tier
+- `generateFundedTraderProfile()` — assembles a profile from competition history
+- Revenue share projections (150–1,500 bps) displayed in the UI
+- Promotion/demotion tracking with transition history
+
+**Not implemented (requires Adrena team):**
+- On-chain capital allocation program (Anchor)
+- Treasury vault for funded trader capital
+- Revenue share distribution mechanism
+- Admin multisig for level approval/override
+- Demotion enforcement after inactivity periods
+
+## Why This Design
+
+Traditional prop firms (FTMO, Topstep) charge $100–$500 for evaluation.
+Adrena's entry fees are $2–$50 — 50× cheaper — which democratizes access
+while maintaining anti-sybil properties. The funded progression creates
+a long-term retention loop beyond one-off prize payouts:
+
+1. **Scout/Ranger** — Low-stakes entry, learn the system
+2. **Veteran** — Prove consistency over multiple weeks
+3. **Elite/Apex** — Funded-eligible, revenue share begins
+4. **Captain/Partner** — Governance participation, protocol advisory
+
+Each tier requires progressively more weeks of activity, creating natural
+stickiness that compounds with Adrena's season structure.
+
+## Revenue Share Economics
+
+| Level | Rev Share | Projected Monthly (at $10M protocol volume) |
+|-------|----------|---------------------------------------------|
+| Watchlist | 150 bps | $15,000 shared across all Watchlist traders |
+| Funded | 450 bps | $45,000 shared across Funded tier |
+| Senior Funded | 700 bps | $70,000 shared |
+| Captain | 1,000 bps | $100,000 shared |
+| Partner | 1,500 bps | $150,000 shared |
+
+Revenue share comes from the protocol's fee revenue, not a separate pool.
+This aligns funded traders' incentives with protocol growth.
+
+## Integration Path for Adrena Team
+
+### Step 1: Database tables (provided in `schema.sql`)
+```sql
+CREATE TABLE funded_trader_profiles (
+  wallet TEXT PRIMARY KEY,
+  current_level TEXT NOT NULL DEFAULT 'watchlist',
+  season_points INTEGER NOT NULL DEFAULT 0,
+  consecutive_eligible_weeks INTEGER NOT NULL DEFAULT 0,
+  best_finish INTEGER NOT NULL DEFAULT 99,
+  promotion_progress REAL NOT NULL DEFAULT 0,
+  updated_at TIMESTAMP DEFAULT now()
+);
+```
+
+### Step 2: Admin approval flow
+- Captain and Partner tiers should require manual admin approval
+- Admin multisig signs a transaction promoting the trader
+- Demotion after 4 weeks of inactivity is automatic
+
+### Step 3: On-chain program
+- `FundedTraderAccount` PDA: stores level, capital allocation, revenue share bps
+- `promote_trader` instruction: admin multisig → updates level + capital
+- `distribute_revenue` instruction: cron-triggered, reads fee accumulator, distributes pro-rata
+
+### Step 4: Revenue share distribution
+- Daily or weekly crank reads total protocol fees
+- Pro-rata distribution based on active funded traders and their bps allocation
+- Vested over 7 days to prevent funded-then-withdraw gaming
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `lib/competition/funded-ladder.ts` | Ladder config, evaluation logic, promotion computation |
+| `app/components/competition-funded-desk.tsx` | UI for ladder visualization |
+| `lib/competition/types.ts` | `FundedDeskConfig`, `FundedTraderProfile` types |

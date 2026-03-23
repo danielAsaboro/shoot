@@ -1,0 +1,266 @@
+---
+title: "Competition Design"
+description: "Core mechanics of the Adrena Prop Challenge Hub — tiers, scoring, World Cup format, and engagement loops"
+icon: "trophy"
+---
+
+## Problem Analysis
+
+Before proposing solutions, this section documents what Adrena's Season 1 revealed and what the strategic opportunity is.
+
+### What Season 1 Revealed
+
+Adrena's first trading competition (Jan 31 – Apr 11, 2025) ran during a brutal market. SOL dropped 50%, BTC dropped 20%. Despite this, competitions were the single biggest driver of user acquisition and volume. But Season 1 exposed five structural issues:
+
+**Issue 1: Engagement Cliff.** A 10-week season is too long. Mutagen accumulation is linear, so week 7 feels identical to week 2. Volume is front-loaded and decays after the first few weeks.
+
+**Issue 2: Sybil Economics Are Cheap.** The Z\_D\_K / D\_K\_Z cluster on the Season 1 leaderboard demonstrated that spinning up multiple wallets to farm quest rewards costs almost nothing. The Mutagen system rewards activity breadth (quests, streaks) alongside volume, which sybils can grind cheaply.
+
+**Issue 3: Whale Asymmetry.** Volume-tiered brackets help, but absolute P&L still dominates final rankings. A $500 trader making disciplined, skilled trades has no path to meaningful prizes against traders putting $25K–$100K on the line.
+
+**Issue 4: No New User Funnel.** The competition assumes you already know how to trade perps. There's no structured on-ramp for someone who just connected their wallet for the first time. Competitions should be Adrena's top-of-funnel, not a feature for existing power users only.
+
+**Issue 5: Single-Format Risk.** When 50% of all volume comes from competition activity and that depends on one seasonal leaderboard format, Adrena has a concentration risk. One bad season could crater volume.
+
+### The Strategic Opportunity: RWA Markets
+
+Adrena's partnership with Autonom to bring Forex, Gold, Oil, and equity indices on-chain is the protocol's biggest strategic differentiator. Jupiter, Drift, and Hyperliquid don't have this. Competition formats that specifically drive adoption of RWA markets create a moat competitors cannot replicate without equivalent oracle infrastructure.
+
+### Design Principles
+
+Every decision in this design follows four principles:
+
+1. **Entry fee > free farming.** If it costs money to enter, sybils need to fund each wallet. This is the single most effective anti-sybil mechanism.
+2. **Skill over capital.** Scoring must allow a $200 trader to outperform a $20,000 trader through better risk-adjusted returns.
+3. **Always-on > seasonal.** Multiple overlapping competitions with different durations prevent engagement cliffs.
+4. **Drive RWA adoption.** Every format should have a natural hook that pulls traders into Adrena's new traditional markets.
+
+---
+
+## Two Interlocking Formats
+
+The competition engine has two complementary formats:
+
+| | **Prop Challenges** | **World Cup** |
+|---|---|---|
+| **Cadence** | Always-on (rolling 7–14 day cohorts) | Seasonal (4× per year, 3 weeks each) |
+| **Primary Goal** | Onboarding + continuous engagement | Event-driven hype + RWA adoption |
+| **Revenue Model** | Entry fees (self-funding) | Protocol-funded prize pool |
+| **Engagement Type** | Personal achievement ("Can I pass?") | Competitive spectacle ("Who's the best?") |
+| **New User Friendly** | Yes — structured, low-risk missions | Moderate — exciting to watch, accessible to enter |
+| **Anti-Sybil** | Entry fee makes farming negative EV | Free qualifying + paid knockout buy-in |
+
+These formats don't compete with each other or with existing Mutagen seasons. Prop Challenge performance determines World Cup seeding. Mutagen is earned in both. Quests, streaks, and raffles overlay both.
+
+---
+
+## Proposed Format
+
+Prop Challenge Hub is a rolling cohort competition module for Adrena. Traders
+pay a small entry fee, join a preset-driven cohort, and compete on a visible
+tournament score instead of a raw PnL board alone.
+
+V1 uses one reusable rules engine with multiple preset narratives:
+
+- **Macro Sprint** for FX and macro-oriented RWA pairs
+- **Carry Breaker** for commodities and rate-sensitive rotation
+- **Crypto Impulse** for high-beta crypto perps
+
+This keeps the system extensible while preserving one operationally simple
+competition backend.
+
+## Challenge Flow
+
+```
+[Pay Entry Fee] → [Challenge Active] → [Trade Normally on Adrena]
+       ↓                                        ↓
+  Fee → Vault PDA                    Indexer tracks P&L, drawdown
+                                             ↓
+                             ┌───────────────┼───────────────┐
+                             ↓               ↓               ↓
+                       [Hit Target]   [Breach Drawdown]  [Time Expires]
+                             ↓               ↓               ↓
+                         ✅ PASS         ❌ FAIL          ❌ FAIL
+                             ↓               ↓               ↓
+                    Rewards + Badge    Retry available    Retry available
+                    + "Funded" status  (30% discount)    (30% discount)
+```
+
+- Drawdown is measured from the **high-water mark** during the challenge, not from starting balance — prevents "get lucky once then coast."
+- **Daily Loss Limit** is a circuit breaker: losing 3% of starting balance in a single UTC calendar day suspends the challenge until midnight. Prevents tilt trading.
+- All Adrena trades count, including existing open positions. No separate account needed.
+
+### Retry Economics
+
+Failed challenges can be retried at a 30% discount within 48 hours. The discount window captures the impulse of a failed trader who almost passed.
+
+Back-of-envelope: 1,000 Scout attempts per month at $2 with a 35% pass rate → 650 failures × 55% retry rate × $1.40 retry fee = **~$500/month in retry revenue** from Scout alone, on top of $2,000 in initial fees. At scale, this makes the Challenge Vault self-sustaining.
+
+<Note>
+Alpha test validated 55% retry rate (target was 25%) — retry revenue projections are conservative by at least 2×.
+</Note>
+
+## Challenge Tier Parameters
+
+| Tier | Entry Fee | Min Capital | Profit Target | Max DD | Daily Limit | Duration | Funded Eligible | Retry Discount |
+|------|-----------|-------------|---------------|--------|-------------|----------|-----------------|----------------|
+| Scout | $2 | $50 | 8% | 5% | 3% | 7 days | No | 30% |
+| Ranger | $5 | $200 | 10% | 8% | 4% | 10 days | No | 30% |
+| Veteran | $10 | $500 | 12% | 6% | 3% | 10 days | No | 30% |
+| Elite | $25 | $2,000 | 15% | 5% | 2.5% | 14 days | Yes | 30% |
+| Apex | $50 | $5,000 | 15% | 4% | 2% | 14 days | Yes | 30% |
+
+<Note>
+**When to adjust:**
+- Pass rate > 40%: tighten profit target by 2pp or reduce max drawdown by 1pp
+- Pass rate < 15%: relax drawdown limit by 1pp or extend duration by 2 days
+- Retry rate < 20%: increase discount to 40%
+</Note>
+
+## Specialist Challenges
+
+Specialist challenges restrict traders to a single asset class, driving
+adoption of Adrena's RWA markets while rewarding domain expertise.
+
+| Specialist | Markets | Bonus Multiplier |
+|-----------|---------|-----------------|
+| Forex | EURUSD, GBPUSD, USDJPY, AUDUSD | 1.15x |
+| Commodities | XAU, XAG, WTI, BRENT | 1.20x |
+| Crypto | BTC, ETH, SOL, BONK | 1.10x |
+| Multi-Asset | BTC, ETH, XAU, EURUSD, WTI | 1.25x |
+
+Trading on disallowed markets during a specialist challenge immediately
+disqualifies the attempt. The 5-25% bonus multiplier applies to the final
+score, rewarding traders who demonstrate deep competence in a focused domain.
+
+Specialist challenges serve as an RWA adoption driver: when Adrena launches
+new commodity or forex perpetuals, a corresponding specialist challenge
+creates immediate demand and liquidity.
+
+## World Cup Format
+
+The World Cup is a seasonal knockout tournament that runs alongside the
+rolling prop challenges. It provides the highest-stakes competitive format.
+
+### Structure
+
+<Steps>
+  <Step title="4 Divisions">
+    Crypto Cup, Metals Cup, Energy Cup, Forex Cup
+  </Step>
+  <Step title="Qualifying Phase (2 weeks)">
+    Top N traders per division by composite score qualify for the knockout bracket
+  </Step>
+  <Step title="Knockout Phase">
+    Single-elimination bracket, head-to-head RAROI comparison
+  </Step>
+  <Step title="Grand Finals">
+    Division champions compete in a 48-hour all-markets battle
+  </Step>
+</Steps>
+
+### Redemption Bracket
+
+Semi-final losers are paired in a separate redemption bracket. The redemption
+winner earns the "Comeback" badge and re-enters the season point pool. This
+keeps eliminated traders engaged instead of churning.
+
+### Desk Wars
+
+Traders are assigned to desks (teams of 3-5). Desk aggregate scores
+contribute a supporter bonus. Top desk earns the "Desk Champion" badge
+and an extra prize pool share.
+
+## RAROI Formula
+
+Risk-Adjusted Return on Investment (RAROI) is the head-to-head scoring metric
+for World Cup matches. Unlike the additive cohort scoring (which also weights
+volume to incentivize activity), RAROI is a multiplicative formula that
+rewards skill-intensive trading:
+
+```
+RAROI = ROI% x WinRateFactor x ActivityFactor - DrawdownPenalty
+```
+
+Where:
+- **ROI%** = realized P&L as percentage of starting equity
+- **WinRateFactor** = min(2.0, 0.5 + (winRate/100) x 1.5)
+- **ActivityFactor** = min(1.5, 0.5 + activeDays/totalDays)
+- **DrawdownPenalty** = maxDrawdown% x 0.3
+
+### Worked Example
+
+| Trader | ROI% | Win Rate | Active Days | Total Days | Max DD | RAROI |
+|--------|------|----------|-------------|------------|--------|-------|
+| Dave | 40% | 70% | 14 | 14 | 5% | **91.50** |
+| Alice | 20% | 60% | 13 | 14 | 3% | **39.10** |
+| Carol | 25% | 50% | 7 | 14 | 5% | **29.75** |
+| Bob | 2% | 55% | 10 | 14 | 2% | **2.62** |
+
+- **Dave** dominates with high ROI, strong win rate, and perfect activity — even with the same 5% drawdown as Carol, his multiplicative advantage is decisive.
+- **Alice** beats Carol despite lower ROI because her 13/14 active days (AF=1.43) and 60% win rate (WRF=1.4) multiply more effectively than Carol's 7/14 activity.
+- **Bob** demonstrates that RAROI punishes low ROI harshly — even with the best drawdown (2%), a 2% ROI produces a negligible score.
+
+## Rules and Scoring
+
+- Users join a time-bounded cohort with a fixed participant cap.
+- Tournament score is computed from:
+  - realized PnL percentage
+  - trading volume
+  - consistency score
+  - win rate
+  - max drawdown penalty
+- Ties break by higher PnL, then higher volume, then earliest attainment time.
+- Suspicious accounts remain visible on the board but cannot claim rewards until ops review is complete.
+
+## Reward Structure
+
+- Entry fees contribute to each cohort prize pool.
+- Fee allocation: **60% rewards pool**, **25% ADX buyback**, **15% raffle prizes**.
+- Top five eligible traders receive deterministic payout splits.
+- Top finishers also earn Funded Trader season status with modeled revenue-share eligibility.
+- Quest points, streak boosts, and raffle tickets are layered on top so users still care even when they are outside the cash line.
+- A projection lab shows how changing trader behavior alters rank, payout, and funded progression.
+
+## Competitive Analysis
+
+<Accordion title="vs Jupiter Perps Competitions">
+Jupiter runs simple PnL leaderboards with no entry fee. Adrena's prop challenge
+format adds: paid entry (anti-sybil), funded trader progression (retention),
+specialist challenges (RWA adoption), and engagement loops (quests/streaks/raffles).
+</Accordion>
+
+<Accordion title="vs Drift Trading Competitions">
+Drift competitions focus on volume incentives. Adrena's scoring is multi-dimensional
+(PnL + volume + consistency + win rate - drawdown), preventing pure volume farming
+from dominating the leaderboard.
+</Accordion>
+
+<Accordion title="vs Hyperliquid Competitions">
+Hyperliquid runs invite-only competitions for elite traders. Adrena's tiered system
+(Scout to Apex) creates an accessible on-ramp: anyone can start at $2 Scout and
+work up to Apex. The World Cup format then provides the elite competitive layer.
+</Accordion>
+
+<Accordion title="Adrena's RWA Moat">
+No competitor offers specialist challenges across forex, commodities, and crypto
+perpetuals. Adrena's Autonom-powered RWA markets are a unique differentiator —
+the specialist challenge format directly converts this technical moat into
+user engagement and liquidity.
+</Accordion>
+
+## Why This Is More Engaging
+
+- It replaces passive leaderboard watching with an explicit enrollment decision.
+- Paid entry introduces commitment and raises the cost of sybil farming.
+- Funded-season status creates an aspirational progression layer beyond one-off prizes.
+- Preset narratives let Adrena spotlight new Autonom-powered RWA markets without building one-off event code for each launch.
+- Quests, streaks, and raffles turn cohorts into an engagement hub rather than a single leaderboard page.
+
+## Edge Cases and Abuse Prevention
+
+- Manual-review, sybil, wash-trading, and self-trading flags all block rewards.
+- Flagged users remain publicly visible to preserve leaderboard transparency.
+- Capacity and fixed windows prevent late unlimited farming.
+- Deterministic tie-breakers avoid operator discretion at payout boundaries.
+- Sybil detection heuristics: same funding source within 1h = cluster, 3+ wallets from same source = flagged for manual review, identical entry timestamps elevate confidence to "high".
