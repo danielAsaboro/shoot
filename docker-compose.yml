@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_PRIVY_APP_ID=${NEXT_PUBLIC_PRIVY_APP_ID}
+      - NEXT_PUBLIC_COMPETITION_PROVIDER=${NEXT_PUBLIC_COMPETITION_PROVIDER:-mock}
+      - NEXT_PUBLIC_SOLANA_RPC=${NEXT_PUBLIC_SOLANA_RPC:-https://api.devnet.solana.com}
+      - DATABASE_URL=postgresql://shoot:shoot@db:5432/adrena_competition
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL:-}
+      - CRON_SECRET=${CRON_SECRET:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: shoot
+      POSTGRES_PASSWORD: shoot
+      POSTGRES_DB: adrena_competition
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shoot"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
