@@ -58,10 +58,10 @@ async function seedApiKey(
 }
 
 async function cleanupTestKeys() {
-  await pool.query(
-    `DELETE FROM agent_api_keys WHERE wallet IN ($1, $2)`,
-    [AUTH_TEST_WALLET, REAL_WALLET]
-  );
+  await pool.query(`DELETE FROM agent_api_keys WHERE wallet IN ($1, $2)`, [
+    AUTH_TEST_WALLET,
+    REAL_WALLET,
+  ]);
 }
 
 function authHeader(key: string) {
@@ -243,7 +243,8 @@ describe("Agent execute: Adrena read tools", () => {
       Array.isArray((body.result as Record<string, unknown>).custodies),
       "result should contain a custodies array"
     );
-    const custodies = (body.result as Record<string, unknown>).custodies as Array<Record<string, unknown>>;
+    const custodies = (body.result as Record<string, unknown>)
+      .custodies as Array<Record<string, unknown>>;
     assert.ok(custodies.length > 0, "should have at least one custody");
     assert.equal(typeof custodies[0].symbol, "string");
   });
@@ -404,7 +405,9 @@ describe("Agent trading tools return unsigned transactions", () => {
       }),
     });
     assert.equal(res.status, 200);
-    const body = (await res.json()) as { result: { requiresSignature: boolean } };
+    const body = (await res.json()) as {
+      result: { requiresSignature: boolean };
+    };
     assert.equal(body.result.requiresSignature, true);
   });
 });

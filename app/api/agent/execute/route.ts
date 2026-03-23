@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
       );
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = await selectedTool.execute(params ?? {} as any, {
+    const result = await selectedTool.execute(params ?? ({} as any), {
       toolCallId: `exec_${Date.now()}`,
       messages: [],
     });

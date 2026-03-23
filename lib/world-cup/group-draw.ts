@@ -72,8 +72,8 @@ export function drawGroups(
 
   // Split into 4 pots of 8
   const pots = [
-    sorted.slice(0, 8),   // Pot 1: seeds 1-8
-    sorted.slice(8, 16),  // Pot 2: seeds 9-16
+    sorted.slice(0, 8), // Pot 1: seeds 1-8
+    sorted.slice(8, 16), // Pot 2: seeds 9-16
     sorted.slice(16, 24), // Pot 3: seeds 17-24
     sorted.slice(24, 32), // Pot 4: seeds 25-32
   ];
@@ -117,9 +117,7 @@ function ensureGroupOfDeath(groups: Group[]): void {
   // (meaning it has stronger seeds than expected)
   const threshold = avgStrength * 0.85;
 
-  const naturalGroupOfDeath = sorted.find(
-    (g) => g.seedStrength <= threshold
-  );
+  const naturalGroupOfDeath = sorted.find((g) => g.seedStrength <= threshold);
 
   if (naturalGroupOfDeath) {
     naturalGroupOfDeath.isGroupOfDeath = true;
@@ -159,9 +157,11 @@ function ensureGroupOfDeath(groups: Group[]): void {
 
 // ── Generate round-robin schedule ──────────────────────────────────────────────
 
-export function generateRoundRobinSchedule(
-  group: Group
-): { traderA: LeaderboardEntry; traderB: LeaderboardEntry; matchday: number }[] {
+export function generateRoundRobinSchedule(group: Group): {
+  traderA: LeaderboardEntry;
+  traderB: LeaderboardEntry;
+  matchday: number;
+}[] {
   const t = group.traders;
   if (t.length !== 4) {
     throw new Error(`Group ${group.id} must have exactly 4 traders`);

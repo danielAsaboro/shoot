@@ -19,9 +19,7 @@ function truncateWallet(wallet: string): string {
 }
 
 function timeAgo(dateStr: string): string {
-  const seconds = Math.floor(
-    (Date.now() - new Date(dateStr).getTime()) / 1000
-  );
+  const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
   if (seconds < 60) return `${seconds}s ago`;
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes}m ago`;
@@ -75,7 +73,9 @@ export default function LiveTradeFeed({ trades }: LiveTradeFeedProps) {
                 <span className="font-mono text-[var(--text-secondary)]">
                   {truncateWallet(trade.wallet)}
                 </span>
-                <span className="text-[var(--text-tertiary)]">{trade.market}</span>
+                <span className="text-[var(--text-tertiary)]">
+                  {trade.market}
+                </span>
                 <span
                   className={`rounded-[2px] px-1.5 py-0.5 text-xs font-semibold uppercase ${
                     isLong

@@ -9,7 +9,8 @@ export function generateEquityPath(
   height: number,
   padding = 4
 ): { path: string; startY: number; hwmY: number } {
-  if (points.length < 2) return { path: "", startY: height / 2, hwmY: height / 2 };
+  if (points.length < 2)
+    return { path: "", startY: height / 2, hwmY: height / 2 };
 
   const min = Math.min(...points);
   const max = Math.max(...points);
@@ -23,7 +24,9 @@ export function generateEquityPath(
     return { x, y };
   });
 
-  const d = coords.map((c, i) => `${i === 0 ? "M" : "L"}${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(" ");
+  const d = coords
+    .map((c, i) => `${i === 0 ? "M" : "L"}${c.x.toFixed(1)},${c.y.toFixed(1)}`)
+    .join(" ");
   const startY = padding + usableH - ((points[0] - min) / range) * usableH;
   const hwm = Math.max(...points);
   const hwmY = padding + usableH - ((hwm - min) / range) * usableH;

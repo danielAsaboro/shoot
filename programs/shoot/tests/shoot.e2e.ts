@@ -56,10 +56,7 @@ describe("shoot (Surfpool E2E)", function () {
       const challengeId = "time-test";
       const durationSeconds = 3600; // 1 hour
 
-      const [challengePda] = findChallengePda(
-        authority.publicKey,
-        challengeId
-      );
+      const [challengePda] = findChallengePda(authority.publicKey, challengeId);
       const [vaultPda] = findVaultPda(challengePda);
 
       // Record clock before
@@ -85,10 +82,7 @@ describe("shoot (Surfpool E2E)", function () {
   describe("account state manipulation", () => {
     it("pre-funds vault with surfnet_setAccount", async () => {
       const challengeId = "funded-vault";
-      const [challengePda] = findChallengePda(
-        authority.publicKey,
-        challengeId
-      );
+      const [challengePda] = findChallengePda(authority.publicKey, challengeId);
       const [vaultPda] = findVaultPda(challengePda);
 
       // Pre-fund the vault with 100 SOL

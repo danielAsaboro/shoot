@@ -39,7 +39,9 @@ export const MULTIPLIER_BANDS: MultiplierBand[] = [
 ];
 
 export function getMultiplier(streakDays: number): number {
-  const band = MULTIPLIER_BANDS.find((b) => streakDays >= b.min && streakDays <= b.max);
+  const band = MULTIPLIER_BANDS.find(
+    (b) => streakDays >= b.min && streakDays <= b.max
+  );
   return band?.multiplier ?? 1;
 }
 
@@ -63,7 +65,9 @@ export class StreakTracker {
   async loadFromDb(): Promise<void> {
     if (!this.wallet) return;
     try {
-      const res = await fetch(`/api/competition/streak?wallet=${encodeURIComponent(this.wallet)}`);
+      const res = await fetch(
+        `/api/competition/streak?wallet=${encodeURIComponent(this.wallet)}`
+      );
       if (!res.ok) return;
       const data = await res.json();
       if (data.streak) {

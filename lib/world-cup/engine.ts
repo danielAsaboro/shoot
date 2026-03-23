@@ -733,17 +733,27 @@ export function simulateGroupMatch(
   _twistMarket?: string
 ): GroupMatch {
   const rng = createEngineRng(
-    hashEngineSeed(`${groupId}-${traderA.trader.id}-${traderB.trader.id}-${matchday}`)
+    hashEngineSeed(
+      `${groupId}-${traderA.trader.id}-${traderB.trader.id}-${matchday}`
+    )
   );
 
   // Base RAROI from trader metrics with noise — ±12 range to allow genuine upsets
   const noiseA = (rng() - 0.5) * 24;
   const noiseB = (rng() - 0.5) * 24;
   const raroiA = Number(
-    (traderA.metrics.riskAdjustedPnl * 0.6 + traderA.metrics.consistency * 0.2 + noiseA).toFixed(2)
+    (
+      traderA.metrics.riskAdjustedPnl * 0.6 +
+      traderA.metrics.consistency * 0.2 +
+      noiseA
+    ).toFixed(2)
   );
   const raroiB = Number(
-    (traderB.metrics.riskAdjustedPnl * 0.6 + traderB.metrics.consistency * 0.2 + noiseB).toFixed(2)
+    (
+      traderB.metrics.riskAdjustedPnl * 0.6 +
+      traderB.metrics.consistency * 0.2 +
+      noiseB
+    ).toFixed(2)
   );
 
   const diff = raroiA - raroiB;
@@ -939,7 +949,11 @@ export function resolveKnockoutMatch(
 
 // ── Power-Up Application ──────────────────────────────────────────────────────
 
-import { POWER_UP_CATALOG, KNOCKOUT_BUYIN_USDC, FUNDED_TRADER_BUYIN_EXEMPT } from "./types.ts";
+import {
+  POWER_UP_CATALOG,
+  KNOCKOUT_BUYIN_USDC,
+  FUNDED_TRADER_BUYIN_EXEMPT,
+} from "./types.ts";
 
 /**
  * Apply a power-up to a knockout match's RAROI computation.
@@ -994,14 +1008,16 @@ export function applyPowerUp(
         return {
           adjustedRaroi: baseRaroi + 2.5,
           powerUpUsed: true,
-          description: "Overtime Shield: match extended 12h, bonus RAROI applied",
+          description:
+            "Overtime Shield: match extended 12h, bonus RAROI applied",
         };
       }
       // Match wasn't close enough — shield wasted
       return {
         adjustedRaroi: baseRaroi,
         powerUpUsed: false,
-        description: "Overtime Shield: margin too wide, shield did not activate",
+        description:
+          "Overtime Shield: margin too wide, shield did not activate",
       };
 
     default:
@@ -1044,12 +1060,8 @@ export function getDefaultTwists(): MarketTwist[] {
 
 // ── Golden Trade tracker ───────────────────────────────────────────────────────
 
-export function findGoldenTrade(
-  bracket: GroupStageBracket
-): GoldenTrade {
-  const rng = createEngineRng(
-    hashEngineSeed(`golden-${bracket.division}`)
-  );
+export function findGoldenTrade(bracket: GroupStageBracket): GoldenTrade {
+  const rng = createEngineRng(hashEngineSeed(`golden-${bracket.division}`));
 
   // Find the best performer across all knockout matches
   const allMatches = [
@@ -1082,7 +1094,7 @@ export function findGoldenTrade(
   const divMarkets = markets[bracket.division] ?? ["BTC"];
   const market = divMarkets[Math.floor(rng() * divMarkets.length)];
   const leverage = Math.round(3 + rng() * 17);
-  const pnlPercent = Number((bestPnl / 1000 * leverage * 0.01).toFixed(1));
+  const pnlPercent = Number(((bestPnl / 1000) * leverage * 0.01).toFixed(1));
 
   return {
     traderId: bestEntry?.trader.id ?? "unknown",
@@ -1110,10 +1122,8 @@ export function computeLiveOdds(match: KnockoutMatch): LiveOdds {
     };
   }
 
-  const leftPower =
-    match.left.score + match.left.metrics.consistency * 0.05;
-  const rightPower =
-    match.right.score + match.right.metrics.consistency * 0.05;
+  const leftPower = match.left.score + match.left.metrics.consistency * 0.05;
+  const rightPower = match.right.score + match.right.metrics.consistency * 0.05;
   const total = leftPower + rightPower;
 
   const leftProb = Number((leftPower / total).toFixed(3));
@@ -1122,8 +1132,8 @@ export function computeLiveOdds(match: KnockoutMatch): LiveOdds {
     Math.max(0, 0.15 - Math.abs(leftProb - rightProb) * 0.5).toFixed(3)
   );
 
-  const adjustedLeft = Number(((leftProb * (1 - drawProb))).toFixed(3));
-  const adjustedRight = Number(((rightProb * (1 - drawProb))).toFixed(3));
+  const adjustedLeft = Number((leftProb * (1 - drawProb)).toFixed(3));
+  const adjustedRight = Number((rightProb * (1 - drawProb)).toFixed(3));
 
   const diff = Math.abs(leftPower - rightPower);
   const trend: "gaining" | "losing" | "stable" =
@@ -1190,9 +1200,7 @@ export function createFullBracket({
 
   for (const group of groups) {
     const winner = group.standings.find((s) => s.groupWinner);
-    const runnerUp = group.standings.find(
-      (s) => s.qualified && !s.groupWinner
-    );
+    const runnerUp = group.standings.find((s) => s.qualified && !s.groupWinner);
     if (winner) groupWinners.push(winner.entry);
     if (runnerUp) runnersUp.push(runnerUp.entry);
   }
@@ -1404,9 +1412,7 @@ export function computeWorldCupSeeding(
 ): string[] {
   // Funded traders: passed Elite or Apex
   const fundedTiers = new Set(["Elite", "Apex"]);
-  const funded = records.filter(
-    (r) => r.passed && fundedTiers.has(r.tier)
-  );
+  const funded = records.filter((r) => r.passed && fundedTiers.has(r.tier));
 
   // Deduplicate by wallet, keep best score
   const bestByWallet = new Map<string, number>();

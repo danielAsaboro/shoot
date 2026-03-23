@@ -13,9 +13,21 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 const BASE_URL = "https://datapi.adrena.trade";
-const COHORTS_PATH = path.join(process.cwd(), "data", "competition-cohorts.json");
-const REPORT_JSON_PATH = path.join(process.cwd(), "docs", "live-validation-report.json");
-const REPORT_MD_PATH = path.join(process.cwd(), "docs", "live-validation-report.md");
+const COHORTS_PATH = path.join(
+  process.cwd(),
+  "data",
+  "competition-cohorts.json"
+);
+const REPORT_JSON_PATH = path.join(
+  process.cwd(),
+  "docs",
+  "live-validation-report.json"
+);
+const REPORT_MD_PATH = path.join(
+  process.cwd(),
+  "docs",
+  "live-validation-report.md"
+);
 
 // ── Types (minimal, to avoid import issues with tsx) ────────────────────────
 
@@ -57,10 +69,14 @@ interface CohortsFile {
 
 // ── API ─────────────────────────────────────────────────────────────────────
 
-async function fetchPositions(wallet: string): Promise<{ positions: Position[]; latencyMs: number; error?: string }> {
+async function fetchPositions(
+  wallet: string
+): Promise<{ positions: Position[]; latencyMs: number; error?: string }> {
   const start = performance.now();
   try {
-    const res = await fetch(`${BASE_URL}/position?user_wallet=${encodeURIComponent(wallet)}&limit=500`);
+    const res = await fetch(
+      `${BASE_URL}/position?user_wallet=${encodeURIComponent(wallet)}&limit=500`
+    );
     const latencyMs = Math.round(performance.now() - start);
     if (!res.ok) {
       return { positions: [], latencyMs, error: `HTTP ${res.status}` };
@@ -75,46 +91,93 @@ async function fetchPositions(wallet: string): Promise<{ positions: Position[]; 
 
 // ── Metrics ─────────────────────────────────────────────────────────────────
 
-function computeMetrics(positions: Position[], windowStart: Date, windowEnd: Date) {
+function computeMetrics(
+  positions: Position[],
+  windowStart: Date,
+  windowEnd: Date
+) {
   const closed = positions.filter((pos) => {
-    if ((pos.status !== "close" && pos.status !== "liquidate") || !pos.exit_date || pos.pnl === null) return false;
+    if (
+      (pos.status !== "close" && pos.status !== "liquidate") ||
+      !pos.exit_date ||
+      pos.pnl === null
+    )
+      return false;
     const exitMs = new Date(pos.exit_date).getTime();
     return exitMs >= windowStart.getTime() && exitMs <= windowEnd.getTime();
   });
 
   if (closed.length === 0) {
-    return { pnlPercent: 0, volumeUsd: 0, winRate: 0, tradeCount: 0, activeDays: 0, maxDrawdownPercent: 0, totalMutagen: 0 };
+    return {
+      pnlPercent: 0,
+      volumeUsd: 0,
+      winRate: 0,
+      tradeCount: 0,
+      activeDays: 0,
+      maxDrawdownPercent: 0,
+      totalMutagen: 0,
+    };
   }
 
   const totalPnl = closed.reduce((sum, pos) => sum + (pos.pnl ?? 0), 0);
-  const totalCollateral = closed.reduce((sum, pos) => sum + pos.collateral_amount, 0);
-  const pnlPercent = totalCollateral > 0 ? (totalPnl / totalCollateral) * 100 : 0;
-  const volumeUsd = closed.reduce((sum, pos) => sum + pos.entry_size * pos.entry_price, 0);
+  const totalCollateral = closed.reduce(
+    (sum, pos) => sum + pos.collateral_amount,
+    0
+  );
+  const pnlPercent =
+    totalCollateral > 0 ? (totalPnl / totalCollateral) * 100 : 0;
+  const volumeUsd = closed.reduce(
+    (sum, pos) => sum + pos.entry_size * pos.entry_price,
+    0
+  );
   const winCount = closed.filter((pos) => (pos.pnl ?? 0) > 0).length;
   const winRate = (winCount / closed.length) * 100;
-  const activeDays = new Set(closed.map((pos) => pos.exit_date!.slice(0, 10))).size;
+  const activeDays = new Set(closed.map((pos) => pos.exit_date!.slice(0, 10)))
+    .size;
 
   // Mutagen per trade
   let totalMutagen = 0;
   for (const pos of closed) {
-    const positionPnlPct = pos.collateral_amount > 0 ? ((pos.pnl ?? 0) / pos.collateral_amount) * 100 : 0;
-    const perf = positionPnlPct > 0 ? Math.min(positionPnlPct, 7.5) / 7.5 * 0.3 : 0;
+    const positionPnlPct =
+      pos.collateral_amount > 0
+        ? ((pos.pnl ?? 0) / pos.collateral_amount) * 100
+        : 0;
+    const perf =
+      positionPnlPct > 0 ? (Math.min(positionPnlPct, 7.5) / 7.5) * 0.3 : 0;
     const entryMs = new Date(pos.entry_date).getTime();
     const exitMs = new Date(pos.exit_date!).getTime();
     const hours = (exitMs - entryMs) / (1000 * 60 * 60);
-    const dur = Math.min(hours, 72) / 72 * 0.05;
+    const dur = (Math.min(hours, 72) / 72) * 0.05;
     const sizeUsd = pos.entry_size * pos.entry_price;
-    const sizeMult = sizeUsd >= 4_500_000 ? 4 : sizeUsd >= 1_000_000 ? 3 : sizeUsd >= 500_000 ? 2.5 : sizeUsd >= 100_000 ? 2 : sizeUsd >= 10_000 ? 1.5 : sizeUsd >= 1_000 ? 1 : sizeUsd >= 10 ? 0.75 : 0.5;
+    const sizeMult =
+      sizeUsd >= 4_500_000
+        ? 4
+        : sizeUsd >= 1_000_000
+          ? 3
+          : sizeUsd >= 500_000
+            ? 2.5
+            : sizeUsd >= 100_000
+              ? 2
+              : sizeUsd >= 10_000
+                ? 1.5
+                : sizeUsd >= 1_000
+                  ? 1
+                  : sizeUsd >= 10
+                    ? 0.75
+                    : 0.5;
     totalMutagen += (perf + dur) * sizeMult;
   }
 
   // Simple drawdown from cumulative PnL
-  const sortedClosed = [...closed].sort((a, b) => new Date(a.exit_date!).getTime() - new Date(b.exit_date!).getTime());
+  const sortedClosed = [...closed].sort(
+    (a, b) =>
+      new Date(a.exit_date!).getTime() - new Date(b.exit_date!).getTime()
+  );
   let cumPnl = 0;
   let peak = 0;
   let maxDd = 0;
   for (const pos of sortedClosed) {
-    cumPnl += (pos.pnl ?? 0);
+    cumPnl += pos.pnl ?? 0;
     if (cumPnl > peak) peak = cumPnl;
     const dd = peak > 0 ? ((peak - cumPnl) / peak) * 100 : 0;
     if (dd > maxDd) maxDd = dd;
@@ -169,7 +232,9 @@ async function main() {
     for (const w of cohort.enrolledWallets) allWallets.add(w);
   }
 
-  console.log(`Found ${cohortsFile.cohorts.length} cohorts, ${allWallets.size} unique wallets`);
+  console.log(
+    `Found ${cohortsFile.cohorts.length} cohorts, ${allWallets.size} unique wallets`
+  );
 
   // Fetch positions for all wallets
   const positionsByWallet = new Map<string, Position[]>();
@@ -185,7 +250,9 @@ async function main() {
       errors.push({ wallet, error: result.error });
       console.log(` ERROR: ${result.error}`);
     } else {
-      console.log(` ${result.positions.length} positions (${result.latencyMs}ms)`);
+      console.log(
+        ` ${result.positions.length} positions (${result.latencyMs}ms)`
+      );
     }
   }
 
@@ -198,14 +265,22 @@ async function main() {
       const positions = positionsByWallet.get(wallet) ?? [];
       const totalPositions = positions.length;
       const metrics = computeMetrics(positions, windowStart, windowEnd);
-      return { wallet: wallet.slice(0, 8) + "..." + wallet.slice(-4), totalPositions, ...metrics };
+      return {
+        wallet: wallet.slice(0, 8) + "..." + wallet.slice(-4),
+        totalPositions,
+        ...metrics,
+      };
     });
 
     // Sort by tournamentScore
-    walletResults.sort((a, b) => (b.tournamentScore ?? 0) - (a.tournamentScore ?? 0));
+    walletResults.sort(
+      (a, b) => (b.tournamentScore ?? 0) - (a.tournamentScore ?? 0)
+    );
 
     const sybilFlags = checkFundingSourceClusters(cohort.enrolledWallets);
-    const walletsWithTrades = walletResults.filter((w) => w.tradeCount > 0).length;
+    const walletsWithTrades = walletResults.filter(
+      (w) => w.tradeCount > 0
+    ).length;
 
     return {
       cohortId: cohort.id,
@@ -222,7 +297,9 @@ async function main() {
     timestamp: new Date().toISOString(),
     apiBaseUrl: BASE_URL,
     totalWallets: allWallets.size,
-    avgLatencyMs: Math.round(latencies.reduce((a, b) => a + b, 0) / latencies.length),
+    avgLatencyMs: Math.round(
+      latencies.reduce((a, b) => a + b, 0) / latencies.length
+    ),
     minLatencyMs: Math.min(...latencies),
     maxLatencyMs: Math.max(...latencies),
     errors,
@@ -230,7 +307,11 @@ async function main() {
   };
 
   // Write JSON report
-  await fs.writeFile(REPORT_JSON_PATH, JSON.stringify(report, null, 2), "utf-8");
+  await fs.writeFile(
+    REPORT_JSON_PATH,
+    JSON.stringify(report, null, 2),
+    "utf-8"
+  );
   console.log(`\nJSON report: ${REPORT_JSON_PATH}`);
 
   // Write Markdown report

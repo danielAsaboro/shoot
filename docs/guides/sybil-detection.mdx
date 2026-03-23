@@ -13,6 +13,7 @@ The sybil detection engine uses three **uncorrelated** detection methods. Using 
 Identifies wallets funded from the same source within a short time window.
 
 **How it works:**
+
 1. For each wallet in the cohort, identify the funding source (first incoming SOL transfer)
 2. Group wallets by funding source address
 3. Flag clusters where 3+ wallets were funded within a 1-hour window
@@ -20,17 +21,18 @@ Identifies wallets funded from the same source within a short time window.
 
 **Why it works:** Creating sybil accounts requires funding them. Doing so from a single source in a short window is a strong signal of coordinated control.
 
-| Cluster Size | Time Window | Confidence |
-|---|---|---|
-| 2 wallets | \<1 hour | Low (not flagged alone) |
-| 3+ wallets | \<1 hour | Medium |
-| 3+ wallets | \<1 hour + enrollment within 5 min | High |
+| Cluster Size | Time Window                        | Confidence              |
+| ------------ | ---------------------------------- | ----------------------- |
+| 2 wallets    | \<1 hour                           | Low (not flagged alone) |
+| 3+ wallets   | \<1 hour                           | Medium                  |
+| 3+ wallets   | \<1 hour + enrollment within 5 min | High                    |
 
 ### 2. Trading Pattern Correlation
 
 Detects wallets executing suspiciously similar trading patterns.
 
 **How it works:**
+
 1. **Pre-filter:** Check activity overlap between wallet pairs (O(n) fast check) — skip pairs with no overlapping trading days
 2. **Correlation:** Compute Pearson correlation coefficient on trade timing sequences
 3. **Threshold:** Flag pairs with correlation >= 0.85
@@ -45,6 +47,7 @@ Detects wallets executing suspiciously similar trading patterns.
 Detects wash trading where one wallet intentionally loses to boost another.
 
 **How it works:**
+
 1. **Bucket split:** Separate wallets into positive-PnL and negative-PnL groups
 2. **Cross-bucket comparison:** For each positive/negative pair, check if their PnL percentages sum to within 2% of zero
 3. **Flag:** Pairs where `|pnlA + pnlB| < 2%` are flagged as potential wash trading
@@ -55,11 +58,11 @@ Detects wash trading where one wallet intentionally loses to boost another.
 
 Each detection produces a confidence level:
 
-| Level | Meaning | Action |
-|---|---|---|
-| Low | Single weak signal | Monitored, not flagged |
-| Medium | One strong signal or two weak signals | Flagged for manual review, rewards held |
-| High | Multiple strong signals | Flagged, rewards blocked, ops alert sent |
+| Level  | Meaning                               | Action                                   |
+| ------ | ------------------------------------- | ---------------------------------------- |
+| Low    | Single weak signal                    | Monitored, not flagged                   |
+| Medium | One strong signal or two weak signals | Flagged for manual review, rewards held  |
+| High   | Multiple strong signals               | Flagged, rewards blocked, ops alert sent |
 
 ## How Flags Affect Traders
 
@@ -75,12 +78,12 @@ Flagged traders are **not removed** from the leaderboard. Instead:
 
 The system tracks four types of abuse flags on each trader:
 
-| Flag | Trigger | Effect |
-|---|---|---|
-| `sybil_suspicion` | Funding cluster or pattern correlation detected | Rewards held |
-| `wash_trading_suspicion` | P&L mirroring detected | Rewards held |
-| `specialist_violation` | Traded on disallowed market during specialist challenge | Immediate DQ |
-| `manual_review` | Ops team flags for investigation | Rewards held |
+| Flag                     | Trigger                                                 | Effect       |
+| ------------------------ | ------------------------------------------------------- | ------------ |
+| `sybil_suspicion`        | Funding cluster or pattern correlation detected         | Rewards held |
+| `wash_trading_suspicion` | P&L mirroring detected                                  | Rewards held |
+| `specialist_violation`   | Traded on disallowed market during specialist challenge | Immediate DQ |
+| `manual_review`          | Ops team flags for investigation                        | Rewards held |
 
 ## Batch Processing
 
@@ -93,6 +96,7 @@ For production cohorts with many wallets, the sybil detector uses batch processi
 ```
 
 Results are combined into `SybilCluster` objects containing:
+
 - List of involved wallets
 - Confidence level
 - Detection reason

@@ -17,6 +17,22 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  keeper:
+    build:
+      context: ./keeper
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=postgresql://shoot:shoot@db:5432/adrena_competition
+      - GRPC_ENDPOINT=${GRPC_ENDPOINT:-}
+      - GRPC_TOKEN=${GRPC_TOKEN:-}
+      - LISTEN_ADDR=0.0.0.0:8080
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
   db:
     image: postgres:16-alpine
     environment:

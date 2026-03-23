@@ -75,8 +75,7 @@ export class AdrenaWsConsumer extends EventEmitter {
 
   private getWsUrl(): string {
     const host =
-      process.env.ADRENA_WS_HOST ??
-      "adrena-competition-service.onrender.com";
+      process.env.ADRENA_WS_HOST ?? "adrena-competition-service.onrender.com";
     const key = process.env.ADRENA_API_KEY;
     if (!key) throw new Error("ADRENA_API_KEY is not set");
     return `wss://${host}/${key}`;
@@ -154,7 +153,9 @@ export class AdrenaWsConsumer extends EventEmitter {
     );
     this.reconnectAttempts++;
 
-    console.log(`[WS] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})...`);
+    console.log(
+      `[WS] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})...`
+    );
 
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null;
@@ -205,27 +206,35 @@ export class AdrenaWsConsumer extends EventEmitter {
     // Load enrolled wallets from database
     let enrolledWallets: string[];
     try {
-      const { getActiveCohorts, getEnrolledWalletsForCohort } = await import("@/lib/db/queries");
+      const { getActiveCohorts, getEnrolledWalletsForCohort } =
+        await import("@/lib/db/queries");
       const cohorts = await getActiveCohorts();
       const walletsPerCohort = await Promise.all(
         cohorts.map((c) => getEnrolledWalletsForCohort(c.id))
       );
       enrolledWallets = [...new Set(walletsPerCohort.flat())];
     } catch {
-      console.log("[WS] Could not load cohorts from database, skipping backfill");
+      console.log(
+        "[WS] Could not load cohorts from database, skipping backfill"
+      );
       return;
     }
 
     if (enrolledWallets.length === 0) return;
 
-    console.log(`[WS] Backfilling positions for ${enrolledWallets.length} enrolled wallet(s)...`);
+    console.log(
+      `[WS] Backfilling positions for ${enrolledWallets.length} enrolled wallet(s)...`
+    );
     let backfilled = 0;
 
     for (const wallet of enrolledWallets) {
       try {
         const positions = await fetchPositions(wallet);
         const closed = positions.filter(
-          (p) => (p.status === "close" || p.status === "liquidate") && p.exit_date && p.pnl !== null
+          (p) =>
+            (p.status === "close" || p.status === "liquidate") &&
+            p.exit_date &&
+            p.pnl !== null
         );
 
         for (const pos of closed) {
@@ -258,6 +267,8 @@ export class AdrenaWsConsumer extends EventEmitter {
       }
     }
 
-    console.log(`[WS] Backfill complete: ${backfilled} trade event(s) upserted`);
+    console.log(
+      `[WS] Backfill complete: ${backfilled} trade event(s) upserted`
+    );
   }
 }

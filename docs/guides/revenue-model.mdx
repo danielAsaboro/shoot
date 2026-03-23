@@ -8,61 +8,62 @@ icon: "coins"
 
 Every entry fee is split into three pools:
 
-| Pool | Share | Purpose |
-|---|---|---|
-| Rewards | 60% | Distributed to top finishers in each cohort |
-| ADX Buyback | 25% | Swapped from USDC to ADX via Jupiter V6 on cohort settlement |
-| Raffle | 15% | Funds raffle prize drawings for all participants |
+| Pool        | Share | Purpose                                                      |
+| ----------- | ----- | ------------------------------------------------------------ |
+| Rewards     | 60%   | Distributed to top finishers in each cohort                  |
+| ADX Buyback | 25%   | Swapped from USDC to ADX via Jupiter V6 on cohort settlement |
+| Raffle      | 15%   | Funds raffle prize drawings for all participants             |
 
 ## Entry Fee Schedule
 
-| Tier | Entry Fee | Typical Cohort Size | Revenue per Cohort |
-|---|---|---|---|
-| Sprint | $1 | 256 | $256 |
-| Scout | $2 | 128 | $256 |
-| Ranger | $5 | 96 | $480 |
-| Veteran | $10 | 64 | $640 |
-| Elite | $25 | 32 | $800 |
-| Apex | $50 | 16 | $800 |
+| Tier    | Entry Fee | Typical Cohort Size | Revenue per Cohort |
+| ------- | --------- | ------------------- | ------------------ |
+| Sprint  | $1        | 256                 | $256               |
+| Scout   | $2        | 128                 | $256               |
+| Ranger  | $5        | 96                  | $480               |
+| Veteran | $10       | 64                  | $640               |
+| Elite   | $25       | 32                  | $800               |
+| Apex    | $50       | 16                  | $800               |
 
 ## ADX Accrual Mechanisms
 
 Five channels drive ADX demand:
 
-| Channel | Mechanism |
-|---|---|
-| Direct buyback | 25% of every entry fee swapped USDC → ADX via [Jupiter V6](https://station.jup.ag/) on settlement (`lib/competition/buyback.ts`). Requires `BUYBACK_WALLET_KEYPAIR` env var; falls back to recording intent as "pending" if not configured. |
-| Funded trader revenue share | Revenue share paid in ADX |
-| Staking requirement | Funded levels require minimum ADX stake |
-| World Cup entry | ADX stake required for World Cup registration |
-| Specialist bonus | ADX stake multiplier on specialist challenge bonuses |
+| Channel                     | Mechanism                                                                                                                                                                                                                                   |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Direct buyback              | 25% of every entry fee swapped USDC → ADX via [Jupiter V6](https://station.jup.ag/) on settlement (`lib/competition/buyback.ts`). Requires `BUYBACK_WALLET_KEYPAIR` env var; falls back to recording intent as "pending" if not configured. |
+| Funded trader revenue share | Revenue share paid in ADX                                                                                                                                                                                                                   |
+| Staking requirement         | Funded levels require minimum ADX stake                                                                                                                                                                                                     |
+| World Cup entry             | ADX stake required for World Cup registration                                                                                                                                                                                               |
+| Specialist bonus            | ADX stake multiplier on specialist challenge bonuses                                                                                                                                                                                        |
 
 ## Revenue Projections
 
 At steady state with all tiers active:
 
-| Metric | Monthly Estimate |
-|---|---|
-| Total entry fee revenue | ~$3,200 per rotation |
-| Rotations per month | ~4 (Scout 7d, Ranger 10d, etc.) |
-| Gross monthly revenue | ~$12,800 |
-| ADX buyback (25%) | ~$3,200/month |
-| Protocol trading fees (8bps on competition volume) | ~$2,160/month |
+| Metric                                             | Monthly Estimate                |
+| -------------------------------------------------- | ------------------------------- |
+| Total entry fee revenue                            | ~$3,200 per rotation            |
+| Rotations per month                                | ~4 (Scout 7d, Ranger 10d, etc.) |
+| Gross monthly revenue                              | ~$12,800                        |
+| ADX buyback (25%)                                  | ~$3,200/month                   |
+| Protocol trading fees (8bps on competition volume) | ~$2,160/month                   |
 
 <Note>
-These projections assume default cohort sizes. Revenue scales linearly with participation — 2x traders = 2x revenue, since entry fees are fixed per tier.
+  These projections assume default cohort sizes. Revenue scales linearly with
+  participation — 2x traders = 2x revenue, since entry fees are fixed per tier.
 </Note>
 
 ## Funded Trader Revenue Share
 
 Funded traders earn a share of protocol fee revenue based on their tier:
 
-| Level | Revenue Share | Projected Monthly (at $10M volume) |
-|---|---|---|
-| Watchlist | 150 bps | $15,000 shared |
-| Funded | 450 bps | $45,000 shared |
-| Senior Funded | 700 bps | $70,000 shared |
-| Captain | 1,000 bps | $100,000 shared |
-| Partner | 1,500 bps | $150,000 shared |
+| Level         | Revenue Share | Projected Monthly (at $10M volume) |
+| ------------- | ------------- | ---------------------------------- |
+| Watchlist     | 150 bps       | $15,000 shared                     |
+| Funded        | 450 bps       | $45,000 shared                     |
+| Senior Funded | 700 bps       | $70,000 shared                     |
+| Captain       | 1,000 bps     | $100,000 shared                    |
+| Partner       | 1,500 bps     | $150,000 shared                    |
 
 Revenue share comes from the protocol's fee revenue, not a separate pool — aligning funded traders' incentives with protocol growth.

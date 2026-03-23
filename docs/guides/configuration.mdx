@@ -12,50 +12,50 @@ Copy `.env.example` to `.env.local` and fill in your values.
 
 ### Database
 
-| Variable | Required | Description |
-|---|---|---|
+| Variable       | Required | Description                                                                                                                   |
+| -------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | `DATABASE_URL` | Optional | PostgreSQL connection string. Format: `postgresql://user@host:5432/dbname?schema=public`. Without this, state is per-browser. |
 
 ### Authentication (Privy)
 
-| Variable | Required | Description |
-|---|---|---|
-| `NEXT_PUBLIC_PRIVY_APP_ID` | Required | App ID from [dashboard.privy.io](https://dashboard.privy.io). |
-| `NEXT_PUBLIC_PRIVY_APP_SECRET` | Required | App secret key from the same dashboard. |
+| Variable                       | Required | Description                                                   |
+| ------------------------------ | -------- | ------------------------------------------------------------- |
+| `NEXT_PUBLIC_PRIVY_APP_ID`     | Required | App ID from [dashboard.privy.io](https://dashboard.privy.io). |
+| `NEXT_PUBLIC_PRIVY_APP_SECRET` | Required | App secret key from the same dashboard.                       |
 
 ### Competition Data
 
-| Variable | Default | Description |
-|---|---|---|
+| Variable                           | Default  | Description                                                                              |
+| ---------------------------------- | -------- | ---------------------------------------------------------------------------------------- |
 | `NEXT_PUBLIC_COMPETITION_PROVIDER` | `adrena` | `adrena` = live data from Adrena API. `mock` = offline seeded data (for UI review only). |
 
 ### Adrena APIs
 
-| Variable | Required | Description |
-|---|---|---|
-| `ADRENA_DATA_API_BASE_URL` | Optional | Adrena Data API. Default: `https://datapi.adrena.trade`. |
-| `ADRENA_COMPETITION_API_BASE_URL` | Optional | Adrena Competition Service REST API. Used as primary data source in production. |
-| `ADRENA_API_KEY` | Production | Auth key for the Adrena competition service WebSocket. Request from Adrena team. |
-| `ADRENA_WS_HOST` | Production | WebSocket hostname for live trade event streaming (e.g. `adrena-competition-service.onrender.com`). |
+| Variable                          | Required   | Description                                                                                         |
+| --------------------------------- | ---------- | --------------------------------------------------------------------------------------------------- |
+| `ADRENA_DATA_API_BASE_URL`        | Optional   | Adrena Data API. Default: `https://datapi.adrena.trade`.                                            |
+| `ADRENA_COMPETITION_API_BASE_URL` | Optional   | Adrena Competition Service REST API. Used as primary data source in production.                     |
+| `ADRENA_API_KEY`                  | Production | Auth key for the Adrena competition service WebSocket. Request from Adrena team.                    |
+| `ADRENA_WS_HOST`                  | Production | WebSocket hostname for live trade event streaming (e.g. `adrena-competition-service.onrender.com`). |
 
 ### Solana
 
-| Variable | Default | Description |
-|---|---|---|
-| `NEXT_PUBLIC_SOLANA_RPC` | `https://api.mainnet-beta.solana.com` | Solana RPC endpoint for balance checks and transaction submission. |
-| `NEXT_PUBLIC_PROGRAM_AUTHORITY` | — | On-chain authority pubkey for the Shoot Anchor program. Required for enrollment transactions. |
+| Variable                        | Default                               | Description                                                                                   |
+| ------------------------------- | ------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SOLANA_RPC`        | `https://api.mainnet-beta.solana.com` | Solana RPC endpoint for balance checks and transaction submission.                            |
+| `NEXT_PUBLIC_PROGRAM_AUTHORITY` | —                                     | On-chain authority pubkey for the Shoot Anchor program. Required for enrollment transactions. |
 
 ### Notifications
 
-| Variable | Required | Description |
-|---|---|---|
-| `DISCORD_WEBHOOK_URL` | Optional | Discord webhook for general competition events (cohort start/end, settlements). |
-| `DISCORD_OPS_WEBHOOK_URL` | Optional | Separate webhook for sybil detection alerts sent to the ops team. |
+| Variable                  | Required | Description                                                                     |
+| ------------------------- | -------- | ------------------------------------------------------------------------------- |
+| `DISCORD_WEBHOOK_URL`     | Optional | Discord webhook for general competition events (cohort start/end, settlements). |
+| `DISCORD_OPS_WEBHOOK_URL` | Optional | Separate webhook for sybil detection alerts sent to the ops team.               |
 
 ### Automation
 
-| Variable | Required | Description |
-|---|---|---|
+| Variable      | Required   | Description                                                                                                                                                    |
+| ------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `CRON_SECRET` | Production | Bearer token sent in the `Authorization` header for `/api/cron/*` endpoints. Set to a random 32-character string and configure your cron scheduler to send it. |
 
 ---
@@ -87,15 +87,15 @@ All live cohorts are defined in `data/competition-cohorts.json`. The cron job at
 }
 ```
 
-| Field | Type | Description |
-|---|---|---|
-| `seasonId` | string | Identifier for the current season. Used to group cohorts for analytics. |
-| `cohortDurationHours` | number | Default cohort window length. `336` = 14 days. |
-| `participantCap` | number | Maximum enrolled wallets per cohort. New enrollments are rejected above this limit. |
-| `entryFeeUsd` | number | Default entry fee in USD. Overridden per cohort if set. |
-| `scoringWeights` | object | Weights for the tournament score formula (see [Scoring Engine](/guides/scoring-engine)). |
-| `prizePoolSplit` | number[] | Prize allocation for top 5 finishers. Must sum to 1.0. Default: `[0.48, 0.24, 0.14, 0.08, 0.06]`. |
-| `fundedRewardShareBps` | number | Basis points of protocol fee revenue allocated to Funded-tier traders. |
+| Field                  | Type     | Description                                                                                       |
+| ---------------------- | -------- | ------------------------------------------------------------------------------------------------- |
+| `seasonId`             | string   | Identifier for the current season. Used to group cohorts for analytics.                           |
+| `cohortDurationHours`  | number   | Default cohort window length. `336` = 14 days.                                                    |
+| `participantCap`       | number   | Maximum enrolled wallets per cohort. New enrollments are rejected above this limit.               |
+| `entryFeeUsd`          | number   | Default entry fee in USD. Overridden per cohort if set.                                           |
+| `scoringWeights`       | object   | Weights for the tournament score formula (see [Scoring Engine](/guides/scoring-engine)).          |
+| `prizePoolSplit`       | number[] | Prize allocation for top 5 finishers. Must sum to 1.0. Default: `[0.48, 0.24, 0.14, 0.08, 0.06]`. |
+| `fundedRewardShareBps` | number   | Basis points of protocol fee revenue allocated to Funded-tier traders.                            |
 
 ### Cohort object
 
@@ -115,19 +115,19 @@ All live cohorts are defined in `data/competition-cohorts.json`. The cron job at
 }
 ```
 
-| Field | Type | Description |
-|---|---|---|
-| `id` | string | Unique cohort identifier. Convention: `cohort-{theme}-{MMDD}`. |
-| `name` | string | Display name shown in the UI. |
-| `presetId` | string | References a preset in `config.presets`. Inherits quest points, streak multiplier, raffle tickets. |
-| `state` | `"live"` \| `"settling"` \| `"closed"` | Cohort lifecycle state. Only `"live"` cohorts are scored. |
-| `startTime` | ISO string | Cohort window start. Used as the P&L baseline snapshot time. |
-| `endTime` | ISO string | Cohort window end. After this, the cron marks the cohort for settlement. |
-| `narrative` | string | One-sentence cohort description shown in the hub UI. |
-| `rewardPoolUsd` | number | Total prize pool in USD (60% of entry fees collected). |
-| `entryFeeUsd` | number | Entry fee for this specific cohort. |
-| `participantCap` | number | Max enrollments for this cohort. |
-| `enrolledWallets` | string[] | Solana wallet addresses enrolled in this cohort. The live adapter fetches positions for all of these. |
+| Field             | Type                                   | Description                                                                                           |
+| ----------------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `id`              | string                                 | Unique cohort identifier. Convention: `cohort-{theme}-{MMDD}`.                                        |
+| `name`            | string                                 | Display name shown in the UI.                                                                         |
+| `presetId`        | string                                 | References a preset in `config.presets`. Inherits quest points, streak multiplier, raffle tickets.    |
+| `state`           | `"live"` \| `"settling"` \| `"closed"` | Cohort lifecycle state. Only `"live"` cohorts are scored.                                             |
+| `startTime`       | ISO string                             | Cohort window start. Used as the P&L baseline snapshot time.                                          |
+| `endTime`         | ISO string                             | Cohort window end. After this, the cron marks the cohort for settlement.                              |
+| `narrative`       | string                                 | One-sentence cohort description shown in the hub UI.                                                  |
+| `rewardPoolUsd`   | number                                 | Total prize pool in USD (60% of entry fees collected).                                                |
+| `entryFeeUsd`     | number                                 | Entry fee for this specific cohort.                                                                   |
+| `participantCap`  | number                                 | Max enrollments for this cohort.                                                                      |
+| `enrolledWallets` | string[]                               | Solana wallet addresses enrolled in this cohort. The live adapter fetches positions for all of these. |
 
 ---
 
@@ -135,11 +135,11 @@ All live cohorts are defined in `data/competition-cohorts.json`. The cron job at
 
 Presets define the narrative and engagement parameters overlaid on a cohort. Each cohort references one preset by `presetId`.
 
-| Preset | Focus | Quest Points | Streak Multiplier | Raffle Tickets |
-|---|---|---|---|---|
-| `macro-sprint` | RWA majors (FX, macro pairs) | 70 | 1.2× | 4 |
-| `carry-breaker` | Rates and commodities (oil, gold) | 90 | 1.35× | 5 |
-| `crypto-impulse` | High-beta crypto perps | 60 | 1.15× | 3 |
+| Preset           | Focus                             | Quest Points | Streak Multiplier | Raffle Tickets |
+| ---------------- | --------------------------------- | ------------ | ----------------- | -------------- |
+| `macro-sprint`   | RWA majors (FX, macro pairs)      | 70           | 1.2×              | 4              |
+| `carry-breaker`  | Rates and commodities (oil, gold) | 90           | 1.35×             | 5              |
+| `crypto-impulse` | High-beta crypto perps            | 60           | 1.15×             | 3              |
 
 To add a new preset, append to `config.presets` in `competition-cohorts.json`:
 
@@ -161,13 +161,13 @@ To add a new preset, append to `config.presets` in `competition-cohorts.json`:
 
 Challenge tiers are configured per-deployment. Pass rate guardrails recommend when to adjust:
 
-| Tier | Entry Fee | Min Capital | Profit Target | Max DD | Daily Limit | Duration | Funded Eligible |
-|---|---|---|---|---|---|---|---|
-| Scout | $2 | $50 | 8% | 5% | 3% | 7 days | No |
-| Ranger | $5 | $200 | 10% | 8% | 4% | 10 days | No |
-| Veteran | $10 | $500 | 12% | 6% | 3% | 10 days | No |
-| Elite | $25 | $2,000 | 15% | 5% | 2.5% | 14 days | Yes |
-| Apex | $50 | $5,000 | 15% | 4% | 2% | 14 days | Yes |
+| Tier    | Entry Fee | Min Capital | Profit Target | Max DD | Daily Limit | Duration | Funded Eligible |
+| ------- | --------- | ----------- | ------------- | ------ | ----------- | -------- | --------------- |
+| Scout   | $2        | $50         | 8%            | 5%     | 3%          | 7 days   | No              |
+| Ranger  | $5        | $200        | 10%           | 8%     | 4%          | 10 days  | No              |
+| Veteran | $10       | $500        | 12%           | 6%     | 3%          | 10 days  | No              |
+| Elite   | $25       | $2,000      | 15%           | 5%     | 2.5%        | 14 days  | Yes             |
+| Apex    | $50       | $5,000      | 15%           | 4%     | 2%          | 14 days  | Yes             |
 
 <Note>
 **Pass rate guardrails:**
@@ -176,6 +176,7 @@ Challenge tiers are configured per-deployment. Pass rate guardrails recommend wh
 - Retry rate < 20%: increase retry discount from 30% to 40%
 
 Alpha test validation: Scout achieved 35.5% (target ~35%). Ranger achieved 21.4% (target ~25%) — recommend relaxing Ranger max drawdown from 8% to 9% for first production run.
+
 </Note>
 
 ---
@@ -184,8 +185,8 @@ Alpha test validation: Scout achieved 35.5% (target ~35%). Ranger achieved 21.4%
 
 Automated jobs run via Vercel cron (configured in `vercel.json`):
 
-| Endpoint | Cadence | Purpose |
-|---|---|---|
+| Endpoint                   | Cadence          | Purpose                                                                                               |
+| -------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------- |
 | `/api/cron/rotate-cohorts` | Every 15 minutes | Checks for expired cohorts, creates new ones from preset templates, marks settling cohorts as closed. |
 
 The cron endpoint requires the `Authorization: Bearer <CRON_SECRET>` header. Configure your cron scheduler (Vercel, cron-job.org, etc.) to include this header.
@@ -200,14 +201,16 @@ To schedule a cohort to go live at a specific time, add it to `data/competition-
 
 Scoring weights in `config.scoringWeights` control the tournament score formula. Changing these affects leaderboard rankings globally:
 
-| Weight | Key | Effect of Increasing |
-|---|---|---|
-| PnL% | `pnlPercent` (8.5) | Rewards raw profit more — whale-favoring |
-| Volume | `volumeUsd` (6) | Rewards activity more — benefits active traders |
-| Consistency | `consistency` (0.28) | Rewards even equity curves — benefits disciplined traders |
-| Win Rate | `winRate` (0.08) | Rewards win ratio more |
-| Drawdown penalty | `drawdownPenalty` (0.65) | Penalizes risk-taking more harshly |
+| Weight           | Key                      | Effect of Increasing                                      |
+| ---------------- | ------------------------ | --------------------------------------------------------- |
+| PnL%             | `pnlPercent` (8.5)       | Rewards raw profit more — whale-favoring                  |
+| Volume           | `volumeUsd` (6)          | Rewards activity more — benefits active traders           |
+| Consistency      | `consistency` (0.28)     | Rewards even equity curves — benefits disciplined traders |
+| Win Rate         | `winRate` (0.08)         | Rewards win ratio more                                    |
+| Drawdown penalty | `drawdownPenalty` (0.65) | Penalizes risk-taking more harshly                        |
 
 <Warning>
-Changing scoring weights mid-cohort is not recommended — it retroactively alters standings and may be perceived as unfair. Only change weights between cohorts.
+  Changing scoring weights mid-cohort is not recommended — it retroactively
+  alters standings and may be perceived as unfair. Only change weights between
+  cohorts.
 </Warning>

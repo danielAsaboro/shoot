@@ -1,0 +1,11 @@
+export { TrendSurfer } from "./trend-surfer.js";
+export type { TrendSurferConfig } from "./trend-surfer.js";
+export { FadeTrader } from "./fade-trader.js";
+export type { FadeTraderConfig } from "./fade-trader.js";
+export { RangeSniper } from "./range-sniper.js";
+export type { RangeSniperConfig } from "./range-sniper.js";
+export { FundingArb } from "./funding-arb.js";
+export type { FundingArbConfig } from "./funding-arb.js";
+export { GridRunner } from "./grid-runner.js";
+export type { GridRunnerConfig } from "./grid-runner.js";
+export type { Playbook } from "../core/types.js";

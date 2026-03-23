@@ -3,7 +3,14 @@ import { NextResponse } from "next/server";
 
 export const revalidate = 20;
 
-const SYMBOLS = ["BTCUSDT", "SOLUSDT", "JUPUSDT", "ETHUSDT", "BONKUSDT", "WIFUSDT"];
+const SYMBOLS = [
+  "BTCUSDT",
+  "SOLUSDT",
+  "JUPUSDT",
+  "ETHUSDT",
+  "BONKUSDT",
+  "WIFUSDT",
+];
 
 interface BinanceTicker {
   symbol: string;
@@ -11,12 +18,12 @@ interface BinanceTicker {
 }
 
 const DISPLAY: Record<string, { label: string; decimals: number }> = {
-  BTCUSDT:  { label: "BTC",  decimals: 0 },
-  SOLUSDT:  { label: "SOL",  decimals: 2 },
-  JUPUSDT:  { label: "JUP",  decimals: 3 },
-  ETHUSDT:  { label: "ETH",  decimals: 0 },
+  BTCUSDT: { label: "BTC", decimals: 0 },
+  SOLUSDT: { label: "SOL", decimals: 2 },
+  JUPUSDT: { label: "JUP", decimals: 3 },
+  ETHUSDT: { label: "ETH", decimals: 0 },
   BONKUSDT: { label: "BONK", decimals: 8 },
-  WIFUSDT:  { label: "WIF",  decimals: 3 },
+  WIFUSDT: { label: "WIF", decimals: 3 },
 };
 
 export async function GET() {

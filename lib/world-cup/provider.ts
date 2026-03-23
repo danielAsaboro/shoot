@@ -24,11 +24,16 @@ import { loadLiveWorldCupData } from "./live-adapter.ts";
 
 export type WorldCupMode = "simulation" | "live";
 
-async function loadData(mode: WorldCupMode = "simulation"): Promise<WorldCupData> {
+async function loadData(
+  mode: WorldCupMode = "simulation"
+): Promise<WorldCupData> {
   if (mode === "live") {
     return loadLiveWorldCupData();
   }
-  const [traders, desks] = await Promise.all([loadWorldCupTraders(), loadDesks()]);
+  const [traders, desks] = await Promise.all([
+    loadWorldCupTraders(),
+    loadDesks(),
+  ]);
   return { traders, desks };
 }
 
@@ -60,23 +65,69 @@ export function getWorldCupIntegrationStatus(): WorldCupIntegrationStatus {
 }
 
 export async function getWorldCupSnapshot(params: WorldCupSnapshotParams) {
-  const { cupId, scenarioId, weights, guardrails, walletAddress, mode } = params;
+  const { cupId, scenarioId, weights, guardrails, walletAddress, mode } =
+    params;
   const data = await loadData(mode);
   return {
-    leaderboard: createCupLeaderboard({ cupId, scenarioId, weights, guardrails, walletAddress, data }),
-    deskStandings: createDeskStandings({ cupId, scenarioId, weights, guardrails, walletAddress, data }),
-    bracket: createFinalsBracket({ scenarioId, weights, guardrails, walletAddress, data }),
+    leaderboard: createCupLeaderboard({
+      cupId,
+      scenarioId,
+      weights,
+      guardrails,
+      walletAddress,
+      data,
+    }),
+    deskStandings: createDeskStandings({
+      cupId,
+      scenarioId,
+      weights,
+      guardrails,
+      walletAddress,
+      data,
+    }),
+    bracket: createFinalsBracket({
+      scenarioId,
+      weights,
+      guardrails,
+      walletAddress,
+      data,
+    }),
     simulation: createSeasonSimulation({ weights, guardrails }),
     transferWindow: createTransferWindow(cupId, data),
-    payoutPreview: createPayoutPreview({ cupId, scenarioId, weights, guardrails, walletAddress, data }),
+    payoutPreview: createPayoutPreview({
+      cupId,
+      scenarioId,
+      weights,
+      guardrails,
+      walletAddress,
+      data,
+    }),
     mode: mode ?? "simulation",
   };
 }
 
-export async function getGroupStageSnapshot(params: WorldCupSnapshotParams & { twists?: MarketTwist[] }) {
-  const { cupId, scenarioId, weights, guardrails, walletAddress, mode, twists } = params;
+export async function getGroupStageSnapshot(
+  params: WorldCupSnapshotParams & { twists?: MarketTwist[] }
+) {
+  const {
+    cupId,
+    scenarioId,
+    weights,
+    guardrails,
+    walletAddress,
+    mode,
+    twists,
+  } = params;
   const data = await loadData(mode);
-  const fullBracket = createFullBracket({ cupId, scenarioId, weights, guardrails, walletAddress, twists, data });
+  const fullBracket = createFullBracket({
+    cupId,
+    scenarioId,
+    weights,
+    guardrails,
+    walletAddress,
+    twists,
+    data,
+  });
   const goldenTrade = findGoldenTrade(fullBracket);
   const narrativeBeats = generateNarrativeBeats(fullBracket, goldenTrade);
 
@@ -88,7 +139,9 @@ export async function getGroupStageSnapshot(params: WorldCupSnapshotParams & { t
   };
 }
 
-export async function getFullTournamentSnapshot(params: WorldCupSnapshotParams & { twists?: MarketTwist[] }) {
+export async function getFullTournamentSnapshot(
+  params: WorldCupSnapshotParams & { twists?: MarketTwist[] }
+) {
   const [base, groupStage] = await Promise.all([
     getWorldCupSnapshot(params),
     getGroupStageSnapshot(params),

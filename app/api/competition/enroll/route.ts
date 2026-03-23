@@ -1,7 +1,10 @@
 import { adrenaLiveAdapter } from "@/lib/competition/adrena-live-adapter";
 import { enrollTrader, getCohort } from "@/lib/db/queries";
 import { processQuestEvent } from "@/lib/competition/quest-emitter";
-import { verifyEnrollmentTransaction, usdToUsdcAtoms } from "@/lib/solana/verify-tx";
+import {
+  verifyEnrollmentTransaction,
+  usdToUsdcAtoms,
+} from "@/lib/solana/verify-tx";
 import { findChallengePda, findVaultPda } from "@/lib/solana/program";
 import { checkWalletAge } from "@/lib/solana/wallet-age";
 import { PublicKey } from "@solana/web3.js";
@@ -79,17 +82,13 @@ export async function POST(request: NextRequest) {
     if (cohort.entryFeeUsd >= WALLET_AGE_REQUIRED_FEE_THRESHOLD) {
       const ageCheck = await checkWalletAge(wallet);
       if (!ageCheck.eligible) {
-        return NextResponse.json(
-          { error: ageCheck.reason },
-          { status: 403 }
-        );
+        return NextResponse.json({ error: ageCheck.reason }, { status: 403 });
       }
     }
 
     // ── On-chain transaction verification ──────────────────────────────
     // Verify the entry fee was actually paid before accepting enrollment.
     if (PROGRAM_AUTHORITY) {
-
       const authority = new PublicKey(PROGRAM_AUTHORITY);
       const [challengePda] = findChallengePda(authority, cohortId);
       const [vaultPda] = findVaultPda(challengePda);

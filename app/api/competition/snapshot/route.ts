@@ -1,6 +1,4 @@
-import {
-  getCompetitionSnapshotResponse,
-} from "@/lib/competition/provider";
+import { getCompetitionSnapshotResponse } from "@/lib/competition/provider";
 import type { CompetitionSnapshotResponse } from "@/lib/competition/types";
 import { NextRequest, NextResponse } from "next/server";
 

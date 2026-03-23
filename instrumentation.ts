@@ -13,9 +13,8 @@ export async function register() {
 async function validateSizeMultiplier() {
   try {
     const { calculateSizeMultiplier } = await import("./lib/adrena/client");
-    const { computeMutagenSizeMultiplier } = await import(
-      "./lib/competition/mutagen"
-    );
+    const { computeMutagenSizeMultiplier } =
+      await import("./lib/competition/mutagen");
 
     const result = await calculateSizeMultiplier(75_000);
     const local = computeMutagenSizeMultiplier(75_000);

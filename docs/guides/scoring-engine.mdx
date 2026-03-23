@@ -16,13 +16,13 @@ Score = (PnL% × W₁) + (log₁₀(Volume) × W₂) + (Consistency × W₃) + (
 
 ### Score Components
 
-| Component | Weight | What It Measures |
-|---|---|---|
-| PnL% | 8.5 | Realized profit as percentage of starting equity |
-| log₁₀(Volume) | 6.0 | Trading activity — log scale prevents volume farming |
-| Consistency | 0.28 | How evenly distributed trading is across the window |
-| Win Rate | 0.08 | Percentage of profitable trades |
-| Max Drawdown | −0.65 | Peak-to-trough equity decline (penalty) |
+| Component     | Weight | What It Measures                                     |
+| ------------- | ------ | ---------------------------------------------------- |
+| PnL%          | 8.5    | Realized profit as percentage of starting equity     |
+| log₁₀(Volume) | 6.0    | Trading activity — log scale prevents volume farming |
+| Consistency   | 0.28   | How evenly distributed trading is across the window  |
+| Win Rate      | 0.08   | Percentage of profitable trades                      |
+| Max Drawdown  | −0.65  | Peak-to-trough equity decline (penalty)              |
 
 ### Why These Weights
 
@@ -42,6 +42,7 @@ When two traders have the same tournament score:
 ### Standings Order
 
 Traders are sorted in two phases:
+
 1. **Eligible traders first** — anyone with abuse flags (`sybil_suspicion`, `wash_trading_suspicion`, `manual_review`) sorts below eligible traders
 2. **By score descending** — within each eligibility group
 
@@ -49,13 +50,13 @@ Traders are sorted in two phases:
 
 The top N eligible traders split the prize pool:
 
-| Rank | Share |
-|---|---|
-| 1st | 40% |
-| 2nd | 25% |
-| 3rd | 15% |
-| 4th | 10% |
-| 5th | 5% |
+| Rank | Share            |
+| ---- | ---------------- |
+| 1st  | 40%              |
+| 2nd  | 25%              |
+| 3rd  | 15%              |
+| 4th  | 10%              |
+| 5th  | 5%               |
 | 6th+ | 5% split equally |
 
 ## Mutagen Score
@@ -69,38 +70,36 @@ Mutagen = (Performance + Duration) × Size Multiplier × Mission Bonus
 ### Components
 
 <Accordion title="Performance (max 0.3)">
-Linear scale capped at 7.5% PnL per trade:
-- 0% PnL → 0 performance
-- 7.5%+ PnL → 0.3 performance (max)
-- Negative PnL → 0 (no penalty, just no reward)
+  Linear scale capped at 7.5% PnL per trade: - 0% PnL → 0 performance - 7.5%+
+  PnL → 0.3 performance (max) - Negative PnL → 0 (no penalty, just no reward)
 </Accordion>
 
 <Accordion title="Duration (max 0.05)">
-Linear scale capped at 72 hours hold time:
-- 0h → 0 duration
-- 72h+ → 0.05 duration (max)
-- Rewards conviction — holding through volatility scores higher
+  Linear scale capped at 72 hours hold time: - 0h → 0 duration - 72h+ → 0.05
+  duration (max) - Rewards conviction — holding through volatility scores higher
 </Accordion>
 
 <Accordion title="Size Multiplier (8 tiers)">
 Interpolated from an 8-tier table based on position size:
 
-| Size | Multiplier |
-|---|---|
-| $10 | 0.01 |
-| $100 | 0.02 |
-| $1,000 | 0.05 |
-| $10,000 | 0.1 |
-| $100,000 | 0.5 |
-| $500,000 | 2.5 |
-| $1,000,000 | 5.0 |
-| $4,500,000 | 45.0 |
+| Size       | Multiplier |
+| ---------- | ---------- |
+| $10        | 0.01       |
+| $100       | 0.02       |
+| $1,000     | 0.05       |
+| $10,000    | 0.1        |
+| $100,000   | 0.5        |
+| $500,000   | 2.5        |
+| $1,000,000 | 5.0        |
+| $4,500,000 | 45.0       |
 
 Between tiers, values are linearly interpolated. This heavily rewards larger positions — a $1M trade gets 100x the multiplier of a $10K trade.
+
 </Accordion>
 
 <Accordion title="Mission Bonus (default 1.0x)">
-Multiplier for special events or promotions. Default is 1.0x (no bonus). Can be increased for time-limited campaigns.
+  Multiplier for special events or promotions. Default is 1.0x (no bonus). Can
+  be increased for time-limited campaigns.
 </Accordion>
 
 ### Key Properties
@@ -120,11 +119,11 @@ RAROI = ROI% × WinRateFactor × ActivityFactor − DrawdownPenalty
 
 ### Components
 
-| Factor | Formula | Range |
-|---|---|---|
-| WinRateFactor | min(2.0, 0.5 + (winRate/100) × 1.5) | 0.5 – 2.0 |
-| ActivityFactor | min(1.5, 0.5 + activeDays/totalDays) | 0.5 – 1.5 |
-| DrawdownPenalty | maxDrawdown% × 0.3 | 0 – unbounded |
+| Factor          | Formula                              | Range         |
+| --------------- | ------------------------------------ | ------------- |
+| WinRateFactor   | min(2.0, 0.5 + (winRate/100) × 1.5)  | 0.5 – 2.0     |
+| ActivityFactor  | min(1.5, 0.5 + activeDays/totalDays) | 0.5 – 1.5     |
+| DrawdownPenalty | maxDrawdown% × 0.3                   | 0 – unbounded |
 
 ### Why Multiplicative
 
@@ -141,14 +140,14 @@ This makes RAROI better for 1v1 matchups where you want a clear "who is the bett
 
 Beyond scoring, the engine also evaluates whether a trader has **passed or failed** their challenge:
 
-| Check | Rule | Result |
-|---|---|---|
-| Max Drawdown | Exceeded tier's max DD% | Fail |
-| Daily Loss | Exceeded tier's daily loss limit on any day | Fail |
-| Profit Target | Reached tier's profit target % | Pass (if no other failures) |
-| Minimum Trades | At least 1 trade required | Cannot pass with 0 trades |
-| Minimum Days | At least 1 active day required | Cannot pass with 0 days |
-| Duration | Challenge window expired | Fail if target not reached |
+| Check          | Rule                                        | Result                      |
+| -------------- | ------------------------------------------- | --------------------------- |
+| Max Drawdown   | Exceeded tier's max DD%                     | Fail                        |
+| Daily Loss     | Exceeded tier's daily loss limit on any day | Fail                        |
+| Profit Target  | Reached tier's profit target %              | Pass (if no other failures) |
+| Minimum Trades | At least 1 trade required                   | Cannot pass with 0 trades   |
+| Minimum Days   | At least 1 active day required              | Cannot pass with 0 days     |
+| Duration       | Challenge window expired                    | Fail if target not reached  |
 
 Checks run in order — a trader can fail on drawdown even if they hit the profit target.
 

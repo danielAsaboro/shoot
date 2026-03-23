@@ -21,10 +21,7 @@ import {
   type WorldCupData,
 } from "@/lib/world-cup/engine";
 import { generateNarrativeBeats } from "@/lib/world-cup/narrative";
-import {
-  defaultWeights,
-  defaultGuardrails,
-} from "@/lib/world-cup/types";
+import { defaultWeights, defaultGuardrails } from "@/lib/world-cup/types";
 import type {
   AssetClassId,
   ScenarioId,
@@ -44,10 +41,16 @@ type ViewMode = "trader" | "organizer";
 type WeightField = keyof ScoreWeights;
 type GuardrailField = keyof Guardrails;
 
-
 const cupTone: Record<
   AssetClassId,
-  { chip: string; panel: string; ring: string; glow: string; icon: string; accent: string }
+  {
+    chip: string;
+    panel: string;
+    ring: string;
+    glow: string;
+    icon: string;
+    accent: string;
+  }
 > = {
   crypto: {
     chip: "border",
@@ -205,20 +208,75 @@ function chipStyle(accent: string) {
 // ── Transfer window narratives (static config, not trader data) ──────────────
 const transferWindowMoves: Record<AssetClassId, TransferMove[]> = {
   crypto: [
-    { deskId: "crypto-atlas", type: "Draft", incoming: "Jules Mercer", summary: "Atlas Desk drafts a macro-meme crossover specialist for finals week.", impact: "Raises opening-session win probability and social pull." },
-    { deskId: "crypto-latency", type: "Promotion", incoming: "Wildcard qualifier", summary: "Latency promotes its mission leader into the active finals roster.", impact: "Makes non-elite quest grinders relevant during the season." },
+    {
+      deskId: "crypto-atlas",
+      type: "Draft",
+      incoming: "Jules Mercer",
+      summary:
+        "Atlas Desk drafts a macro-meme crossover specialist for finals week.",
+      impact: "Raises opening-session win probability and social pull.",
+    },
+    {
+      deskId: "crypto-latency",
+      type: "Promotion",
+      incoming: "Wildcard qualifier",
+      summary:
+        "Latency promotes its mission leader into the active finals roster.",
+      impact: "Makes non-elite quest grinders relevant during the season.",
+    },
   ],
   metals: [
-    { deskId: "metals-gild", type: "Loan", incoming: "Hana Brooke", outgoing: "Luis Garcia", summary: "Gild Desk borrows a low-drawdown closer for the knockout phase.", impact: "Gives the cup a tactical transfer week instead of dead time." },
-    { deskId: "metals-vault", type: "Promotion", incoming: "Vault academy runner", summary: "Vault rewards the best mission runner with a desk call-up.", impact: "Connects regular participation to roster mobility." },
+    {
+      deskId: "metals-gild",
+      type: "Loan",
+      incoming: "Hana Brooke",
+      outgoing: "Luis Garcia",
+      summary:
+        "Gild Desk borrows a low-drawdown closer for the knockout phase.",
+      impact: "Gives the cup a tactical transfer week instead of dead time.",
+    },
+    {
+      deskId: "metals-vault",
+      type: "Promotion",
+      incoming: "Vault academy runner",
+      summary: "Vault rewards the best mission runner with a desk call-up.",
+      impact: "Connects regular participation to roster mobility.",
+    },
   ],
   energy: [
-    { deskId: "energy-grid", type: "Draft", incoming: "Reese Nolan", summary: "Grid Desk drafts an event-window specialist for the final stretch.", impact: "Adds narrative around OPEC and macro event weeks." },
-    { deskId: "energy-refinery", type: "Promotion", incoming: "Mission captain", summary: "Refinery elevates the best clean-risk performer into the active desk lineup.", impact: "Reinforces guardrails instead of rewarding raw aggression only." },
+    {
+      deskId: "energy-grid",
+      type: "Draft",
+      incoming: "Reese Nolan",
+      summary:
+        "Grid Desk drafts an event-window specialist for the final stretch.",
+      impact: "Adds narrative around OPEC and macro event weeks.",
+    },
+    {
+      deskId: "energy-refinery",
+      type: "Promotion",
+      incoming: "Mission captain",
+      summary:
+        "Refinery elevates the best clean-risk performer into the active desk lineup.",
+      impact: "Reinforces guardrails instead of rewarding raw aggression only.",
+    },
   ],
   forex: [
-    { deskId: "forex-orbit", type: "Loan", incoming: "Mina Hart", outgoing: "Darren Lim", summary: "Orbit rotates in a London open specialist before finals week.", impact: "Makes session identity visible and strategically legible." },
-    { deskId: "forex-fix", type: "Promotion", incoming: "Fix reserve captain", summary: "Fix promotes its most consistent qualifier into the main desk.", impact: "Turns steady cadence into a real roster path." },
+    {
+      deskId: "forex-orbit",
+      type: "Loan",
+      incoming: "Mina Hart",
+      outgoing: "Darren Lim",
+      summary: "Orbit rotates in a London open specialist before finals week.",
+      impact: "Makes session identity visible and strategically legible.",
+    },
+    {
+      deskId: "forex-fix",
+      type: "Promotion",
+      incoming: "Fix reserve captain",
+      summary: "Fix promotes its most consistent qualifier into the main desk.",
+      impact: "Turns steady cadence into a real roster path.",
+    },
   ],
 };
 
@@ -263,7 +321,10 @@ export function WorldCupPanel() {
   });
   const [guardrails, setGuardrails] = useState<typeof defaultGuardrails>(() => {
     const s = loadSavedPanelState();
-    return (s?.guardrails as typeof defaultGuardrails | undefined) ?? defaultGuardrails;
+    return (
+      (s?.guardrails as typeof defaultGuardrails | undefined) ??
+      defaultGuardrails
+    );
   });
   const [isPending, startTransition] = useTransition();
 
@@ -279,7 +340,14 @@ export function WorldCupPanel() {
         guardrails,
       })
     );
-  }, [viewMode, activePresetId, selectedCup, selectedScenario, weights, guardrails]);
+  }, [
+    viewMode,
+    activePresetId,
+    selectedCup,
+    selectedScenario,
+    weights,
+    guardrails,
+  ]);
 
   const deferredCup = useDeferredValue(selectedCup);
   const deferredScenario = useDeferredValue(selectedScenario);
@@ -420,7 +488,9 @@ export function WorldCupPanel() {
         <div className="grid gap-4 xl:grid-cols-[0.85fr_1.15fr_1.15fr]">
           {/* View mode */}
           <div className="rounded-[4px] border border-white/10 bg-white/5 p-4">
-            <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">Point of view</p>
+            <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">
+              Point of view
+            </p>
             <div className="mt-3 flex gap-2">
               {(["trader", "organizer"] as const).map((mode) => (
                 <button
@@ -440,7 +510,9 @@ export function WorldCupPanel() {
 
           {/* Cup selector */}
           <div className="rounded-[4px] border border-white/10 bg-white/5 p-4">
-            <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">Asset class cup</p>
+            <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">
+              Asset class cup
+            </p>
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
               {cups.map((cup) => {
                 const tone = cupTone[cup.id];
@@ -492,7 +564,10 @@ export function WorldCupPanel() {
                             {tone.icon}
                           </span>
                         </div>
-                        <span className="text-[11px] uppercase tracking-[0.22em] text-white/45" style={{ fontFamily: "var(--font-mono)" }}>
+                        <span
+                          className="text-[11px] uppercase tracking-[0.22em] text-white/45"
+                          style={{ fontFamily: "var(--font-mono)" }}
+                        >
                           {cup.markets.join(" / ")}
                         </span>
                       </div>
@@ -511,7 +586,9 @@ export function WorldCupPanel() {
 
           {/* Scenario picker */}
           <div className="rounded-[4px] border border-white/10 bg-white/5 p-4">
-            <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">Scenario simulation</p>
+            <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">
+              Scenario simulation
+            </p>
             <div className="mt-3 grid gap-2">
               {scenarios.map((scenario) => (
                 <button
@@ -525,10 +602,20 @@ export function WorldCupPanel() {
                   }`}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-semibold text-white" style={{ fontFamily: "var(--font-display)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                    <p
+                      className="text-sm font-semibold text-white"
+                      style={{
+                        fontFamily: "var(--font-display)",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.06em",
+                      }}
+                    >
                       {scenario.label}
                     </p>
-                    <span className="text-[11px] uppercase tracking-[0.22em] text-white/45" style={{ fontFamily: "var(--font-mono)" }}>
+                    <span
+                      className="text-[11px] uppercase tracking-[0.22em] text-white/45"
+                      style={{ fontFamily: "var(--font-mono)" }}
+                    >
                       {scenario.phase}
                     </span>
                   </div>
@@ -548,7 +635,14 @@ export function WorldCupPanel() {
         <div className="panel">
           <div className="flex flex-col gap-3 border-b border-white/10 pb-5 md:flex-row md:items-end md:justify-between">
             <div className="space-y-2">
-              <h2 className="section-title" style={{ fontFamily: "var(--font-display)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+              <h2
+                className="section-title"
+                style={{
+                  fontFamily: "var(--font-display)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                }}
+              >
                 {viewMode === "trader"
                   ? `${currentCup.name} trader cockpit`
                   : "Organizer controls and integrity desk"}
@@ -589,7 +683,14 @@ export function WorldCupPanel() {
                       {currentCup.badge} specialist
                     </span>
                     <div>
-                      <h3 className="text-2xl font-semibold tracking-tight text-white" style={{ fontFamily: "var(--font-display)", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                      <h3
+                        className="text-2xl font-semibold tracking-tight text-white"
+                        style={{
+                          fontFamily: "var(--font-display)",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.04em",
+                        }}
+                      >
                         {viewerEntry.trader.alias} in {currentCup.name}
                       </h3>
                       <p className="mt-2 max-w-xl text-sm leading-6 text-white/66">
@@ -654,11 +755,16 @@ export function WorldCupPanel() {
 
               {/* Qualification drama */}
               <div className="rounded-[4px] border border-white/10 bg-white/6 p-5">
-                <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">Qualification drama</p>
+                <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">
+                  Qualification drama
+                </p>
                 <div className="mt-4 space-y-4">
                   <div className="rounded-[4px] border border-white/10 bg-black/30 p-4">
                     <p className="text-sm text-white/56">Finals cutoff</p>
-                    <p className="mt-2 text-3xl font-semibold tracking-tight text-white" style={{ fontFamily: "var(--font-mono)" }}>
+                    <p
+                      className="mt-2 text-3xl font-semibold tracking-tight text-white"
+                      style={{ fontFamily: "var(--font-mono)" }}
+                    >
                       {qualificationLine
                         ? qualificationLine.score.toFixed(1)
                         : "--"}
@@ -688,7 +794,9 @@ export function WorldCupPanel() {
 
               {/* Score composition */}
               <div className="rounded-[4px] border border-white/10 bg-white/5 p-5">
-                <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">Score composition</p>
+                <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">
+                  Score composition
+                </p>
                 <div className="mt-5 space-y-4">
                   {scoringLabels.map((item) => {
                     const value = viewerEntry.metrics[item.field];
@@ -708,13 +816,21 @@ export function WorldCupPanel() {
                             <p className="text-sm font-semibold text-white">
                               {value.toFixed(0)} pts
                             </p>
-                            <p className="text-xs text-white/45" style={{ fontFamily: "var(--font-mono)" }}>
+                            <p
+                              className="text-xs text-white/45"
+                              style={{ fontFamily: "var(--font-mono)" }}
+                            >
                               {weight.toFixed(0)}% weight
                             </p>
                           </div>
                         </div>
                         <div className="progress-rail">
-                          <span style={{ width: scoreBar(value), backgroundColor: "var(--accent, #00F0FF)" }} />
+                          <span
+                            style={{
+                              width: scoreBar(value),
+                              backgroundColor: "var(--accent, #00F0FF)",
+                            }}
+                          />
                         </div>
                       </div>
                     );
@@ -724,7 +840,9 @@ export function WorldCupPanel() {
 
               {/* Desk standings */}
               <div className="rounded-[4px] border border-white/10 bg-white/5 p-5">
-                <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">Desk war</p>
+                <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">
+                  Desk war
+                </p>
                 <div className="mt-5 space-y-3">
                   {deskStandings.map((standing, index) => (
                     <div
@@ -749,7 +867,10 @@ export function WorldCupPanel() {
                           <p className="text-sm font-semibold text-white">
                             {standing.score.toFixed(1)}
                           </p>
-                          <p className="text-xs text-white/45" style={{ fontFamily: "var(--font-mono)" }}>
+                          <p
+                            className="text-xs text-white/45"
+                            style={{ fontFamily: "var(--font-mono)" }}
+                          >
                             {standing.promotion}
                           </p>
                         </div>
@@ -772,7 +893,9 @@ export function WorldCupPanel() {
 
               {/* Reward ladder */}
               <div className="rounded-[4px] border border-white/10 bg-white/5 p-5">
-                <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">Reward ladder</p>
+                <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">
+                  Reward ladder
+                </p>
                 <div className="mt-5 grid gap-3 lg:grid-cols-2">
                   {currentCup.rewards.map((reward) => (
                     <div key={reward.label} className="reward-card">
@@ -785,10 +908,16 @@ export function WorldCupPanel() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-semibold" style={{ color: "#BFFF00" }}>
+                        <p
+                          className="text-sm font-semibold"
+                          style={{ color: "#BFFF00" }}
+                        >
                           {reward.payout}
                         </p>
-                        <p className="text-xs text-white/45" style={{ fontFamily: "var(--font-mono)" }}>
+                        <p
+                          className="text-xs text-white/45"
+                          style={{ fontFamily: "var(--font-mono)" }}
+                        >
                           {reward.range}
                         </p>
                       </div>
@@ -802,7 +931,9 @@ export function WorldCupPanel() {
             <div className="mt-6 space-y-6">
               {/* Presets */}
               <div className="rounded-[4px] border border-white/10 bg-white/5 p-5">
-                <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">Scenario presets</p>
+                <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">
+                  Scenario presets
+                </p>
                 <div className="mt-5 grid gap-3 lg:grid-cols-2">
                   {competitionPresets.map((preset) => (
                     <button
@@ -824,7 +955,10 @@ export function WorldCupPanel() {
                             {preset.summary}
                           </p>
                         </div>
-                        <p className="text-[11px] uppercase tracking-[0.16em] text-white/42" style={{ fontFamily: "var(--font-mono)" }}>
+                        <p
+                          className="text-[11px] uppercase tracking-[0.16em] text-white/42"
+                          style={{ fontFamily: "var(--font-mono)" }}
+                        >
                           {preset.cupId} / {preset.scenarioId}
                         </p>
                       </div>
@@ -836,9 +970,8 @@ export function WorldCupPanel() {
                   <span className="font-semibold text-white">
                     {activePresetId === "custom"
                       ? "Custom policy"
-                      : (competitionPresets.find(
-                          (p) => p.id === activePresetId
-                        )?.label ?? "Launch Week")}
+                      : (competitionPresets.find((p) => p.id === activePresetId)
+                          ?.label ?? "Launch Week")}
                   </span>
                 </p>
               </div>
@@ -846,7 +979,9 @@ export function WorldCupPanel() {
               {/* Weight sliders */}
               <div className="grid gap-4 lg:grid-cols-[1fr_0.92fr]">
                 <div className="rounded-[4px] border border-white/10 bg-white/5 p-5">
-                  <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">Scoring weights</p>
+                  <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">
+                    Scoring weights
+                  </p>
                   <div className="mt-5 space-y-4">
                     {scoringLabels.map((item) => (
                       <div key={item.field} className="slider-field">
@@ -863,7 +998,10 @@ export function WorldCupPanel() {
                             <strong>
                               {normalizedWeights[item.field].toFixed(0)}%
                             </strong>
-                            <p className="text-xs text-white/40" style={{ fontFamily: "var(--font-mono)" }}>
+                            <p
+                              className="text-xs text-white/40"
+                              style={{ fontFamily: "var(--font-mono)" }}
+                            >
                               normalized
                             </p>
                           </div>
@@ -886,7 +1024,9 @@ export function WorldCupPanel() {
                 </div>
 
                 <div className="rounded-[4px] border border-white/10 bg-white/5 p-5">
-                  <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">Eligibility guardrails</p>
+                  <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">
+                    Eligibility guardrails
+                  </p>
                   <div className="mt-5 space-y-4">
                     {guardrailLabels.map((item) => (
                       <div key={item.field} className="slider-field">
@@ -912,10 +1052,7 @@ export function WorldCupPanel() {
                           step={item.step}
                           value={guardrails[item.field]}
                           onChange={(e) =>
-                            updateGuardrail(
-                              item.field,
-                              Number(e.target.value)
-                            )
+                            updateGuardrail(item.field, Number(e.target.value))
                           }
                         />
                       </div>
@@ -945,7 +1082,9 @@ export function WorldCupPanel() {
 
               {/* Payout preview */}
               <div className="rounded-[4px] border border-white/10 bg-white/5 p-5">
-                <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">Payout preview</p>
+                <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">
+                  Payout preview
+                </p>
                 <div className="mt-5 overflow-x-auto">
                   <table className="leaderboard-table">
                     <thead>
@@ -992,7 +1131,9 @@ export function WorldCupPanel() {
         <aside className="space-y-6">
           {/* Cup leaderboard */}
           <div className="panel">
-            <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">Live cup table</p>
+            <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">
+              Live cup table
+            </p>
             <div className="mt-5 space-y-3">
               {leaderboard.map((entry) => (
                 <div
@@ -1030,7 +1171,10 @@ export function WorldCupPanel() {
                       <p className="text-lg font-semibold text-white">
                         {entry.score.toFixed(1)}
                       </p>
-                      <p className="text-xs text-white/45" style={{ fontFamily: "var(--font-mono)" }}>
+                      <p
+                        className="text-xs text-white/45"
+                        style={{ fontFamily: "var(--font-mono)" }}
+                      >
                         {entry.qualification}
                       </p>
                     </div>
@@ -1038,7 +1182,12 @@ export function WorldCupPanel() {
 
                   <div className="mt-4">
                     <div className="progress-rail">
-                      <span style={{ width: scoreBar(entry.score), backgroundColor: "var(--accent, #00F0FF)" }} />
+                      <span
+                        style={{
+                          width: scoreBar(entry.score),
+                          backgroundColor: "var(--accent, #00F0FF)",
+                        }}
+                      />
                     </div>
                   </div>
 
@@ -1075,7 +1224,9 @@ export function WorldCupPanel() {
 
           {/* Grand Finals preview */}
           <div className="panel">
-            <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">Grand Finals preview</p>
+            <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">
+              Grand Finals preview
+            </p>
             <div className="mt-5 space-y-4">
               <div className="space-y-3">
                 {finalists.map((entry) => {
@@ -1109,7 +1260,10 @@ export function WorldCupPanel() {
                           <p className="text-sm font-semibold text-white">
                             #{entry.rank}
                           </p>
-                          <p className="text-xs text-white/45" style={{ fontFamily: "var(--font-mono)" }}>
+                          <p
+                            className="text-xs text-white/45"
+                            style={{ fontFamily: "var(--font-mono)" }}
+                          >
                             {entry.score.toFixed(1)} pts
                           </p>
                         </div>
@@ -1124,7 +1278,11 @@ export function WorldCupPanel() {
                 <WorldCupBracket
                   bracket={finalsBracket}
                   cupId={deferredCup}
-                  divisionChampions={finalsBracket.final.winner ? [finalsBracket.final.winner] : undefined}
+                  divisionChampions={
+                    finalsBracket.final.winner
+                      ? [finalsBracket.final.winner]
+                      : undefined
+                  }
                 />
               </div>
             </div>
@@ -1144,10 +1302,7 @@ export function WorldCupPanel() {
 
       {/* Group Stage section */}
       <section className="panel">
-        <WorldCupGroupStage
-          groups={fullBracket.groups}
-          cupId={deferredCup}
-        />
+        <WorldCupGroupStage groups={fullBracket.groups} cupId={deferredCup} />
       </section>
 
       {/* Full Knockout Bracket section */}
@@ -1162,9 +1317,18 @@ export function WorldCupPanel() {
       {/* Season simulation + transfer window */}
       <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
         <div className="panel">
-          <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">Season simulator</p>
+          <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">
+            Season simulator
+          </p>
           <div className="mt-4 max-w-3xl">
-            <h2 className="section-title text-2xl" style={{ fontFamily: "var(--font-display)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+            <h2
+              className="section-title text-2xl"
+              style={{
+                fontFamily: "var(--font-display)",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+              }}
+            >
               {seasonSimulation.headline}
             </h2>
             <p className="mt-3 text-sm leading-7 text-white/62">
@@ -1207,7 +1371,10 @@ export function WorldCupPanel() {
 
                   <div className="mt-4 grid grid-cols-2 gap-3">
                     <div className="rounded-[4px] border border-white/10 bg-black/30 p-3">
-                      <p className="text-[11px] uppercase tracking-[0.16em] text-white/38" style={{ fontFamily: "var(--font-mono)" }}>
+                      <p
+                        className="text-[11px] uppercase tracking-[0.16em] text-white/38"
+                        style={{ fontFamily: "var(--font-mono)" }}
+                      >
                         current
                       </p>
                       <p className="mt-2 text-lg font-semibold text-white/72">
@@ -1222,10 +1389,19 @@ export function WorldCupPanel() {
                         backgroundColor: "rgba(0,255,135,0.06)",
                       }}
                     >
-                      <p className="text-[11px] uppercase tracking-[0.16em]" style={{ fontFamily: "var(--font-mono)", color: "rgba(0,255,135,0.62)" }}>
+                      <p
+                        className="text-[11px] uppercase tracking-[0.16em]"
+                        style={{
+                          fontFamily: "var(--font-mono)",
+                          color: "rgba(0,255,135,0.62)",
+                        }}
+                      >
                         world cup 2.0
                       </p>
-                      <p className="mt-2 text-lg font-semibold" style={{ color: "#00FF87" }}>
+                      <p
+                        className="mt-2 text-lg font-semibold"
+                        style={{ color: "#00FF87" }}
+                      >
                         {metric.projected}
                         {metric.suffix}
                       </p>
@@ -1238,7 +1414,9 @@ export function WorldCupPanel() {
         </div>
 
         <div className="panel">
-          <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">Transfer window</p>
+          <p className="eyebrow font-[var(--font-display)] uppercase tracking-[0.18em]">
+            Transfer window
+          </p>
           <div className="mt-5 space-y-4">
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="stat-card">
@@ -1267,7 +1445,10 @@ export function WorldCupPanel() {
                 <p className="text-sm font-semibold text-white">
                   {currentCup.name} transfer window
                 </p>
-                <p className="text-[11px] uppercase tracking-[0.16em] text-white/42" style={{ fontFamily: "var(--font-mono)" }}>
+                <p
+                  className="text-[11px] uppercase tracking-[0.16em] text-white/42"
+                  style={{ fontFamily: "var(--font-mono)" }}
+                >
                   between phases
                 </p>
               </div>
@@ -1286,11 +1467,17 @@ export function WorldCupPanel() {
                           {move.summary}
                         </p>
                       </div>
-                      <p className="text-xs text-white/44" style={{ fontFamily: "var(--font-mono)" }}>
+                      <p
+                        className="text-xs text-white/44"
+                        style={{ fontFamily: "var(--font-mono)" }}
+                      >
                         {move.outgoing ? `for ${move.outgoing}` : "new slot"}
                       </p>
                     </div>
-                    <p className="mt-3 text-sm leading-6" style={{ color: "rgba(0,255,135,0.78)" }}>
+                    <p
+                      className="mt-3 text-sm leading-6"
+                      style={{ color: "rgba(0,255,135,0.78)" }}
+                    >
                       {move.impact}
                     </p>
                   </div>

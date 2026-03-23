@@ -35,8 +35,7 @@ export const DAILY_MISSION_CATALOG: DailyMissionTemplate[] = [
   {
     type: "most_trades_today",
     name: "Volume King",
-    description:
-      "Close more trades than anyone else before UTC midnight.",
+    description: "Close more trades than anyone else before UTC midnight.",
     evaluateFn: "evaluateMostTrades",
   },
   {
@@ -88,7 +87,7 @@ export function selectDailyMissions(date: Date): DailyMissionTemplate[] {
   const indices = DAILY_MISSION_CATALOG.map((_, i) => i);
   let s = seed;
   for (let i = indices.length - 1; i > 0; i--) {
-    s = ((s * 1103515245 + 12345) >>> 0); // LCG step
+    s = (s * 1103515245 + 12345) >>> 0; // LCG step
     const j = s % (i + 1);
     [indices[i], indices[j]] = [indices[j], indices[i]];
   }
@@ -104,7 +103,7 @@ export function selectDailyMissions(date: Date): DailyMissionTemplate[] {
 function closedInWindow(
   positions: AdrenaPosition[],
   windowStart: Date,
-  windowEnd: Date,
+  windowEnd: Date
 ): AdrenaPosition[] {
   return positions.filter((p) => {
     if (p.status !== "close" && p.status !== "liquidate") return false;
@@ -116,12 +115,16 @@ function closedInWindow(
 
 function rankResults(
   entries: { wallet: string; value: number }[],
-  descending = true,
+  descending = true
 ): DailyMissionResult[] {
   const sorted = [...entries].sort((a, b) =>
-    descending ? b.value - a.value : a.value - b.value,
+    descending ? b.value - a.value : a.value - b.value
   );
-  return sorted.map((e, i) => ({ wallet: e.wallet, value: e.value, rank: i + 1 }));
+  return sorted.map((e, i) => ({
+    wallet: e.wallet,
+    value: e.value,
+    rank: i + 1,
+  }));
 }
 
 // ── Evaluation functions ─────────────────────────────────────────────────────
@@ -132,7 +135,7 @@ function rankResults(
 export function evaluateBestRoi(
   positions: Map<string, AdrenaPosition[]>,
   windowStart: Date,
-  windowEnd: Date,
+  windowEnd: Date
 ): DailyMissionResult[] {
   const entries: { wallet: string; value: number }[] = [];
 
@@ -156,7 +159,7 @@ export function evaluateBestRoi(
 export function evaluateMostTrades(
   positions: Map<string, AdrenaPosition[]>,
   windowStart: Date,
-  windowEnd: Date,
+  windowEnd: Date
 ): DailyMissionResult[] {
   const entries: { wallet: string; value: number }[] = [];
 
@@ -175,7 +178,7 @@ export function evaluateMostTrades(
 export function evaluateHighestVolume(
   positions: Map<string, AdrenaPosition[]>,
   windowStart: Date,
-  windowEnd: Date,
+  windowEnd: Date
 ): DailyMissionResult[] {
   const entries: { wallet: string; value: number }[] = [];
 
@@ -196,7 +199,7 @@ export function evaluateHighestVolume(
 export function evaluateBestWinRate(
   positions: Map<string, AdrenaPosition[]>,
   windowStart: Date,
-  windowEnd: Date,
+  windowEnd: Date
 ): DailyMissionResult[] {
   const entries: { wallet: string; value: number }[] = [];
 

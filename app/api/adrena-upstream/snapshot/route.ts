@@ -6,6 +6,9 @@ export async function GET(request: NextRequest) {
   const enrolledCohortId =
     request.nextUrl.searchParams.get("enrolledCohortId") ?? undefined;
 
-  const response = await getCompetitionSnapshotResponse(wallet, enrolledCohortId);
+  const response = await getCompetitionSnapshotResponse(
+    wallet,
+    enrolledCohortId
+  );
   return NextResponse.json(response);
 }

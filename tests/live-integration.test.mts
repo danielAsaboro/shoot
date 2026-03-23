@@ -6,13 +6,8 @@ import {
   computeMetricsFromTradeEvents,
   type TradeEventRow,
 } from "../lib/adrena/metrics.ts";
-import {
-  getMarketInfo,
-  isCustodyAllowed,
-} from "../lib/adrena/custody-map.ts";
-import {
-  computeAggregateMutagenFromEvents,
-} from "../lib/competition/mutagen.ts";
+import { getMarketInfo, isCustodyAllowed } from "../lib/adrena/custody-map.ts";
+import { computeAggregateMutagenFromEvents } from "../lib/competition/mutagen.ts";
 
 // ── parseUsd ────────────────────────────────────────────────────────────────
 
@@ -83,7 +78,11 @@ describe("computeMetricsFromTradeEvents", () => {
   const windowEnd = new Date("2026-03-13T00:00:00Z");
 
   it("computes correct PnL percent", () => {
-    const metrics = computeMetricsFromTradeEvents(events, windowStart, windowEnd);
+    const metrics = computeMetricsFromTradeEvents(
+      events,
+      windowStart,
+      windowEnd
+    );
     // totalPnl = 150 - 50 + 200 = 300
     // totalCollateral = 1000 + 500 + 800 = 2300
     // pnlPercent = (300 / 2300) × 100 ≈ 13.04
@@ -91,23 +90,39 @@ describe("computeMetricsFromTradeEvents", () => {
   });
 
   it("computes correct volume", () => {
-    const metrics = computeMetricsFromTradeEvents(events, windowStart, windowEnd);
+    const metrics = computeMetricsFromTradeEvents(
+      events,
+      windowStart,
+      windowEnd
+    );
     assert.equal(metrics.volumeUsd, 23000);
   });
 
   it("computes correct win rate", () => {
-    const metrics = computeMetricsFromTradeEvents(events, windowStart, windowEnd);
+    const metrics = computeMetricsFromTradeEvents(
+      events,
+      windowStart,
+      windowEnd
+    );
     // 2 wins out of 3 trades = 66.67%
     assert.ok(Math.abs(metrics.winRate - 66.67) < 0.1);
   });
 
   it("computes correct trade count", () => {
-    const metrics = computeMetricsFromTradeEvents(events, windowStart, windowEnd);
+    const metrics = computeMetricsFromTradeEvents(
+      events,
+      windowStart,
+      windowEnd
+    );
     assert.equal(metrics.tradeCount, 3);
   });
 
   it("computes correct active days", () => {
-    const metrics = computeMetricsFromTradeEvents(events, windowStart, windowEnd);
+    const metrics = computeMetricsFromTradeEvents(
+      events,
+      windowStart,
+      windowEnd
+    );
     assert.equal(metrics.activeDays, 3);
   });
 
@@ -129,7 +144,11 @@ describe("computeMetricsFromTradeEvents", () => {
   });
 
   it("computes max drawdown", () => {
-    const metrics = computeMetricsFromTradeEvents(events, windowStart, windowEnd);
+    const metrics = computeMetricsFromTradeEvents(
+      events,
+      windowStart,
+      windowEnd
+    );
     // Equity curve: 0 → 150 → 100 → 300
     // Drawdown from HWM 150 to 100 = 50/150 ≈ 33.33%
     assert.ok(metrics.maxDrawdownPercent > 0);
@@ -167,7 +186,11 @@ describe("custody-map", () => {
   it("isCustodyAllowed checks against market list", () => {
     // SOL should be allowed for crypto track
     assert.equal(
-      isCustodyAllowed("So11111111111111111111111111111111", ["SOL", "BTC", "ETH"]),
+      isCustodyAllowed("So11111111111111111111111111111111", [
+        "SOL",
+        "BTC",
+        "ETH",
+      ]),
       true
     );
     // SOL should NOT be allowed for metals track
@@ -207,13 +230,21 @@ describe("computeAggregateMutagenFromEvents", () => {
   const windowEnd = new Date("2026-03-13T00:00:00Z");
 
   it("sums mutagen across trade events in window", () => {
-    const result = computeAggregateMutagenFromEvents(events, windowStart, windowEnd);
+    const result = computeAggregateMutagenFromEvents(
+      events,
+      windowStart,
+      windowEnd
+    );
     assert.equal(result.tradeCount, 2);
     assert.ok(result.totalMutagen > 0);
   });
 
   it("uses official interpolated multiplier", () => {
-    const result = computeAggregateMutagenFromEvents(events, windowStart, windowEnd);
+    const result = computeAggregateMutagenFromEvents(
+      events,
+      windowStart,
+      windowEnd
+    );
     // First trade: perf=0.2, dur=0, size=7x → (0.2+0)×7×1 = 1.4
     assert.equal(result.tradeScores[0].sizeMultiplier, 7);
     assert.ok(

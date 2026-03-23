@@ -89,7 +89,6 @@ export function generateNarrativeBeats(
         severity: "hype",
       });
     }
-
   }
 
   // Golden trade update

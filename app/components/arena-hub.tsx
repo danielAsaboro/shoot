@@ -1,6 +1,9 @@
 "use client";
 
-import { useSafePrivy as usePrivy, useSafeWallets as useWallets } from "@/app/hooks/use-safe-privy";
+import {
+  useSafePrivy as usePrivy,
+  useSafeWallets as useWallets,
+} from "@/app/hooks/use-safe-privy";
 import { useState } from "react";
 import { CompetitionHub } from "./competition-hub";
 import { WorldCupPanel } from "./world-cup-panel";

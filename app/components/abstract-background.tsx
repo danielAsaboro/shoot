@@ -69,7 +69,13 @@ export function AbstractBackground() {
         </defs>
 
         {/* Horizon glow */}
-        <rect x="0" y="200" width="1440" height="200" fill="url(#glow-horizon)" />
+        <rect
+          x="0"
+          y="200"
+          width="1440"
+          height="200"
+          fill="url(#glow-horizon)"
+        />
 
         {/* Far mountains — blurry, distant */}
         <path

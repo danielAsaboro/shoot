@@ -5,14 +5,25 @@ import {
   generatePropNarrativeBeats,
   findCohortGoldenTrade,
 } from "../lib/competition/narrative.ts";
-import type { CompetitionCohortView, RiskEvent } from "../lib/competition/types.ts";
+import type {
+  CompetitionCohortView,
+  RiskEvent,
+} from "../lib/competition/types.ts";
 import { RISK_EVENT_CATALOG } from "../lib/competition/risk-events.ts";
 
 function makeMockCohort(): CompetitionCohortView {
   return {
     id: "test-cohort",
     name: "Test Cohort",
-    preset: { id: "test", name: "Test", focus: "Test", tagline: "Test", questRewardPoints: 0, streakMultiplier: 1, raffleTickets: 0 },
+    preset: {
+      id: "test",
+      name: "Test",
+      focus: "Test",
+      tagline: "Test",
+      questRewardPoints: 0,
+      streakMultiplier: 1,
+      raffleTickets: 0,
+    },
     state: "live",
     startTime: "2026-03-19T08:00:00.000Z",
     endTime: "2026-03-22T08:00:00.000Z",
@@ -22,9 +33,54 @@ function makeMockCohort(): CompetitionCohortView {
     participantCap: 128,
     enrolledCount: 5,
     standings: [
-      { wallet: "a", displayName: "Alpha", badge: "Test", rank: 1, tournamentScore: 180, pnlPercent: 22, volumeUsd: 200000, winRate: 65, consistencyScore: 90, maxDrawdownPercent: 2.5, attainedAt: "2026-03-20T00:00:00.000Z", eligible: true, questRewardPoints: 0, raffleTicketsAwarded: 0 },
-      { wallet: "b", displayName: "Beta", badge: "Test", rank: 2, tournamentScore: 160, pnlPercent: 18, volumeUsd: 180000, winRate: 60, consistencyScore: 85, maxDrawdownPercent: 3.5, attainedAt: "2026-03-20T00:00:00.000Z", eligible: true, questRewardPoints: 0, raffleTicketsAwarded: 0 },
-      { wallet: "c", displayName: "Gamma", badge: "Test", rank: 3, tournamentScore: 140, pnlPercent: 15, volumeUsd: 160000, winRate: 55, consistencyScore: 80, maxDrawdownPercent: 4.0, attainedAt: "2026-03-20T00:00:00.000Z", eligible: true, questRewardPoints: 0, raffleTicketsAwarded: 0 },
+      {
+        wallet: "a",
+        displayName: "Alpha",
+        badge: "Test",
+        rank: 1,
+        tournamentScore: 180,
+        pnlPercent: 22,
+        volumeUsd: 200000,
+        winRate: 65,
+        consistencyScore: 90,
+        maxDrawdownPercent: 2.5,
+        attainedAt: "2026-03-20T00:00:00.000Z",
+        eligible: true,
+        questRewardPoints: 0,
+        raffleTicketsAwarded: 0,
+      },
+      {
+        wallet: "b",
+        displayName: "Beta",
+        badge: "Test",
+        rank: 2,
+        tournamentScore: 160,
+        pnlPercent: 18,
+        volumeUsd: 180000,
+        winRate: 60,
+        consistencyScore: 85,
+        maxDrawdownPercent: 3.5,
+        attainedAt: "2026-03-20T00:00:00.000Z",
+        eligible: true,
+        questRewardPoints: 0,
+        raffleTicketsAwarded: 0,
+      },
+      {
+        wallet: "c",
+        displayName: "Gamma",
+        badge: "Test",
+        rank: 3,
+        tournamentScore: 140,
+        pnlPercent: 15,
+        volumeUsd: 160000,
+        winRate: 55,
+        consistencyScore: 80,
+        maxDrawdownPercent: 4.0,
+        attainedAt: "2026-03-20T00:00:00.000Z",
+        eligible: true,
+        questRewardPoints: 0,
+        raffleTicketsAwarded: 0,
+      },
     ],
     rewardPreview: [],
     abuseResults: [],
@@ -40,7 +96,10 @@ test("generates narrative beats for a cohort", () => {
 test("beats are sorted by severity then timestamp", () => {
   const cohort = makeMockCohort();
   const riskEvents: RiskEvent[] = [
-    { ...RISK_EVENT_CATALOG.flash_crash, triggeredAt: new Date().toISOString() },
+    {
+      ...RISK_EVENT_CATALOG.flash_crash,
+      triggeredAt: new Date().toISOString(),
+    },
   ];
   const beats = generatePropNarrativeBeats(cohort, [], riskEvents);
 
@@ -81,7 +140,10 @@ test("golden trade beat is generated when provided", () => {
 test("risk event survivor beats are generated", () => {
   const cohort = makeMockCohort();
   const riskEvents: RiskEvent[] = [
-    { ...RISK_EVENT_CATALOG.flash_crash, triggeredAt: new Date().toISOString() },
+    {
+      ...RISK_EVENT_CATALOG.flash_crash,
+      triggeredAt: new Date().toISOString(),
+    },
   ];
 
   const beats = generatePropNarrativeBeats(cohort, [], riskEvents);
@@ -91,8 +153,38 @@ test("risk event survivor beats are generated", () => {
 
 test("findCohortGoldenTrade selects highest PnL trader", () => {
   const standings = [
-    { wallet: "a", displayName: "Alpha", badge: "", rank: 1, tournamentScore: 180, pnlPercent: 22, volumeUsd: 200000, winRate: 65, consistencyScore: 90, maxDrawdownPercent: 2.5, attainedAt: "", eligible: true, questRewardPoints: 0, raffleTicketsAwarded: 0 },
-    { wallet: "b", displayName: "Beta", badge: "", rank: 2, tournamentScore: 160, pnlPercent: 18, volumeUsd: 180000, winRate: 60, consistencyScore: 85, maxDrawdownPercent: 3.5, attainedAt: "", eligible: true, questRewardPoints: 0, raffleTicketsAwarded: 0 },
+    {
+      wallet: "a",
+      displayName: "Alpha",
+      badge: "",
+      rank: 1,
+      tournamentScore: 180,
+      pnlPercent: 22,
+      volumeUsd: 200000,
+      winRate: 65,
+      consistencyScore: 90,
+      maxDrawdownPercent: 2.5,
+      attainedAt: "",
+      eligible: true,
+      questRewardPoints: 0,
+      raffleTicketsAwarded: 0,
+    },
+    {
+      wallet: "b",
+      displayName: "Beta",
+      badge: "",
+      rank: 2,
+      tournamentScore: 160,
+      pnlPercent: 18,
+      volumeUsd: 180000,
+      winRate: 60,
+      consistencyScore: 85,
+      maxDrawdownPercent: 3.5,
+      attainedAt: "",
+      eligible: true,
+      questRewardPoints: 0,
+      raffleTicketsAwarded: 0,
+    },
   ];
 
   const golden = findCohortGoldenTrade("test", standings);
@@ -108,7 +200,22 @@ test("findCohortGoldenTrade returns null for empty standings", () => {
 
 test("findCohortGoldenTrade returns null when all PnL is <= 0", () => {
   const standings = [
-    { wallet: "a", displayName: "Alpha", badge: "", rank: 1, tournamentScore: 0, pnlPercent: -5, volumeUsd: 0, winRate: 0, consistencyScore: 0, maxDrawdownPercent: 0, attainedAt: "", eligible: true, questRewardPoints: 0, raffleTicketsAwarded: 0 },
+    {
+      wallet: "a",
+      displayName: "Alpha",
+      badge: "",
+      rank: 1,
+      tournamentScore: 0,
+      pnlPercent: -5,
+      volumeUsd: 0,
+      winRate: 0,
+      consistencyScore: 0,
+      maxDrawdownPercent: 0,
+      attainedAt: "",
+      eligible: true,
+      questRewardPoints: 0,
+      raffleTicketsAwarded: 0,
+    },
   ];
   const golden = findCohortGoldenTrade("negative", standings);
   assert.equal(golden, null);

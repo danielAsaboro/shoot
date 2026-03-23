@@ -17,15 +17,16 @@ competition backend.
 
 ## Challenge Tier Parameters
 
-| Tier | Entry Fee | Min Capital | Profit Target | Max DD | Daily Limit | Duration | Funded Eligible | Retry Discount |
-|------|-----------|-------------|---------------|--------|-------------|----------|-----------------|----------------|
-| Scout | $2 | $50 | 8% | 5% | 3% | 7 days | No | 30% |
-| Ranger | $5 | $200 | 10% | 8% | 4% | 10 days | No | 30% |
-| Veteran | $10 | $500 | 12% | 6% | 3% | 10 days | No | 30% |
-| Elite | $25 | $2,000 | 15% | 5% | 2.5% | 14 days | Yes | 30% |
-| Apex | $50 | $5,000 | 15% | 4% | 2% | 14 days | Yes | 30% |
+| Tier    | Entry Fee | Min Capital | Profit Target | Max DD | Daily Limit | Duration | Funded Eligible | Retry Discount |
+| ------- | --------- | ----------- | ------------- | ------ | ----------- | -------- | --------------- | -------------- |
+| Scout   | $2        | $50         | 8%            | 5%     | 3%          | 7 days   | No              | 30%            |
+| Ranger  | $5        | $200        | 10%           | 8%     | 4%          | 10 days  | No              | 30%            |
+| Veteran | $10       | $500        | 12%           | 6%     | 3%          | 10 days  | No              | 30%            |
+| Elite   | $25       | $2,000      | 15%           | 5%     | 2.5%        | 14 days  | Yes             | 30%            |
+| Apex    | $50       | $5,000      | 15%           | 4%     | 2%          | 14 days  | Yes             | 30%            |
 
 **When to adjust:**
+
 - Pass rate > 40%: tighten profit target by 2pp or reduce max drawdown by 1pp
 - Pass rate < 15%: relax drawdown limit by 1pp or extend duration by 2 days
 - Retry rate < 20%: increase discount to 40%
@@ -35,12 +36,12 @@ competition backend.
 Specialist challenges restrict traders to a single asset class, driving
 adoption of Adrena's RWA markets while rewarding domain expertise.
 
-| Specialist | Markets | Bonus Multiplier |
-|-----------|---------|-----------------|
-| Forex | EURUSD, GBPUSD, USDJPY, AUDUSD | 1.15× |
-| Commodities | XAU, XAG, WTI, BRENT | 1.20× |
-| Crypto | BTC, ETH, SOL, BONK | 1.10× |
-| Multi-Asset | BTC, ETH, XAU, EURUSD, WTI | 1.25× |
+| Specialist  | Markets                        | Bonus Multiplier |
+| ----------- | ------------------------------ | ---------------- |
+| Forex       | EURUSD, GBPUSD, USDJPY, AUDUSD | 1.15×            |
+| Commodities | XAU, XAG, WTI, BRENT           | 1.20×            |
+| Crypto      | BTC, ETH, SOL, BONK            | 1.10×            |
+| Multi-Asset | BTC, ETH, XAU, EURUSD, WTI     | 1.25×            |
 
 Trading on disallowed markets during a specialist challenge immediately
 disqualifies the attempt. The 5–25% bonus multiplier applies to the final
@@ -87,6 +88,7 @@ RAROI = ROI% × WinRateFactor × ActivityFactor − DrawdownPenalty
 ```
 
 Where:
+
 - **ROI%** = realized P&L as percentage of starting equity
 - **WinRateFactor** = min(2.0, 0.5 + (winRate/100) × 1.5)
 - **ActivityFactor** = min(1.5, 0.5 + activeDays/totalDays)
@@ -94,12 +96,12 @@ Where:
 
 ### Worked Example (Dave > Alice > Carol > Bob)
 
-| Trader | ROI% | Win Rate | Active Days | Total Days | Max DD | RAROI |
-|--------|------|----------|-------------|------------|--------|-------|
-| Dave | 40% | 70% | 14 | 14 | 5% | **91.50** |
-| Alice | 20% | 60% | 13 | 14 | 3% | **39.10** |
-| Carol | 25% | 50% | 7 | 14 | 5% | **29.75** |
-| Bob | 2% | 55% | 10 | 14 | 2% | **2.62** |
+| Trader | ROI% | Win Rate | Active Days | Total Days | Max DD | RAROI     |
+| ------ | ---- | -------- | ----------- | ---------- | ------ | --------- |
+| Dave   | 40%  | 70%      | 14          | 14         | 5%     | **91.50** |
+| Alice  | 20%  | 60%      | 13          | 14         | 3%     | **39.10** |
+| Carol  | 25%  | 50%      | 7           | 14         | 5%     | **29.75** |
+| Bob    | 2%   | 55%      | 10          | 14         | 2%     | **2.62**  |
 
 **Dave** dominates with high ROI, strong win rate, and perfect activity — even
 with the same 5% drawdown as Carol, his multiplicative advantage is decisive.
@@ -139,21 +141,25 @@ factors amplify the base ROI.
 ## Competitive Analysis
 
 ### vs Jupiter Perps Competitions
+
 Jupiter runs simple PnL leaderboards with no entry fee. Adrena's prop challenge
 format adds: paid entry (anti-sybil), funded trader progression (retention),
 specialist challenges (RWA adoption), and engagement loops (quests/streaks/raffles).
 
 ### vs Drift Trading Competitions
+
 Drift competitions focus on volume incentives. Adrena's scoring is multi-dimensional
 (PnL + volume + consistency + win rate − drawdown), preventing pure volume farming
 from dominating the leaderboard.
 
 ### vs Hyperliquid Competitions
+
 Hyperliquid runs invite-only competitions for elite traders. Adrena's tiered system
 (Scout → Apex) creates an accessible on-ramp: anyone can start at $2 Scout and
 work up to Apex. The World Cup format then provides the elite competitive layer.
 
 ### Adrena's RWA Moat
+
 No competitor offers specialist challenges across forex, commodities, and crypto
 perpetuals. Adrena's Autonom-powered RWA markets are a unique differentiator —
 the specialist challenge format directly converts this technical moat into

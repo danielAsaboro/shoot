@@ -186,9 +186,13 @@ export function buildCompetitionSnapshotFromSources(
         winRate: row.winRate,
         tradeCount: row.tradeCount,
         activeDays: row.activeDays,
-        mutagenScore: row.mutagenTotal != null
-          ? { totalMutagen: row.mutagenTotal, tradeCount: row.mutagenTradeCount ?? row.tradeCount }
-          : undefined,
+        mutagenScore:
+          row.mutagenTotal != null
+            ? {
+                totalMutagen: row.mutagenTotal,
+                tradeCount: row.mutagenTradeCount ?? row.tradeCount,
+              }
+            : undefined,
       };
     });
 

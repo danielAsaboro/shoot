@@ -21,7 +21,10 @@ import { loadWorldCupTraders, loadDesks } from "@/lib/world-cup/data";
 import { PrintButton } from "./print-button";
 
 export default async function MemoPage() {
-  const [traders, desks] = await Promise.all([loadWorldCupTraders(), loadDesks()]);
+  const [traders, desks] = await Promise.all([
+    loadWorldCupTraders(),
+    loadDesks(),
+  ]);
   const data: WorldCupData = { traders, desks };
 
   const preset =

@@ -10,13 +10,16 @@ The World Cup is a seasonal knockout tournament that runs alongside rolling prop
 
 <Steps>
   <Step title="Division Selection">
-    4 divisions based on asset class: **Crypto Cup**, **Metals Cup**, **Energy Cup**, **Forex Cup**. Traders choose their division at registration.
+    4 divisions based on asset class: **Crypto Cup**, **Metals Cup**, **Energy
+    Cup**, **Forex Cup**. Traders choose their division at registration.
   </Step>
   <Step title="Qualifying Phase (2 weeks)">
-    Top N traders per division by composite RAROI score qualify for the knockout bracket.
+    Top N traders per division by composite RAROI score qualify for the knockout
+    bracket.
   </Step>
   <Step title="Group Stage">
-    32 qualifiers per division are drawn into 8 groups of 4. Round-robin within groups over 3 matchdays. Top 2 per group advance.
+    32 qualifiers per division are drawn into 8 groups of 4. Round-robin within
+    groups over 3 matchdays. Top 2 per group advance.
   </Step>
   <Step title="Knockout Phase (4 rounds)">
     Single-elimination bracket. Head-to-head RAROI comparison per match.
@@ -41,30 +44,29 @@ The draw is **seeded and deterministic** — same inputs always produce the same
     Top 32 qualifiers ranked by RAROI from qualifying phase.
   </Step>
   <Step title="Create 4 Pots">
-    - **Pot 1** (Seeds 1–8): Strongest traders
-    - **Pot 2** (Seeds 9–16)
-    - **Pot 3** (Seeds 17–24)
-    - **Pot 4** (Seeds 25–32): Weakest qualifiers
+    - **Pot 1** (Seeds 1–8): Strongest traders - **Pot 2** (Seeds 9–16) - **Pot
+    3** (Seeds 17–24) - **Pot 4** (Seeds 25–32): Weakest qualifiers
   </Step>
-  <Step title="Seeded Shuffle">
-    Each pot is shuffled using the seeded RNG.
-  </Step>
+  <Step title="Seeded Shuffle">Each pot is shuffled using the seeded RNG.</Step>
   <Step title="Distribution">
-    One trader from each pot placed into each of 8 groups. This ensures every group has a mix of skill levels.
+    One trader from each pot placed into each of 8 groups. This ensures every
+    group has a mix of skill levels.
   </Step>
   <Step title="Group of Death Check">
-    If no group has an average seed strength in the top quartile, the algorithm swaps Pot 2 traders to strengthen the weakest group — guaranteeing at least one "Group of Death" for narrative drama.
+    If no group has an average seed strength in the top quartile, the algorithm
+    swaps Pot 2 traders to strengthen the weakest group — guaranteeing at least
+    one "Group of Death" for narrative drama.
   </Step>
 </Steps>
 
 ### Example Group
 
-| Group A | Seed | Pot |
-|---|---|---|
-| Trader Alpha | #2 | Pot 1 |
-| Trader Beta | #11 | Pot 2 |
-| Trader Gamma | #22 | Pot 3 |
-| Trader Delta | #29 | Pot 4 |
+| Group A      | Seed | Pot   |
+| ------------ | ---- | ----- |
+| Trader Alpha | #2   | Pot 1 |
+| Trader Beta  | #11  | Pot 2 |
+| Trader Gamma | #22  | Pot 3 |
+| Trader Delta | #29  | Pot 4 |
 
 ## Redemption Bracket
 
@@ -97,11 +99,11 @@ Registration → Qualifying (2 weeks) → Group Draw → Group Stage (3 matchday
 
 ## Division-Specific Markets
 
-| Division | Allowed Markets |
-|---|---|
-| Crypto Cup | BTC, ETH, SOL, BONK |
-| Metals Cup | XAU, XAG |
-| Energy Cup | WTI, BRENT |
-| Forex Cup | EURUSD, GBPUSD, USDJPY, AUDUSD |
+| Division   | Allowed Markets                |
+| ---------- | ------------------------------ |
+| Crypto Cup | BTC, ETH, SOL, BONK            |
+| Metals Cup | XAU, XAG                       |
+| Energy Cup | WTI, BRENT                     |
+| Forex Cup  | EURUSD, GBPUSD, USDJPY, AUDUSD |
 
 Trading outside your division's markets during World Cup matches results in disqualification with a `specialist_violation` flag.

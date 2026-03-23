@@ -30,16 +30,15 @@
               "guides/engagement",
               "guides/world-cup",
               "guides/onchain-program",
+              "guides/autopilot-sdk",
+              "guides/keeper-service",
               "guides/revenue-model",
               "guides/agent-api"
             ]
           },
           {
             "group": "Competition Design",
-            "pages": [
-              "guides/competition-design",
-              "guides/funded-trader"
-            ]
+            "pages": ["guides/competition-design", "guides/funded-trader"]
           },
           {
             "group": "Infrastructure",
@@ -51,10 +50,7 @@
           },
           {
             "group": "Validation",
-            "pages": [
-              "guides/alpha-test-report",
-              "guides/live-validation"
-            ]
+            "pages": ["guides/alpha-test-report", "guides/live-validation"]
           }
         ]
       }
@@ -65,11 +61,6 @@
     "dark": "/logo/dark.svg"
   },
   "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "claude",
-      "cursor"
-    ]
+    "options": ["copy", "view", "claude", "cursor"]
   }
 }

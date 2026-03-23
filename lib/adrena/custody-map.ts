@@ -18,15 +18,30 @@ const TOKEN_POOL_CUSTODIES: Record<string, MarketInfo> = {
   // SOL
   So11111111111111111111111111111111: { market: "SOL", assetClass: "crypto" },
   // BTC (wBTC)
-  "3NZ9JMVBmGAqocybic2c7LQCJScmgsAZ6vQqTDzcqmJh": { market: "BTC", assetClass: "crypto" },
+  "3NZ9JMVBmGAqocybic2c7LQCJScmgsAZ6vQqTDzcqmJh": {
+    market: "BTC",
+    assetClass: "crypto",
+  },
   // BONK
-  DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263: { market: "BONK", assetClass: "crypto" },
+  DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263: {
+    market: "BONK",
+    assetClass: "crypto",
+  },
   // jitoSOL
-  J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn: { market: "jitoSOL", assetClass: "crypto" },
+  J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn: {
+    market: "jitoSOL",
+    assetClass: "crypto",
+  },
   // ETH (wETH)
-  "7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs": { market: "ETH", assetClass: "crypto" },
+  "7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs": {
+    market: "ETH",
+    assetClass: "crypto",
+  },
   // USDC (collateral)
-  EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v: { market: "USDC", assetClass: "crypto" },
+  EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v: {
+    market: "USDC",
+    assetClass: "crypto",
+  },
 };
 
 // Synthetic pool custodies will be added when the commodities pool launches.
@@ -39,7 +54,10 @@ const SYNTHETIC_POOL_CUSTODIES: Record<string, MarketInfo> = {
  * Look up market info for a custody mint.
  * Returns null for unknown custodies (logs a warning).
  */
-export function getMarketInfo(custodyMint: string, poolType?: number): MarketInfo | null {
+export function getMarketInfo(
+  custodyMint: string,
+  poolType?: number
+): MarketInfo | null {
   const tokenMatch = TOKEN_POOL_CUSTODIES[custodyMint];
   if (tokenMatch) return tokenMatch;
 
@@ -48,7 +66,9 @@ export function getMarketInfo(custodyMint: string, poolType?: number): MarketInf
 
   // If pool_type is synthetic (1) but mint is unknown, classify generically
   if (poolType === 1) {
-    console.warn(`[custody-map] Unknown synthetic custody mint: ${custodyMint}`);
+    console.warn(
+      `[custody-map] Unknown synthetic custody mint: ${custodyMint}`
+    );
     return { market: "UNKNOWN_RWA", assetClass: "metals" };
   }
 
@@ -66,5 +86,8 @@ export function isCustodyAllowed(
 ): boolean {
   const info = getMarketInfo(custodyMint, poolType);
   if (!info) return true; // Unknown custodies are not blocked (fail open)
-  return allowedMarkets.includes(info.market) || allowedMarkets.includes(info.assetClass);
+  return (
+    allowedMarkets.includes(info.market) ||
+    allowedMarkets.includes(info.assetClass)
+  );
 }

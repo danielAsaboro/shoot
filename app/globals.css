@@ -5,33 +5,32 @@
   --background: #050505;
   --background-soft: #0a0a0a;
   --background-panel: #0d0d0d;
-  --foreground: #F0F0F0;
+  --foreground: #f0f0f0;
   --border-strong: rgba(240, 240, 240, 0.15);
   --border-low: rgba(240, 240, 240, 0.06);
-  --accent: #00F0FF;
-  --accent-strong: #00C8D9;
-  --accent-alt: #BFFF00;
+  --accent: #00f0ff;
+  --accent-strong: #00c8d9;
+  --accent-alt: #bfff00;
   --muted: rgba(240, 240, 240, 0.45);
   --card: #0a0a0a;
-  --card-foreground: #F0F0F0;
-  --success: #00FF87;
-  --danger: #FF3D3D;
+  --card-foreground: #f0f0f0;
+  --success: #00ff87;
+  --danger: #ff3d3d;
   --radius: 0.25rem;
 
   --surface-1: #0a0a0a;
   --surface-2: #111111;
   --surface-3: #1a1a1a;
-  --text-primary: #F0F0F0;
+  --text-primary: #f0f0f0;
   --text-secondary: rgba(240, 240, 240, 0.55);
-  --text-tertiary: rgba(240, 240, 240, 0.30);
+  --text-tertiary: rgba(240, 240, 240, 0.3);
   --border-subtle: rgba(240, 240, 240, 0.06);
   --border-default: rgba(240, 240, 240, 0.12);
 
   /* ── Typography ────────────────────────────────────────────────── */
   --font-display:
     var(--font-barlow-condensed), "Barlow Condensed", "Impact", sans-serif;
-  --font-sans:
-    var(--font-outfit), "Outfit", "Helvetica Neue", sans-serif;
+  --font-sans: var(--font-outfit), "Outfit", "Helvetica Neue", sans-serif;
   --font-mono:
     var(--font-jetbrains), "JetBrains Mono", "SFMono-Regular", monospace;
 }
@@ -642,95 +641,197 @@
   /* ── Keyframe animations: broadcast style ──────────────────────── */
 
   @keyframes broadcast-blink {
-    0%, 49% { opacity: 1; }
-    50%, 100% { opacity: 0; }
+    0%,
+    49% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0;
+    }
   }
 
   @keyframes live-blink {
-    0%, 45% { opacity: 1; }
-    50%, 95% { opacity: 0; }
-    100% { opacity: 1; }
+    0%,
+    45% {
+      opacity: 1;
+    }
+    50%,
+    95% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
   }
 
   @keyframes stagger-reveal {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   @keyframes score-counter {
-    from { opacity: 0; transform: translateY(-8px) scale(0.9); }
-    to { opacity: 1; transform: none; }
+    from {
+      opacity: 0;
+      transform: translateY(-8px) scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   @keyframes wipe-in-left {
-    from { clip-path: inset(0 100% 0 0); }
-    to { clip-path: inset(0 0 0 0); }
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
   }
 
   @keyframes wipe-in-right {
-    from { clip-path: inset(0 0 0 100%); }
-    to { clip-path: inset(0 0 0 0); }
+    from {
+      clip-path: inset(0 0 0 100%);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
   }
 
   @keyframes bracket-connect {
-    from { stroke-dashoffset: 100; }
-    to { stroke-dashoffset: 0; }
+    from {
+      stroke-dashoffset: 100;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
   }
 
   @keyframes data-flash {
-    0% { opacity: 1; }
-    30% { opacity: 0.4; color: var(--accent); }
-    100% { opacity: 1; }
+    0% {
+      opacity: 1;
+    }
+    30% {
+      opacity: 0.4;
+      color: var(--accent);
+    }
+    100% {
+      opacity: 1;
+    }
   }
 
   @keyframes number-tick {
-    from { opacity: 0; transform: translateY(-8px); }
-    to   { opacity: 1; transform: none; }
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   @keyframes rank-up {
-    0%   { color: var(--success); transform: translateY(2px); }
-    60%  { color: var(--success); }
-    100% { color: inherit; transform: none; }
+    0% {
+      color: var(--success);
+      transform: translateY(2px);
+    }
+    60% {
+      color: var(--success);
+    }
+    100% {
+      color: inherit;
+      transform: none;
+    }
   }
 
   @keyframes rank-down {
-    0%   { color: var(--danger); transform: translateY(-2px); }
-    60%  { color: var(--danger); }
-    100% { color: inherit; transform: none; }
+    0% {
+      color: var(--danger);
+      transform: translateY(-2px);
+    }
+    60% {
+      color: var(--danger);
+    }
+    100% {
+      color: inherit;
+      transform: none;
+    }
   }
 
   @keyframes pnl-positive {
-    0%   { text-shadow: 0 0 12px rgba(0, 255, 135, 0); }
-    40%  { text-shadow: 0 0 12px rgba(0, 255, 135, 0.7); }
-    100% { text-shadow: none; }
+    0% {
+      text-shadow: 0 0 12px rgba(0, 255, 135, 0);
+    }
+    40% {
+      text-shadow: 0 0 12px rgba(0, 255, 135, 0.7);
+    }
+    100% {
+      text-shadow: none;
+    }
   }
 
   @keyframes pnl-negative {
-    0%   { text-shadow: 0 0 12px rgba(255, 61, 61, 0); }
-    40%  { text-shadow: 0 0 12px rgba(255, 61, 61, 0.7); }
-    100% { text-shadow: none; }
+    0% {
+      text-shadow: 0 0 12px rgba(255, 61, 61, 0);
+    }
+    40% {
+      text-shadow: 0 0 12px rgba(255, 61, 61, 0.7);
+    }
+    100% {
+      text-shadow: none;
+    }
   }
 
   @keyframes live-pulse {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0; }
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
   }
 
   @keyframes shimmer {
-    0%   { background-position: -200% center; }
-    100% { background-position: 200% center; }
+    0% {
+      background-position: -200% center;
+    }
+    100% {
+      background-position: 200% center;
+    }
   }
 
   @keyframes slide-up-in {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: none; }
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   @keyframes badge-unlock {
-    0%   { transform: scale(0.7); opacity: 0; }
-    60%  { transform: scale(1.12); }
-    100% { transform: scale(1); opacity: 1; }
+    0% {
+      transform: scale(0.7);
+      opacity: 0;
+    }
+    60% {
+      transform: scale(1.12);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
   }
 
   /* ── Utility animation classes ─────────────────────────────────── */
@@ -996,8 +1097,12 @@
   /* ── Ticker tape ───────────────────────────────────────────────── */
 
   @keyframes ticker-scroll {
-    from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
   }
 
   .ticker-tape {
@@ -1021,8 +1126,13 @@
   }
 
   @keyframes danger-pulse {
-    0%, 100% { border-color: rgba(255, 61, 61, 0.3); }
-    50%       { border-color: rgba(255, 61, 61, 0.7); }
+    0%,
+    100% {
+      border-color: rgba(255, 61, 61, 0.3);
+    }
+    50% {
+      border-color: rgba(255, 61, 61, 0.7);
+    }
   }
 
   .danger-zone-pulse {

@@ -18,7 +18,10 @@ interface CommentarySectionProps {
 
 // ── Severity Colors ──────────────────────────────────────────────────────────
 
-const SEVERITY_STYLES: Record<PropNarrativeSeverity, { bg: string; border: string; accent: string; label: string }> = {
+const SEVERITY_STYLES: Record<
+  PropNarrativeSeverity,
+  { bg: string; border: string; accent: string; label: string }
+> = {
   legendary: {
     bg: "rgba(191,255,0,0.04)",
     border: "rgba(191,255,0,0.18)",
@@ -75,10 +78,25 @@ function NarrativeBeatCard({ beat }: { beat: PropNarrativeBeat }) {
             </span>
           )}
         </div>
-        <span className="text-[10px] text-white/30 flex-shrink-0" style={{ fontFamily: "var(--font-mono)" }}>{timeAgo}</span>
+        <span
+          className="text-[10px] text-white/30 flex-shrink-0"
+          style={{ fontFamily: "var(--font-mono)" }}
+        >
+          {timeAgo}
+        </span>
       </div>
-      <p className="text-sm font-semibold text-white leading-snug" style={{ fontFamily: "var(--font-sans)" }}>{beat.headline}</p>
-      <p className="text-xs text-white/50 mt-1 leading-relaxed" style={{ fontFamily: "var(--font-sans)" }}>{beat.subtext}</p>
+      <p
+        className="text-sm font-semibold text-white leading-snug"
+        style={{ fontFamily: "var(--font-sans)" }}
+      >
+        {beat.headline}
+      </p>
+      <p
+        className="text-xs text-white/50 mt-1 leading-relaxed"
+        style={{ fontFamily: "var(--font-sans)" }}
+      >
+        {beat.subtext}
+      </p>
     </div>
   );
 }
@@ -90,7 +108,8 @@ function GoldenTradeCard({ trade }: { trade: PropGoldenTrade }) {
     <div
       className="border p-5"
       style={{
-        background: "linear-gradient(135deg, rgba(0,240,255,0.06), rgba(0,240,255,0.02))",
+        background:
+          "linear-gradient(135deg, rgba(0,240,255,0.06), rgba(0,240,255,0.02))",
         borderColor: "rgba(0,240,255,0.25)",
         borderRadius: "4px",
       }}
@@ -106,31 +125,87 @@ function GoldenTradeCard({ trade }: { trade: PropGoldenTrade }) {
         />
         <span
           className="text-xs font-bold tracking-wider"
-          style={{ color: "#00F0FF", fontFamily: "var(--font-display)", textTransform: "uppercase" as const }}
+          style={{
+            color: "#00F0FF",
+            fontFamily: "var(--font-display)",
+            textTransform: "uppercase" as const,
+          }}
         >
           GOLDEN TRADE
         </span>
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <p className="text-sm text-white/50" style={{ fontFamily: "var(--font-display)", textTransform: "uppercase" as const, letterSpacing: "0.05em" }}>Trader</p>
-          <p className="text-lg font-bold text-white" style={{ fontFamily: "var(--font-sans)" }}>{trade.displayName}</p>
+          <p
+            className="text-sm text-white/50"
+            style={{
+              fontFamily: "var(--font-display)",
+              textTransform: "uppercase" as const,
+              letterSpacing: "0.05em",
+            }}
+          >
+            Trader
+          </p>
+          <p
+            className="text-lg font-bold text-white"
+            style={{ fontFamily: "var(--font-sans)" }}
+          >
+            {trade.displayName}
+          </p>
         </div>
         <div>
-          <p className="text-sm text-white/50" style={{ fontFamily: "var(--font-display)", textTransform: "uppercase" as const, letterSpacing: "0.05em" }}>Market</p>
-          <p className="text-lg font-bold text-white" style={{ fontFamily: "var(--font-sans)" }}>
+          <p
+            className="text-sm text-white/50"
+            style={{
+              fontFamily: "var(--font-display)",
+              textTransform: "uppercase" as const,
+              letterSpacing: "0.05em",
+            }}
+          >
+            Market
+          </p>
+          <p
+            className="text-lg font-bold text-white"
+            style={{ fontFamily: "var(--font-sans)" }}
+          >
             {trade.leverage}x {trade.direction.toUpperCase()} {trade.market}
           </p>
         </div>
         <div>
-          <p className="text-sm text-white/50" style={{ fontFamily: "var(--font-display)", textTransform: "uppercase" as const, letterSpacing: "0.05em" }}>P&L</p>
-          <p className="text-xl font-bold" style={{ color: "#00FF87", fontFamily: "var(--font-mono)" }}>
+          <p
+            className="text-sm text-white/50"
+            style={{
+              fontFamily: "var(--font-display)",
+              textTransform: "uppercase" as const,
+              letterSpacing: "0.05em",
+            }}
+          >
+            P&L
+          </p>
+          <p
+            className="text-xl font-bold"
+            style={{ color: "#00FF87", fontFamily: "var(--font-mono)" }}
+          >
             ${trade.pnlUsd.toLocaleString()} (+{trade.pnlPercent.toFixed(1)}%)
           </p>
         </div>
         <div>
-          <p className="text-sm text-white/50" style={{ fontFamily: "var(--font-display)", textTransform: "uppercase" as const, letterSpacing: "0.05em" }}>Context</p>
-          <p className="text-xs text-white/60" style={{ fontFamily: "var(--font-sans)" }}>{trade.cohortContext}</p>
+          <p
+            className="text-sm text-white/50"
+            style={{
+              fontFamily: "var(--font-display)",
+              textTransform: "uppercase" as const,
+              letterSpacing: "0.05em",
+            }}
+          >
+            Context
+          </p>
+          <p
+            className="text-xs text-white/60"
+            style={{ fontFamily: "var(--font-sans)" }}
+          >
+            {trade.cohortContext}
+          </p>
         </div>
       </div>
     </div>
@@ -166,7 +241,7 @@ function CrowdFavoritesSection({
         // Network error — silent
       }
     },
-    [voterWallet, votedMatches],
+    [voterWallet, votedMatches]
   );
 
   if (favorites.length === 0) return null;
@@ -188,12 +263,21 @@ function CrowdFavoritesSection({
           const hasVoted = votedMatches.has(fav.matchId);
 
           return (
-            <div key={fav.matchId} className="flex items-center justify-between text-sm">
-              <span className="text-white/60" style={{ fontFamily: "var(--font-sans)" }}>
+            <div
+              key={fav.matchId}
+              className="flex items-center justify-between text-sm"
+            >
+              <span
+                className="text-white/60"
+                style={{ fontFamily: "var(--font-sans)" }}
+              >
                 {fav.matchId.slice(0, 20)}...
               </span>
               <div className="flex items-center gap-2">
-                <span className="text-white/80" style={{ fontFamily: "var(--font-mono)" }}>
+                <span
+                  className="text-white/80"
+                  style={{ fontFamily: "var(--font-mono)" }}
+                >
                   {displayVotes} votes
                 </span>
                 {voterWallet && !hasVoted ? (
@@ -251,7 +335,10 @@ function CrowdFavoritesSection({
 
 // ── Main Component ───────────────────────────────────────────────────────────
 
-export function CompetitionCommentary({ feed, voterWallet }: CommentarySectionProps) {
+export function CompetitionCommentary({
+  feed,
+  voterWallet,
+}: CommentarySectionProps) {
   return (
     <div className="space-y-6">
       {/* Golden Trade */}
@@ -273,7 +360,10 @@ export function CompetitionCommentary({ feed, voterWallet }: CommentarySectionPr
       </div>
 
       {/* Crowd Favorites */}
-      <CrowdFavoritesSection favorites={feed.crowdFavorites} voterWallet={voterWallet} />
+      <CrowdFavoritesSection
+        favorites={feed.crowdFavorites}
+        voterWallet={voterWallet}
+      />
 
       {/* Rivalries */}
       {feed.rivalries.length > 0 && (
@@ -283,21 +373,46 @@ export function CompetitionCommentary({ feed, voterWallet }: CommentarySectionPr
         >
           <p
             className="text-xs font-bold uppercase tracking-wider text-white/50 mb-3"
-            style={{ fontFamily: "var(--font-display)", letterSpacing: "0.1em" }}
+            style={{
+              fontFamily: "var(--font-display)",
+              letterSpacing: "0.1em",
+            }}
           >
             Active Rivalries
           </p>
           <div className="space-y-2">
             {feed.rivalries.slice(0, 5).map((rivalry, idx) => (
-              <div key={idx} className="flex items-center justify-between text-sm">
+              <div
+                key={idx}
+                className="flex items-center justify-between text-sm"
+              >
                 <div>
-                  <span className="text-white/80" style={{ fontFamily: "var(--font-mono)" }}>{rivalry.walletA.slice(0, 10)}...</span>
-                  <span className="text-white/30 mx-2" style={{ fontFamily: "var(--font-display)" }}>VS</span>
-                  <span className="text-white/80" style={{ fontFamily: "var(--font-mono)" }}>{rivalry.walletB.slice(0, 10)}...</span>
+                  <span
+                    className="text-white/80"
+                    style={{ fontFamily: "var(--font-mono)" }}
+                  >
+                    {rivalry.walletA.slice(0, 10)}...
+                  </span>
+                  <span
+                    className="text-white/30 mx-2"
+                    style={{ fontFamily: "var(--font-display)" }}
+                  >
+                    VS
+                  </span>
+                  <span
+                    className="text-white/80"
+                    style={{ fontFamily: "var(--font-mono)" }}
+                  >
+                    {rivalry.walletB.slice(0, 10)}...
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-white/50" style={{ fontFamily: "var(--font-mono)" }}>
-                    {rivalry.meetings} meetings ({rivalry.aWins}-{rivalry.bWins}-{rivalry.draws})
+                  <span
+                    className="text-xs text-white/50"
+                    style={{ fontFamily: "var(--font-mono)" }}
+                  >
+                    {rivalry.meetings} meetings ({rivalry.aWins}-{rivalry.bWins}
+                    -{rivalry.draws})
                   </span>
                   <span
                     className="px-1.5 py-0.5 text-[9px] font-bold border"

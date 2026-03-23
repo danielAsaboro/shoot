@@ -12,7 +12,9 @@ export async function loadCompetitionReceipts(
 ): Promise<CompetitionEntryReceipt[]> {
   if (!wallet) return [];
   try {
-    const res = await fetch(`/api/competition/receipts?wallet=${encodeURIComponent(wallet)}`);
+    const res = await fetch(
+      `/api/competition/receipts?wallet=${encodeURIComponent(wallet)}`
+    );
     if (!res.ok) return [];
     const data = await res.json();
     return (data.receipts ?? []) as CompetitionEntryReceipt[];
@@ -26,7 +28,9 @@ export async function loadPersistedEnrollment(
 ): Promise<string | null> {
   if (!wallet) return null;
   try {
-    const res = await fetch(`/api/competition/enrollment?wallet=${encodeURIComponent(wallet)}`);
+    const res = await fetch(
+      `/api/competition/enrollment?wallet=${encodeURIComponent(wallet)}`
+    );
     if (!res.ok) return null;
     const data = await res.json();
     return data.cohortId ?? null;
@@ -39,7 +43,10 @@ export async function loadPersistedEnrollment(
  * Persist enrollment is now handled server-side via POST /api/competition/enroll.
  * This is a no-op kept for call-site compatibility during migration.
  */
-export function persistEnrollment(_wallet: string, _cohortId: string | null): void {
+export function persistEnrollment(
+  _wallet: string,
+  _cohortId: string | null
+): void {
   // Enrollment is persisted server-side when POST /api/competition/enroll succeeds.
   // No client-side storage needed.
 }
@@ -48,7 +55,9 @@ export function persistEnrollment(_wallet: string, _cohortId: string | null): vo
  * Save receipt is now handled server-side via POST /api/competition/enroll.
  * This is a no-op kept for call-site compatibility during migration.
  */
-export function saveCompetitionReceipt(_receipt: CompetitionEntryReceipt): void {
+export function saveCompetitionReceipt(
+  _receipt: CompetitionEntryReceipt
+): void {
   // Receipt is persisted server-side as part of the enrollment flow.
   // No client-side storage needed.
 }

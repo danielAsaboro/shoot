@@ -6,7 +6,10 @@
  */
 
 import { prisma } from "@/lib/db/client";
-import { computeDeskStandings, resolveDeskMatchup } from "@/lib/competition/desks";
+import {
+  computeDeskStandings,
+  resolveDeskMatchup,
+} from "@/lib/competition/desks";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {

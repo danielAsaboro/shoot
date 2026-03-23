@@ -14,7 +14,12 @@ import { generateNarrativeBeats } from "../lib/world-cup/narrative.ts";
 import { defaultWeights, defaultGuardrails } from "../lib/world-cup/types.ts";
 import { buildTestData } from "./world-cup-test-helpers.ts";
 
-const allDivisionData: WorldCupData = buildTestData(["crypto", "metals", "energy", "forex"]);
+const allDivisionData: WorldCupData = buildTestData([
+  "crypto",
+  "metals",
+  "energy",
+  "forex",
+]);
 
 test("createFullBracket produces a complete tournament", () => {
   const bracket = createFullBracket({
@@ -121,9 +126,18 @@ test("computeLiveOdds returns valid probabilities", () => {
   for (const match of bracket.roundOf16) {
     const odds = computeLiveOdds(match);
 
-    assert.ok(odds.leftWinProb >= 0 && odds.leftWinProb <= 1, "Left prob should be 0-1");
-    assert.ok(odds.rightWinProb >= 0 && odds.rightWinProb <= 1, "Right prob should be 0-1");
-    assert.ok(odds.drawProb >= 0 && odds.drawProb <= 1, "Draw prob should be 0-1");
+    assert.ok(
+      odds.leftWinProb >= 0 && odds.leftWinProb <= 1,
+      "Left prob should be 0-1"
+    );
+    assert.ok(
+      odds.rightWinProb >= 0 && odds.rightWinProb <= 1,
+      "Right prob should be 0-1"
+    );
+    assert.ok(
+      odds.drawProb >= 0 && odds.drawProb <= 1,
+      "Draw prob should be 0-1"
+    );
     assert.ok(
       ["gaining", "losing", "stable"].includes(odds.trendDirection),
       "Trend direction should be valid"
@@ -194,7 +208,6 @@ test("knockout matches include twist info", () => {
       assert.equal(match.twistMarket, "XAU");
     }
   }
-
 });
 
 test("third-place match is populated from SF losers", () => {
@@ -238,13 +251,12 @@ test("redemption bracket is populated from QF losers", () => {
   const allRedemptionMatches = [
     ...bracket.redemptionBracket.round1,
     ...bracket.redemptionBracket.round2,
-    ...(bracket.redemptionBracket.redemptionFinal ? [bracket.redemptionBracket.redemptionFinal] : []),
+    ...(bracket.redemptionBracket.redemptionFinal
+      ? [bracket.redemptionBracket.redemptionFinal]
+      : []),
   ];
 
-  assert.ok(
-    allRedemptionMatches.length > 0,
-    "Should have redemption matches"
-  );
+  assert.ok(allRedemptionMatches.length > 0, "Should have redemption matches");
 
   for (const match of allRedemptionMatches) {
     assert.equal(match.round, "redemption");

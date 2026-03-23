@@ -1,7 +1,15 @@
 import { fetchPositions, type AdrenaPosition } from "../adrena/client.ts";
 import { getMarketInfo } from "../adrena/custody-map.ts";
-import { computeMetricsFromPositions, computeMetricsFromTradeEvents } from "../adrena/metrics.ts";
-import { getTradeEventsForWallet, getActiveCohorts, getEnrolledWalletsForCohort, enrollTrader as dbEnrollTrader } from "../db/queries.ts";
+import {
+  computeMetricsFromPositions,
+  computeMetricsFromTradeEvents,
+} from "../adrena/metrics.ts";
+import {
+  getTradeEventsForWallet,
+  getActiveCohorts,
+  getEnrolledWalletsForCohort,
+  enrollTrader as dbEnrollTrader,
+} from "../db/queries.ts";
 import {
   buildCompetitionSnapshotFromSources,
   type AdrenaLeaderboardRowSource,
@@ -9,7 +17,10 @@ import {
 } from "./adrena-source-adapters.ts";
 import { competitionConfig } from "./config.ts";
 import { computeTournamentScore } from "./engine.ts";
-import { computeAggregateMutagen, computeAggregateMutagenFromEvents } from "./mutagen.ts";
+import {
+  computeAggregateMutagen,
+  computeAggregateMutagenFromEvents,
+} from "./mutagen.ts";
 import {
   detectSybilClusters,
   detectTradingPatternCorrelation,
@@ -38,7 +49,9 @@ function getCompetitionApiBaseUrl(): string | undefined {
  * Fetch positions from the Competition Service API if configured,
  * otherwise fall back to the Adrena Data API.
  */
-async function fetchPositionsForWallet(wallet: string): Promise<AdrenaPosition[]> {
+async function fetchPositionsForWallet(
+  wallet: string
+): Promise<AdrenaPosition[]> {
   const apiBaseUrl = getCompetitionApiBaseUrl();
   if (apiBaseUrl) {
     try {
@@ -172,7 +185,12 @@ function buildLeaderboardRow(
   // Compute Mutagen — prefer trade events (official interpolated table), fall back to positions
   let mutagenTotal: number | undefined;
   let mutagenTradeCount: number | undefined;
-  if (opts?.tradeEvents && opts.tradeEvents.length > 0 && opts.windowStart && opts.windowEnd) {
+  if (
+    opts?.tradeEvents &&
+    opts.tradeEvents.length > 0 &&
+    opts.windowStart &&
+    opts.windowEnd
+  ) {
     const mutagen = computeAggregateMutagenFromEvents(
       opts.tradeEvents,
       opts.windowStart,
@@ -181,7 +199,11 @@ function buildLeaderboardRow(
     mutagenTotal = mutagen.totalMutagen;
     mutagenTradeCount = mutagen.tradeCount;
   } else if (opts?.positions && opts.windowStart && opts.windowEnd) {
-    const mutagen = computeAggregateMutagen(opts.positions, opts.windowStart, opts.windowEnd);
+    const mutagen = computeAggregateMutagen(
+      opts.positions,
+      opts.windowStart,
+      opts.windowEnd
+    );
     mutagenTotal = mutagen.totalMutagen;
     mutagenTradeCount = mutagen.tradeCount;
   }
@@ -207,7 +229,11 @@ function buildLeaderboardRow(
   };
 }
 
-function deriveStreakDays(positions: AdrenaPosition[], windowStart: Date, windowEnd: Date): number {
+function deriveStreakDays(
+  positions: AdrenaPosition[],
+  windowStart: Date,
+  windowEnd: Date
+): number {
   const tradingDays = new Set(
     positions
       .filter((pos) => {
@@ -225,7 +251,10 @@ function deriveStreakState(
   windowEnd: Date
 ): "alive" | "warning" | "broken" {
   const lastExit = positions
-    .filter((pos) => (pos.status === "close" || pos.status === "liquidate") && pos.exit_date)
+    .filter(
+      (pos) =>
+        (pos.status === "close" || pos.status === "liquidate") && pos.exit_date
+    )
     .map((pos) => new Date(pos.exit_date!).getTime())
     .sort((a, b) => b - a)[0];
 
@@ -284,7 +313,10 @@ export const adrenaLiveAdapter = {
     // ── Dual data path: try DB trade events first, fall back to REST ──
     // Trade events come from the WebSocket consumer (real-time, persisted).
     // REST positions are the fallback when WS is not running.
-    const tradeEventsByWalletCohort = new Map<string, Awaited<ReturnType<typeof getTradeEventsForWallet>>>();
+    const tradeEventsByWalletCohort = new Map<
+      string,
+      Awaited<ReturnType<typeof getTradeEventsForWallet>>
+    >();
     const positionsByWallet = new Map<string, AdrenaPosition[]>();
 
     // Try loading trade events from DB for each wallet+cohort pair
@@ -294,7 +326,11 @@ export const adrenaLiveAdapter = {
       for (const wallet of cohort.enrolledWallets) {
         const key = `${wallet}::${cohort.id}`;
         try {
-          const events = await getTradeEventsForWallet(wallet, windowStart, windowEnd);
+          const events = await getTradeEventsForWallet(
+            wallet,
+            windowStart,
+            windowEnd
+          );
           tradeEventsByWalletCohort.set(key, events);
         } catch {
           tradeEventsByWalletCohort.set(key, []);
@@ -343,13 +379,19 @@ export const adrenaLiveAdapter = {
       const windowEnd = new Date(cohort.endTime);
 
       const wallets = [...cohort.enrolledWallets];
-      if (viewerWallet && enrolledCohortId === cohort.id && !wallets.includes(viewerWallet)) {
+      if (
+        viewerWallet &&
+        enrolledCohortId === cohort.id &&
+        !wallets.includes(viewerWallet)
+      ) {
         wallets.push(viewerWallet);
       }
 
       const cohortDurationDays = Math.max(
         1,
-        Math.round((windowEnd.getTime() - windowStart.getTime()) / (1000 * 60 * 60 * 24))
+        Math.round(
+          (windowEnd.getTime() - windowStart.getTime()) / (1000 * 60 * 60 * 24)
+        )
       );
 
       const rows: AdrenaLeaderboardRowSource[] = wallets.map((wallet) => {
@@ -430,18 +472,27 @@ export const adrenaLiveAdapter = {
 
       // Merge all clusters and apply convergence filter — only flag wallets
       // that appear in 3+ distinct heuristic types
-      const allClusters = [...fundingClusters, ...patternClusters, ...mirrorClusters];
+      const allClusters = [
+        ...fundingClusters,
+        ...patternClusters,
+        ...mirrorClusters,
+      ];
       const convergedWallets = applyConvergenceFilter(allClusters, 3);
-      const cohortAbuseFlags: Array<{ wallet: string; flagCode: string; reason: string }> = allClusters
+      const cohortAbuseFlags: Array<{
+        wallet: string;
+        flagCode: string;
+        reason: string;
+      }> = allClusters
         .filter((c) => c.flagged)
         .flatMap((c) =>
           c.wallets
             .filter((w) => convergedWallets.has(w))
             .map((w) => ({
               wallet: w,
-              flagCode: c.heuristicType === "pnl_mirror"
-                ? "wash_trading_suspicion"
-                : "sybil_suspicion",
+              flagCode:
+                c.heuristicType === "pnl_mirror"
+                  ? "wash_trading_suspicion"
+                  : "sybil_suspicion",
               reason: c.reason,
             }))
         );
@@ -501,9 +552,7 @@ export const adrenaLiveAdapter = {
 
     // Build viewer state
     const now = new Date();
-    const viewerEnrolledCohort = cohorts.find(
-      (c) => c.id === enrolledCohortId
-    );
+    const viewerEnrolledCohort = cohorts.find((c) => c.id === enrolledCohortId);
 
     const viewerWindowStart = viewerEnrolledCohort
       ? new Date(viewerEnrolledCohort.startTime)
@@ -518,7 +567,9 @@ export const adrenaLiveAdapter = {
     let streakState: "alive" | "warning" | "broken" = "broken";
 
     if (viewerWallet) {
-      const viewerKey = viewerEnrolledCohort ? `${viewerWallet}::${viewerEnrolledCohort.id}` : null;
+      const viewerKey = viewerEnrolledCohort
+        ? `${viewerWallet}::${viewerEnrolledCohort.id}`
+        : null;
       const viewerTradeEvents = viewerKey
         ? (tradeEventsByWalletCohort.get(viewerKey) ?? [])
         : [];
@@ -529,8 +580,15 @@ export const adrenaLiveAdapter = {
           viewerWindowStart,
           viewerWindowEnd
         );
-        streakDays = deriveStreakDaysFromEvents(viewerTradeEvents, viewerWindowStart, viewerWindowEnd);
-        streakState = deriveStreakStateFromEvents(viewerTradeEvents, viewerWindowEnd);
+        streakDays = deriveStreakDaysFromEvents(
+          viewerTradeEvents,
+          viewerWindowStart,
+          viewerWindowEnd
+        );
+        streakState = deriveStreakStateFromEvents(
+          viewerTradeEvents,
+          viewerWindowEnd
+        );
       } else {
         const viewerPositions = positionsByWallet.get(viewerWallet) ?? [];
         viewerMetrics = computeMetricsFromPositions(
@@ -538,7 +596,11 @@ export const adrenaLiveAdapter = {
           viewerWindowStart,
           viewerWindowEnd
         );
-        streakDays = deriveStreakDays(viewerPositions, viewerWindowStart, viewerWindowEnd);
+        streakDays = deriveStreakDays(
+          viewerPositions,
+          viewerWindowStart,
+          viewerWindowEnd
+        );
         streakState = deriveStreakState(viewerPositions, viewerWindowEnd);
       }
     }
@@ -605,7 +667,9 @@ export const adrenaLiveAdapter = {
                   raffleTickets: 0,
                   abuseFlags: [],
                 },
-                viewerEnrolledCohort?.scoringMode ?? config.scoringMode ?? "standard"
+                viewerEnrolledCohort?.scoringMode ??
+                  config.scoringMode ??
+                  "standard"
               ) * 10
             )
           : 0,
@@ -627,7 +691,9 @@ export const adrenaLiveAdapter = {
         ],
         streakDays,
         streakState,
-        raffleTickets: Math.min(5, streakDays > 0 ? streakDays : 0) + getBonusRaffleTickets(streakDays),
+        raffleTickets:
+          Math.min(5, streakDays > 0 ? streakDays : 0) +
+          getBonusRaffleTickets(streakDays),
       },
     };
 

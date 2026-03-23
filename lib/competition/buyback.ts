@@ -6,11 +6,7 @@
  * to buy ADX on settlement.
  */
 
-import {
-  Connection,
-  Keypair,
-  VersionedTransaction,
-} from "@solana/web3.js";
+import { Connection, Keypair, VersionedTransaction } from "@solana/web3.js";
 import { prisma } from "../db/client.ts";
 import { calculateFeeAllocation } from "./engine.ts";
 

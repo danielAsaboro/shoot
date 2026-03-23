@@ -20,7 +20,8 @@ export async function loadWorldCupTraders(
     tag: row.tag,
     bio: row.bio,
     baseline: row.baseline as TraderRecord["baseline"],
-    scenarioOverrides: (row.scenarioOverrides as TraderRecord["scenarioOverrides"]) ?? undefined,
+    scenarioOverrides:
+      (row.scenarioOverrides as TraderRecord["scenarioOverrides"]) ?? undefined,
     manualFlags: (row.manualFlags as TraderRecord["manualFlags"]) ?? undefined,
   }));
 }

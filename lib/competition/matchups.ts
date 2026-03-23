@@ -119,7 +119,8 @@ export function createLivePnlRace(
       s.pnlPercent > 10 ? "surging" : s.pnlPercent > 0 ? "stable" : "fading";
 
     // rankDelta computed from previousRank if available
-    const prevRank = (s as StandingsEntry & { previousRank?: number }).previousRank;
+    const prevRank = (s as StandingsEntry & { previousRank?: number })
+      .previousRank;
     const rankDelta = prevRank ? prevRank - s.rank : 0;
 
     return {

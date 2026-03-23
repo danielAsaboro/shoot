@@ -58,14 +58,29 @@ interface SizeTier {
 }
 
 const SIZE_TIERS: SizeTier[] = [
-  { minUsd: 10,        maxUsd: 1_000,     multiplierMin: 0.00025, multiplierMax: 0.05  },
-  { minUsd: 1_000,     maxUsd: 5_000,     multiplierMin: 0.05,    multiplierMax: 1.0   },
-  { minUsd: 5_000,     maxUsd: 50_000,    multiplierMin: 1.0,     multiplierMax: 5.0   },
-  { minUsd: 50_000,    maxUsd: 100_000,   multiplierMin: 5.0,     multiplierMax: 9.0   },
-  { minUsd: 100_000,   maxUsd: 250_000,   multiplierMin: 9.0,     multiplierMax: 17.5  },
-  { minUsd: 250_000,   maxUsd: 500_000,   multiplierMin: 17.5,    multiplierMax: 25.0  },
-  { minUsd: 500_000,   maxUsd: 1_000_000, multiplierMin: 25.0,    multiplierMax: 30.0  },
-  { minUsd: 1_000_000, maxUsd: 4_500_000, multiplierMin: 30.0,    multiplierMax: 45.0  },
+  { minUsd: 10, maxUsd: 1_000, multiplierMin: 0.00025, multiplierMax: 0.05 },
+  { minUsd: 1_000, maxUsd: 5_000, multiplierMin: 0.05, multiplierMax: 1.0 },
+  { minUsd: 5_000, maxUsd: 50_000, multiplierMin: 1.0, multiplierMax: 5.0 },
+  { minUsd: 50_000, maxUsd: 100_000, multiplierMin: 5.0, multiplierMax: 9.0 },
+  { minUsd: 100_000, maxUsd: 250_000, multiplierMin: 9.0, multiplierMax: 17.5 },
+  {
+    minUsd: 250_000,
+    maxUsd: 500_000,
+    multiplierMin: 17.5,
+    multiplierMax: 25.0,
+  },
+  {
+    minUsd: 500_000,
+    maxUsd: 1_000_000,
+    multiplierMin: 25.0,
+    multiplierMax: 30.0,
+  },
+  {
+    minUsd: 1_000_000,
+    maxUsd: 4_500_000,
+    multiplierMin: 30.0,
+    multiplierMax: 45.0,
+  },
 ];
 
 // ── Core Mutagen Functions ──────────────────────────────────────────────────
@@ -102,7 +117,8 @@ export function computeMutagenSizeMultiplier(sizeUsd: number): number {
       return Number(
         (
           tier.multiplierMin +
-          ((sizeUsd - tier.minUsd) * (tier.multiplierMax - tier.multiplierMin)) /
+          ((sizeUsd - tier.minUsd) *
+            (tier.multiplierMax - tier.multiplierMin)) /
             (tier.maxUsd - tier.minUsd)
         ).toFixed(6)
       );
@@ -163,9 +179,7 @@ export function computeAggregateMutagen(
 
   const tradeScores = closed.map((pos) => {
     const pnlPercent =
-      pos.collateral_amount > 0
-        ? (pos.pnl / pos.collateral_amount) * 100
-        : 0;
+      pos.collateral_amount > 0 ? (pos.pnl / pos.collateral_amount) * 100 : 0;
     const entryMs = new Date(pos.entry_date).getTime();
     const exitMs = new Date(pos.exit_date).getTime();
     const durationHours = (exitMs - entryMs) / (1000 * 60 * 60);

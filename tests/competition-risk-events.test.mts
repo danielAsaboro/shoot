@@ -31,7 +31,8 @@ test("scenario generates different results for different cohorts", () => {
 
   // Different cohorts produce distinct scenarios
   assert.ok(
-    scenarioA.label !== scenarioB.label || scenarioA.events.length !== scenarioB.events.length,
+    scenarioA.label !== scenarioB.label ||
+      scenarioA.events.length !== scenarioB.events.length,
     "Different cohort IDs should tend to produce different scenarios"
   );
 });
@@ -39,8 +40,14 @@ test("scenario generates different results for different cohorts", () => {
 test("scenario has 2-3 events", () => {
   for (let i = 0; i < 10; i++) {
     const scenario = generateRiskScenario(`test-scenario-${i}`);
-    assert.ok(scenario.events.length >= 2, `Scenario ${i} has ${scenario.events.length} events, expected >= 2`);
-    assert.ok(scenario.events.length <= 3, `Scenario ${i} has ${scenario.events.length} events, expected <= 3`);
+    assert.ok(
+      scenario.events.length >= 2,
+      `Scenario ${i} has ${scenario.events.length} events, expected >= 2`
+    );
+    assert.ok(
+      scenario.events.length <= 3,
+      `Scenario ${i} has ${scenario.events.length} events, expected <= 3`
+    );
   }
 });
 
@@ -117,8 +124,16 @@ test("challenge modifiers filter by tier", () => {
 
   // forced_market only affects elite and apex
   const scoutModifiers = getChallengeModifiers("scout", events);
-  assert.equal(scoutModifiers.length, 0, "Scout should not be affected by forced_market");
+  assert.equal(
+    scoutModifiers.length,
+    0,
+    "Scout should not be affected by forced_market"
+  );
 
   const apexModifiers = getChallengeModifiers("apex", events);
-  assert.equal(apexModifiers.length, 1, "Apex should be affected by forced_market");
+  assert.equal(
+    apexModifiers.length,
+    1,
+    "Apex should be affected by forced_market"
+  );
 });

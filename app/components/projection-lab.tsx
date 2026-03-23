@@ -138,7 +138,9 @@ function computeRaroiBreakdown(
       {
         label: `Activity factor`,
         value: Number(
-          (roi * winRateFactor * activityFactor - roi * winRateFactor).toFixed(2)
+          (roi * winRateFactor * activityFactor - roi * winRateFactor).toFixed(
+            2
+          )
         ),
       },
       {
@@ -157,13 +159,17 @@ function ContributionBar({
   row: BreakdownRow;
   maxAbsValue: number;
 }) {
-  const widthPercent = maxAbsValue > 0 ? (Math.abs(row.value) / maxAbsValue) * 100 : 0;
+  const widthPercent =
+    maxAbsValue > 0 ? (Math.abs(row.value) / maxAbsValue) * 100 : 0;
   const color = row.isPenalty ? "#FF3D3D" : "#00F0FF";
 
   return (
     <div className="flex items-center gap-3 text-sm">
       <span className="w-28 shrink-0 text-white/58">{row.label}</span>
-      <div className="flex-1 h-4 rounded-sm overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+      <div
+        className="flex-1 h-4 rounded-sm overflow-hidden"
+        style={{ background: "rgba(255,255,255,0.06)" }}
+      >
         <div
           className="h-full rounded-sm transition-all duration-200"
           style={{
@@ -173,11 +179,9 @@ function ContributionBar({
           }}
         />
       </div>
-      <span
-        className="w-16 text-right font-mono text-xs"
-        style={{ color }}
-      >
-        {row.isPenalty ? "" : "+"}{row.value.toFixed(1)}
+      <span className="w-16 text-right font-mono text-xs" style={{ color }}>
+        {row.isPenalty ? "" : "+"}
+        {row.value.toFixed(1)}
       </span>
     </div>
   );
@@ -275,9 +279,7 @@ export function ProjectionLab({
           <strong>#{projectedRank}</strong>
         </div>
         <div className="stat-card">
-          <span>
-            {mode === "raroi" ? "RAROI score" : "Projected score"}
-          </span>
+          <span>{mode === "raroi" ? "RAROI score" : "Projected score"}</span>
           <strong
             style={{
               color: mode === "raroi" ? "#BF5AF2" : "var(--success)",
@@ -291,7 +293,11 @@ export function ProjectionLab({
       {/* Contribution bars */}
       <div className="grid gap-2 mt-4">
         {rows.map((row) => (
-          <ContributionBar key={row.label} row={row} maxAbsValue={maxAbsValue} />
+          <ContributionBar
+            key={row.label}
+            row={row}
+            maxAbsValue={maxAbsValue}
+          />
         ))}
       </div>
 

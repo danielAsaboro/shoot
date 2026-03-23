@@ -27,7 +27,13 @@ export interface ArchetypeProfile {
 }
 
 export function classifyArchetype(entry: StandingsEntry): ArchetypeProfile {
-  const { winRate, volumeUsd, consistencyScore, maxDrawdownPercent, pnlPercent } = entry;
+  const {
+    winRate,
+    volumeUsd,
+    consistencyScore,
+    maxDrawdownPercent,
+    pnlPercent,
+  } = entry;
   const tradeCount = entry.tradeCount ?? 0;
 
   // Iron Hands: Tight risk management with strong positive returns
@@ -131,13 +137,18 @@ export function generateStorylineBeats(
   const beats: PropNarrativeBeat[] = [];
   const now = Date.now();
 
-  if (currentStandings.length === 0 || previousStandings.length === 0) return beats;
+  if (currentStandings.length === 0 || previousStandings.length === 0)
+    return beats;
 
   const currentLeader = currentStandings[0];
   const previousLeader = previousStandings[0];
 
   // ── Consecutive #1: Same leader across polls ──
-  if (currentLeader && previousLeader && currentLeader.wallet === previousLeader.wallet) {
+  if (
+    currentLeader &&
+    previousLeader &&
+    currentLeader.wallet === previousLeader.wallet
+  ) {
     beats.push({
       type: "storyline",
       headline: `DOMINANT: ${currentLeader.displayName} holds the top spot with ${currentLeader.tournamentScore.toFixed(1)} points`,

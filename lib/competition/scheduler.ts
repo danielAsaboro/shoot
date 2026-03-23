@@ -78,7 +78,11 @@ function formatCohortId(tierId: string, date: Date): string {
   return `cohort-${tierId}-${month}${day}-${hour}`;
 }
 
-function formatCohortName(tierId: string, presetId: string, date: Date): string {
+function formatCohortName(
+  tierId: string,
+  presetId: string,
+  date: Date
+): string {
   const tierLabel = TIER_NAMES[tierId] ?? tierId;
   const month = String(date.getUTCMonth() + 1).padStart(2, "0");
   const day = String(date.getUTCDate()).padStart(2, "0");
@@ -124,7 +128,9 @@ export function getCohortsToCreate(
     if (!schedule.enabled) continue;
 
     // Check if there's already an active cohort for this tier
-    const hasActive = activeCohortIds.some((id) => id.includes(schedule.tierId));
+    const hasActive = activeCohortIds.some((id) =>
+      id.includes(schedule.tierId)
+    );
     if (hasActive) continue;
 
     // Create next cohort starting now
@@ -132,7 +138,11 @@ export function getCohortsToCreate(
     const endTime = new Date(nowMs + schedule.cadenceHours * 60 * 60 * 1000);
 
     const cohortId = formatCohortId(schedule.tierId, startTime);
-    const cohortName = formatCohortName(schedule.tierId, schedule.presetId, startTime);
+    const cohortName = formatCohortName(
+      schedule.tierId,
+      schedule.presetId,
+      startTime
+    );
 
     pending.push({
       id: cohortId,

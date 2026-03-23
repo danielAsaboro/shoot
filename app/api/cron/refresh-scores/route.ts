@@ -22,7 +22,10 @@ import {
 } from "@/lib/db/queries";
 import { fetchPositions } from "@/lib/adrena/client";
 import { computeMetricsFromPositions } from "@/lib/adrena/metrics";
-import { computeTournamentScore, evaluateChallenge } from "@/lib/competition/engine";
+import {
+  computeTournamentScore,
+  evaluateChallenge,
+} from "@/lib/competition/engine";
 import { emitChallengeQuestEvents } from "@/lib/competition/quest-emitter";
 import { drawRaffle, recordBuyback } from "@/lib/competition/raffle";
 import { notifySybilAlert } from "@/lib/notifications/discord-webhook";
@@ -44,7 +47,11 @@ export async function POST(request: Request) {
 
   const now = new Date();
   const cohorts = await getActiveCohorts();
-  const results: Array<{ cohortId: string; walletsScored: number; settled: boolean }> = [];
+  const results: Array<{
+    cohortId: string;
+    walletsScored: number;
+    settled: boolean;
+  }> = [];
 
   for (const cohort of cohorts) {
     const windowStart = cohort.startTime;
@@ -55,13 +62,20 @@ export async function POST(request: Request) {
       await updateCohortState(cohort.id, "settled");
 
       // Trigger raffle and buyback for settled cohort
-      const enrolledCount = (await getEnrolledWalletsForCohort(cohort.id)).length;
+      const enrolledCount = (await getEnrolledWalletsForCohort(cohort.id))
+        .length;
       const totalFees = enrolledCount * cohort.entryFeeUsd;
       await drawRaffle(cohort.id, totalFees).catch((err) =>
-        console.warn(`[refresh-scores] Raffle draw failed for ${cohort.id}:`, err)
+        console.warn(
+          `[refresh-scores] Raffle draw failed for ${cohort.id}:`,
+          err
+        )
       );
       await recordBuyback(cohort.id, totalFees).catch((err) =>
-        console.warn(`[refresh-scores] Buyback record failed for ${cohort.id}:`, err)
+        console.warn(
+          `[refresh-scores] Buyback record failed for ${cohort.id}:`,
+          err
+        )
       );
 
       results.push({ cohortId: cohort.id, walletsScored: 0, settled: true });
@@ -89,14 +103,20 @@ export async function POST(request: Request) {
 
     const cohortDurationDays = Math.max(
       1,
-      Math.round((windowEnd.getTime() - windowStart.getTime()) / (1000 * 60 * 60 * 24))
+      Math.round(
+        (windowEnd.getTime() - windowStart.getTime()) / (1000 * 60 * 60 * 24)
+      )
     );
 
     // Score each wallet
     let walletsScored = 0;
     for (const wallet of wallets) {
       const positions = positionsByWallet.get(wallet) ?? [];
-      const performance = computeMetricsFromPositions(positions, windowStart, windowEnd);
+      const performance = computeMetricsFromPositions(
+        positions,
+        windowStart,
+        windowEnd
+      );
 
       const profile = {
         wallet,
@@ -132,7 +152,9 @@ export async function POST(request: Request) {
       });
 
       // Emit quest events based on performance
-      const tier = competitionConfig.presets.find((p) => p.id === cohort.presetId);
+      const tier = competitionConfig.presets.find(
+        (p) => p.id === cohort.presetId
+      );
       await emitChallengeQuestEvents({
         wallet,
         passed: performance.pnlPercent >= 8, // simplified pass check
@@ -170,7 +192,10 @@ export async function POST(request: Request) {
 
   console.log(
     `[cron/refresh-scores] Processed ${results.length} cohort(s):`,
-    results.map((r) => `${r.cohortId} (${r.walletsScored} scored${r.settled ? ", settled" : ""})`)
+    results.map(
+      (r) =>
+        `${r.cohortId} (${r.walletsScored} scored${r.settled ? ", settled" : ""})`
+    )
   );
 
   return NextResponse.json({

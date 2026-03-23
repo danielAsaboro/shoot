@@ -1,4 +1,9 @@
-import { updateSybilReview, flagSybil, getPendingSybilFlags, getSybilFlags } from "@/lib/db/queries";
+import {
+  updateSybilReview,
+  flagSybil,
+  getPendingSybilFlags,
+  getSybilFlags,
+} from "@/lib/db/queries";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth/admin";
 

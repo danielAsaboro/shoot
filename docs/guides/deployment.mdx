@@ -6,27 +6,30 @@ icon: "rocket"
 
 ## Live Deployment
 
-| Component | URL |
-|---|---|
-| **App** | [shoot-production-f218.up.railway.app](https://shoot-production-f218.up.railway.app/) |
-| **Documentation** | [docs-1f2b6c2c.mintlify.app](https://docs-1f2b6c2c.mintlify.app/) |
+| Component            | URL                                                                                                                          |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| **App**              | [shoot-production-f218.up.railway.app](https://shoot-production-f218.up.railway.app/)                                        |
+| **Documentation**    | [docs-1f2b6c2c.mintlify.app](https://docs-1f2b6c2c.mintlify.app/)                                                            |
 | **On-chain program** | [`4HVnwG8...2iMG`](https://explorer.solana.com/address/4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG?cluster=devnet) (devnet) |
 
 ## Prerequisites
 
-| Component | Version | Notes |
-|---|---|---|
-| Node.js | >= 20 LTS | Frontend and API server |
-| PostgreSQL | >= 14 | **Required** — all state persisted to DB (no localStorage fallbacks) |
-| Docker | >= 24 | For production deployment |
+| Component  | Version   | Notes                                                                |
+| ---------- | --------- | -------------------------------------------------------------------- |
+| Node.js    | >= 20 LTS | Frontend, API server, Autopilot SDK                                  |
+| Rust       | >= 1.78   | Keeper service                                                       |
+| PostgreSQL | >= 14     | **Required** — all state persisted to DB (no localStorage fallbacks) |
+| Docker     | >= 24     | For production deployment                                            |
 
 ### Stack
 
 - **Next.js 16** with React 19 for the full-stack app
 - **Prisma ORM** with PostgreSQL for all server-side persistence
+- **Rust / Axum** for the keeper service (position monitor, scoring engine, lifecycle FSM)
 - **Privy** for wallet authentication (embedded + external wallets)
 - **Adrena Data API** (`datapi.adrena.trade`) for real position data
-- **Solana** (devnet) for on-chain entry fees and settlement via the Shoot Anchor program
+- **Yellowstone gRPC** for real-time Solana position monitoring
+- **Solana** (devnet) for on-chain entry fees, settlement, and agent registration via the Shoot Anchor program
 
 ## Local Development
 
@@ -51,6 +54,7 @@ icon: "rocket"
     NEXT_PUBLIC_PRIVY_APP_ID=your-privy-app-id
     NEXT_PUBLIC_PRIVY_APP_SECRET=your-privy-app-secret
     ```
+
   </Step>
   <Step title="Database setup">
     ```bash
@@ -60,6 +64,7 @@ icon: "rocket"
     # Seed initial data (cohorts, wallets, World Cup traders)
     npx tsx prisma/seed/index.ts
     ```
+
   </Step>
   <Step title="Run development server">
     ```bash
@@ -69,9 +74,11 @@ icon: "rocket"
   </Step>
   <Step title="Run tests">
     ```bash
-    npm test              # 191 unit tests
-    npm run lint          # ESLint
-    npm run build         # production build check
+    npm test                          # 278 unit tests (main app)
+    cd sdk && npm install && npm test # 144 tests (autopilot SDK)
+    cd keeper && cargo test           # 60+ tests (keeper service)
+    npm run lint                      # ESLint
+    npm run build                     # production build check
     ```
   </Step>
 </Steps>
@@ -90,28 +97,28 @@ docker compose up
 
 ### Railway Configuration
 
-| Setting | Value |
-|---|---|
+| Setting       | Value                           |
+| ------------- | ------------------------------- |
 | Build Command | `prisma generate && next build` |
-| Start Command | `node server.js` |
-| Port | `3000` |
-| Health Check | `GET /` |
+| Start Command | `node server.js`                |
+| Port          | `3000`                          |
+| Health Check  | `GET /`                         |
 
 Set these environment variables in Railway:
 
-| Variable | Required | Description |
-|---|---|---|
-| `DATABASE_URL` | Yes | PostgreSQL connection string (Railway provides this if you add a Postgres plugin) |
-| `NEXT_PUBLIC_COMPETITION_PROVIDER` | Yes | Always `adrena` for production |
-| `NEXT_PUBLIC_PRIVY_APP_ID` | Yes | Privy app ID from dashboard.privy.io |
-| `NEXT_PUBLIC_PRIVY_APP_SECRET` | Yes | Privy app secret |
-| `NEXT_PUBLIC_SOLANA_CLUSTER` | Yes | `devnet` (or `mainnet` for production) |
-| `ADRENA_DATA_API_BASE_URL` | No | Defaults to `https://datapi.adrena.trade` |
-| `CRON_SECRET` | Yes | Bearer token for `/api/cron/*` authentication |
-| `ADMIN_SECRET` | Yes | Bearer token for `/api/admin/*` authentication |
-| `DISCORD_WEBHOOK_URL` | No | Discord webhook for competition notifications |
-| `DISCORD_OPS_WEBHOOK_URL` | No | Separate webhook for sybil alerts |
-| `BUYBACK_WALLET_KEYPAIR` | No | JSON array of secret key bytes for Jupiter ADX buyback wallet. If not set, buybacks are recorded as "pending". |
+| Variable                           | Required | Description                                                                                                    |
+| ---------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`                     | Yes      | PostgreSQL connection string (Railway provides this if you add a Postgres plugin)                              |
+| `NEXT_PUBLIC_COMPETITION_PROVIDER` | Yes      | Always `adrena` for production                                                                                 |
+| `NEXT_PUBLIC_PRIVY_APP_ID`         | Yes      | Privy app ID from dashboard.privy.io                                                                           |
+| `NEXT_PUBLIC_PRIVY_APP_SECRET`     | Yes      | Privy app secret                                                                                               |
+| `NEXT_PUBLIC_SOLANA_CLUSTER`       | Yes      | `devnet` (or `mainnet` for production)                                                                         |
+| `ADRENA_DATA_API_BASE_URL`         | No       | Defaults to `https://datapi.adrena.trade`                                                                      |
+| `CRON_SECRET`                      | Yes      | Bearer token for `/api/cron/*` authentication                                                                  |
+| `ADMIN_SECRET`                     | Yes      | Bearer token for `/api/admin/*` authentication                                                                 |
+| `DISCORD_WEBHOOK_URL`              | No       | Discord webhook for competition notifications                                                                  |
+| `DISCORD_OPS_WEBHOOK_URL`          | No       | Separate webhook for sybil alerts                                                                              |
+| `BUYBACK_WALLET_KEYPAIR`           | No       | JSON array of secret key bytes for Jupiter ADX buyback wallet. If not set, buybacks are recorded as "pending". |
 
 ### Privy Configuration
 
@@ -138,10 +145,10 @@ curl -X POST \
   https://shoot-production-f218.up.railway.app/api/cron/rotate-cohorts
 ```
 
-| Endpoint | Frequency | What It Does |
-|---|---|---|
-| `POST /api/cron/refresh-scores` | Every 5 min | Fetch positions, compute scores, emit quest events, run sybil detection, auto-settle expired cohorts |
-| `POST /api/cron/rotate-cohorts` | Every 15 min | Transition cohort state machine (upcoming → live → settled) |
+| Endpoint                        | Frequency    | What It Does                                                                                         |
+| ------------------------------- | ------------ | ---------------------------------------------------------------------------------------------------- |
+| `POST /api/cron/refresh-scores` | Every 5 min  | Fetch positions, compute scores, emit quest events, run sybil detection, auto-settle expired cohorts |
+| `POST /api/cron/rotate-cohorts` | Every 15 min | Transition cohort state machine (upcoming → live → settled)                                          |
 
 ## On-Chain Program
 
@@ -159,14 +166,71 @@ solana program deploy target/deploy/shoot.so \
   --program-id target/deploy/shoot-keypair.json
 ```
 
-| Property | Value |
-|---|---|
-| Program ID | `4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG` |
-| Cluster | Devnet |
-| Authority | `CChvxUR37fry8i2Gdvyrmwu2PH8vgZeTcFwtNqLxaHDW` |
-| Explorer | [View on Solana Explorer](https://explorer.solana.com/address/4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG?cluster=devnet) |
+| Property   | Value                                                                                                                      |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Program ID | `4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG`                                                                             |
+| Cluster    | Devnet                                                                                                                     |
+| Authority  | `CChvxUR37fry8i2Gdvyrmwu2PH8vgZeTcFwtNqLxaHDW`                                                                             |
+| Explorer   | [View on Solana Explorer](https://explorer.solana.com/address/4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG?cluster=devnet) |
 
 See [On-Chain Program](/guides/onchain-program) for full instruction documentation.
+
+## Keeper Service (Rust)
+
+The keeper monitors Adrena positions via Yellowstone gRPC, computes scores, and manages competition lifecycle. It matches Adrena's own keeper infrastructure pattern.
+
+```bash
+cd keeper
+
+# Build
+cargo build --release
+
+# Run
+GRPC_ENDPOINT=https://grpc.yellowstone.example.com \
+GRPC_TOKEN=your-token \
+DATABASE_URL=postgresql://user@localhost/shoot_keeper \
+LISTEN_ADDR=0.0.0.0:8080 \
+cargo run --release
+```
+
+### Keeper Docker
+
+```yaml
+# docker-compose.yml
+services:
+  keeper:
+    build: ./keeper
+    environment:
+      - GRPC_ENDPOINT=${GRPC_ENDPOINT}
+      - GRPC_TOKEN=${GRPC_TOKEN}
+      - DATABASE_URL=${DATABASE_URL}
+    ports:
+      - "8080:8080"
+```
+
+### Keeper Environment Variables
+
+| Variable            | Required | Default                                        | Description                  |
+| ------------------- | -------- | ---------------------------------------------- | ---------------------------- |
+| `GRPC_ENDPOINT`     | Yes      | —                                              | Yellowstone gRPC URL         |
+| `GRPC_TOKEN`        | Yes      | —                                              | Auth token for gRPC          |
+| `DATABASE_URL`      | Yes      | —                                              | PostgreSQL connection string |
+| `ADRENA_PROGRAM_ID` | No       | `13gDzEXCdocbj8iAiqrScGo47NiSuYENGsRqi3SEAwet` | Adrena program to monitor    |
+| `LISTEN_ADDR`       | No       | `0.0.0.0:8080`                                 | HTTP server bind address     |
+
+See [Keeper Service](/guides/keeper-service) for full documentation.
+
+## Autopilot SDK
+
+Install and test the autonomous trading SDK:
+
+```bash
+cd sdk
+npm install
+npm test    # 144 tests
+```
+
+See [Autopilot SDK](/guides/autopilot-sdk) for strategy configuration and usage.
 
 ## Vercel (Preview Deploys Only)
 
@@ -179,26 +243,28 @@ vercel --env NEXT_PUBLIC_PRIVY_APP_ID=your-id
 ## Architecture Overview
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  Next.js App (Railway / Docker)                             │
-│                                                             │
-│  /             → ArenaHub (Challenges + World Cup tabs)     │
-│  /profile      → Trader dashboard                          │
-│  /api/competition/*  → Prop challenge APIs                 │
-│  /api/world-cup/*    → World Cup APIs                      │
-│  /api/cron/*         → Score refresh + cohort rotation     │
-│  /api/admin/*        → Settlement + sybil review           │
-│  /api/adrena-live/*  → Real Adrena data passthrough        │
-└────────────────┬────────────────────────────────────────────┘
-                 │
-    ┌────────────┴─────────────────┐
-    │  Adrena Live Adapter         │
-    │  datapi.adrena.trade         │
-    │  → real positions + metrics  │
-    └──────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│  Frontend (Next.js 16 / React 19 — Railway / Docker)         │
+│  /             → ArenaHub (Challenges + World Cup tabs)      │
+│  /profile      → Trader dashboard                           │
+│  /api/competition/*  → Prop challenge APIs                  │
+│  /api/world-cup/*    → World Cup APIs                       │
+│  /api/agent/*        → Autopilot trading APIs               │
+│  /api/cron/*         → Score refresh + cohort rotation      │
+│  /api/admin/*        → Settlement + sybil review            │
+│  /api/health         → Health check                         │
+├──────────────────────────┬───────────────────────────────────┤
+│  Keeper (Rust / Axum)    │  Adrena Data API                  │
+│  :8080                   │  datapi.adrena.trade              │
+│  gRPC position monitor   │  → real positions + metrics       │
+│  Scoring engine          │                                   │
+│  Lifecycle FSM           │  Yellowstone gRPC (Solana)        │
+│  REST + SSE + Prometheus │  → real-time account changes      │
+└──────────────────────────┴───────────────────────────────────┘
 ```
 
 **Data flow:**
+
 1. `adrena-live-adapter.ts` reads `data/competition-cohorts.json` for enrolled wallets
 2. Fetches positions from `datapi.adrena.trade/position?user_wallet=...`
 3. `computeMetricsFromPositions()` derives PnL%, volume, win rate, consistency, drawdown

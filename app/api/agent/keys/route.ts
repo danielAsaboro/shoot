@@ -111,10 +111,7 @@ export async function DELETE(request: NextRequest) {
 
   const { keyId } = (await request.json()) as { keyId?: string };
   if (!keyId) {
-    return NextResponse.json(
-      { error: "keyId is required." },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "keyId is required." }, { status: 400 });
   }
 
   const revoked = await revokeAgentApiKey(keyId, auth.wallet);

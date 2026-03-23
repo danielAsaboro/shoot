@@ -14,26 +14,27 @@ Event-driven progression system with 10 quests across 3 phases.
 
 <Tabs>
   <Tab title="Phase 1 (Core)">
-    | Quest | Trigger | Target | Reward |
-    |---|---|---|---|
-    | First Challenge | `challenge_start` | Complete 1 | Mutagen + raffle ticket |
-    | Scout Graduate | `challenge_pass` (Scout) | Pass 1 | Mutagen + raffle ticket |
-    | Metals Explorer | `challenge_start_metals` | Start 1 | Mutagen + raffle ticket |
-    | Energy Pioneer | `challenge_start_energy` | Start 1 | Mutagen + raffle ticket |
-    | Comeback Trail | `challenge_pass_after_fail` | Pass after failing | Mutagen + raffle ticket |
+    | Quest | Trigger | Target | Reward | |---|---|---|---| | First Challenge |
+    `challenge_start` | Complete 1 | Mutagen + raffle ticket | | Scout Graduate
+    | `challenge_pass` (Scout) | Pass 1 | Mutagen + raffle ticket | | Metals
+    Explorer | `challenge_start_metals` | Start 1 | Mutagen + raffle ticket | |
+    Energy Pioneer | `challenge_start_energy` | Start 1 | Mutagen + raffle
+    ticket | | Comeback Trail | `challenge_pass_after_fail` | Pass after failing
+    | Mutagen + raffle ticket |
   </Tab>
   <Tab title="Phase 2 (Intermediate)">
-    | Quest | Trigger | Target | Reward |
-    |---|---|---|---|
-    | Volume Hunter | `volume_threshold` | Hit volume target 3x | Mutagen + raffle tickets |
-    | Specialist Explorer | `specialist_track_completed` | Complete 3 specialist tracks | Mutagen + raffle tickets |
-    | Iron Discipline | `challenge_pass_elite_disciplined` | Pass Elite with low DD | Mutagen + raffle tickets |
+    | Quest | Trigger | Target | Reward | |---|---|---|---| | Volume Hunter |
+    `volume_threshold` | Hit volume target 3x | Mutagen + raffle tickets | |
+    Specialist Explorer | `specialist_track_completed` | Complete 3 specialist
+    tracks | Mutagen + raffle tickets | | Iron Discipline |
+    `challenge_pass_elite_disciplined` | Pass Elite with low DD | Mutagen +
+    raffle tickets |
   </Tab>
   <Tab title="Phase 3 (Advanced)">
-    | Quest | Trigger | Target | Reward |
-    |---|---|---|---|
-    | World Cup Qualifier | `worldcup_qualify` | Qualify for WC | Mutagen + raffle tickets |
-    | Globetrotter | `worldcup_all_divisions` | Compete in all 4 divisions | Mutagen + raffle tickets |
+    | Quest | Trigger | Target | Reward | |---|---|---|---| | World Cup
+    Qualifier | `worldcup_qualify` | Qualify for WC | Mutagen + raffle tickets |
+    | Globetrotter | `worldcup_all_divisions` | Compete in all 4 divisions |
+    Mutagen + raffle tickets |
   </Tab>
 </Tabs>
 
@@ -50,21 +51,21 @@ Daily activity tracking with multiplier bands. Rewards consistent engagement.
 
 ### Streak Multipliers
 
-| Consecutive Days | Multiplier | Bonus |
-|---|---|---|
-| 1 day | 1.0x | — |
-| 2 days | 1.5x | — |
-| 3–4 days | 2.0x | — |
-| 5–9 days | 3.0x | +1 raffle ticket |
-| 10+ days | 5.0x | "Unbreakable" badge |
+| Consecutive Days | Multiplier | Bonus               |
+| ---------------- | ---------- | ------------------- |
+| 1 day            | 1.0x       | —                   |
+| 2 days           | 1.5x       | —                   |
+| 3–4 days         | 2.0x       | —                   |
+| 5–9 days         | 3.0x       | +1 raffle ticket    |
+| 10+ days         | 5.0x       | "Unbreakable" badge |
 
 ### Streak States
 
-| State | Condition | Visual |
-|---|---|---|
-| **Alive** | Activity in last 24h | Green — streak is safe |
+| State       | Condition                  | Visual                       |
+| ----------- | -------------------------- | ---------------------------- |
+| **Alive**   | Activity in last 24h       | Green — streak is safe       |
 | **Warning** | Last activity 1–3 days ago | Yellow — at risk of breaking |
-| **Broken** | 3+ days inactive | Red — streak resets to 0 |
+| **Broken**  | 3+ days inactive           | Red — streak resets to 0     |
 
 Streaks track consecutive **UTC calendar days** with at least one trade. The system checks `lastActivityDate` against the current UTC date to determine state.
 
@@ -90,11 +91,11 @@ FinalScore = TournamentScore + RiskEventNoise
 
 During active matchups, the system tracks momentum:
 
-| Momentum | Condition |
-|---|---|
-| Surging | PnL delta > +10% |
-| Stable | PnL delta 0–10% |
-| Fading | PnL delta \< 0% |
+| Momentum | Condition        |
+| -------- | ---------------- |
+| Surging  | PnL delta > +10% |
+| Stable   | PnL delta 0–10%  |
+| Fading   | PnL delta \< 0%  |
 
 ### Matchup Odds
 
@@ -119,14 +120,14 @@ Persistent head-to-head relationship tracking across multiple matchups.
 
 ### Rivalry Tags
 
-| Tag | Condition |
-|---|---|
-| Bitter Rivals | 5+ meetings |
-| Mirror Match | 2+ draws |
-| David vs Goliath | One trader has 0 wins |
-| The Rematch | Exactly 2 meetings |
-| Dead Even | Win differential \<= 1 |
-| Old Enemies | 4+ meetings |
+| Tag              | Condition              |
+| ---------------- | ---------------------- |
+| Bitter Rivals    | 5+ meetings            |
+| Mirror Match     | 2+ draws               |
+| David vs Goliath | One trader has 0 wins  |
+| The Rematch      | Exactly 2 meetings     |
+| Dead Even        | Win differential \<= 1 |
+| Old Enemies      | 4+ meetings            |
 | Emerging Rivalry | Default (2–3 meetings) |
 
 Rivalries feed into the narrative commentary system, generating story beats when rivals are matched up again.
@@ -137,16 +138,16 @@ Auto-generated story beats from real standings changes. Creates a live "sports b
 
 ### Beat Types
 
-| Beat | Trigger | Severity |
-|---|---|---|
-| Rank Surge | Climbed 3+ positions | Hype (Legendary if top 3) |
-| Iron Hands | Low drawdown + high PnL | Hype |
-| Risk Event Survivor | Top 3 trader holds through severe event | Legendary |
-| Funded Promotion | Top 2 finish | Hype |
-| Upset | Lower-ranked beats higher-ranked in matchup | Legendary |
-| Perfect Record | #1 leader with 18%+ PnL | Hype |
-| Streak Milestone | 10+ day streak | Hype |
-| Golden Trade | Highest PnL trader's best single trade | Legendary |
+| Beat                | Trigger                                     | Severity                  |
+| ------------------- | ------------------------------------------- | ------------------------- |
+| Rank Surge          | Climbed 3+ positions                        | Hype (Legendary if top 3) |
+| Iron Hands          | Low drawdown + high PnL                     | Hype                      |
+| Risk Event Survivor | Top 3 trader holds through severe event     | Legendary                 |
+| Funded Promotion    | Top 2 finish                                | Hype                      |
+| Upset               | Lower-ranked beats higher-ranked in matchup | Legendary                 |
+| Perfect Record      | #1 leader with 18%+ PnL                     | Hype                      |
+| Streak Milestone    | 10+ day streak                              | Hype                      |
+| Golden Trade        | Highest PnL trader's best single trade      | Legendary                 |
 
 ### Golden Trade
 
@@ -155,6 +156,7 @@ Awarded to the trader with the highest PnL% in standings. The system extrapolate
 ### Commentary Feed
 
 The feed combines all sources into a single stream:
+
 - Narrative beats (from standings changes)
 - Golden trade highlight
 - Crowd favorites (from spectator votes)
@@ -180,16 +182,16 @@ Scenario-based modifiers that test trader adaptability during competitions.
 
 ### Event Types
 
-| Event | Severity | Duration | Effect | Eligible Tiers |
-|---|---|---|---|---|
-| Flash Crash | Severe | 4h | −35% PnL modifier | All |
-| Liquidity Drain | Moderate | 8h | −20% volume | Veteran+ |
-| Volatility Spike | Moderate | 6h | +40% max drawdown | All |
-| Forced Market | Mild | 12h | −15% consistency | Elite+ |
-| Correlation Break | Moderate | 10h | −12% win rate | Veteran+ |
-| News Blackout | Mild | 24h | −10% consistency | Scout–Veteran |
-| Leverage Cap | Mild | 12h | −10% PnL | Scout+Ranger |
-| Spread Widening | Moderate | 6h | −15% volume | All |
+| Event             | Severity | Duration | Effect            | Eligible Tiers |
+| ----------------- | -------- | -------- | ----------------- | -------------- |
+| Flash Crash       | Severe   | 4h       | −35% PnL modifier | All            |
+| Liquidity Drain   | Moderate | 8h       | −20% volume       | Veteran+       |
+| Volatility Spike  | Moderate | 6h       | +40% max drawdown | All            |
+| Forced Market     | Mild     | 12h      | −15% consistency  | Elite+         |
+| Correlation Break | Moderate | 10h      | −12% win rate     | Veteran+       |
+| News Blackout     | Mild     | 24h      | −10% consistency  | Scout–Veteran  |
+| Leverage Cap      | Mild     | 12h      | −10% PnL          | Scout+Ranger   |
+| Spread Widening   | Moderate | 6h       | −15% volume       | All            |
 
 ### How Events Are Generated
 
@@ -205,16 +207,16 @@ Team-based competition for social cohesion.
 
 8 desks organized by specialist type and tier:
 
-| Desk | Specialist | Tier |
-|---|---|---|
-| Crypto Apex | Crypto | Apex |
-| Impulse | Crypto | Elite |
-| Forex Orbit | Forex | Veteran |
-| Precision | Forex | Ranger |
-| Metals Vault | Metals | Elite |
-| Energy Macro | Energy | Veteran |
-| Multi Alpha | Multi-Asset | Apex |
-| Rotation | Multi-Asset | Elite |
+| Desk         | Specialist  | Tier    |
+| ------------ | ----------- | ------- |
+| Crypto Apex  | Crypto      | Apex    |
+| Impulse      | Crypto      | Elite   |
+| Forex Orbit  | Forex       | Veteran |
+| Precision    | Forex       | Ranger  |
+| Metals Vault | Metals      | Elite   |
+| Energy Macro | Energy      | Veteran |
+| Multi Alpha  | Multi-Asset | Apex    |
+| Rotation     | Multi-Asset | Elite   |
 
 ### Desk Score Formula
 
@@ -222,10 +224,10 @@ Team-based competition for social cohesion.
 DeskScore = (avgScore × 0.6 + avgPnL × 0.3) + log₁₀(supporters + 1) × 2
 ```
 
-| Status | Condition |
-|---|---|
-| Promoted | Score > 120 |
-| Stable | 60–120 |
+| Status    | Condition   |
+| --------- | ----------- |
+| Promoted  | Score > 120 |
+| Stable    | 60–120      |
 | Relegated | Score \< 60 |
 
 The top desk earns the "Desk Champion" badge and an extra share of the prize pool.

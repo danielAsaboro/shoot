@@ -61,9 +61,12 @@ interface SnapshotResponse {
 
 export default function AdminPage() {
   const [snapshot, setSnapshot] = useState<SnapshotResponse | null>(null);
-  const [refreshStatus, setRefreshStatus] = useState<RefreshStatus | null>(null);
+  const [refreshStatus, setRefreshStatus] = useState<RefreshStatus | null>(
+    null
+  );
   const [refreshing, setRefreshing] = useState(false);
-  const [lastRefreshResult, setLastRefreshResult] = useState<RefreshResult | null>(null);
+  const [lastRefreshResult, setLastRefreshResult] =
+    useState<RefreshResult | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchSnapshot = useCallback(async () => {
@@ -129,17 +132,26 @@ export default function AdminPage() {
         minHeight: "100vh",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-        <h1 style={{ fontSize: "1.5rem" }}>
-          Competition Admin
-        </h1>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: "0.5rem",
+        }}
+      >
+        <h1 style={{ fontSize: "1.5rem" }}>Competition Admin</h1>
         <ClusterSelector />
       </div>
 
       {/* Provider Info */}
       <div style={panelStyle}>
-        <span style={{ fontSize: "0.85rem", color: "#16a34a" }}>Adrena Live</span>
-        <span style={{ marginLeft: "auto", fontSize: "0.75rem", color: "#666" }}>
+        <span style={{ fontSize: "0.85rem", color: "#16a34a" }}>
+          Adrena Live
+        </span>
+        <span
+          style={{ marginLeft: "auto", fontSize: "0.75rem", color: "#666" }}
+        >
           {integration?.label} — {integration?.detail?.slice(0, 80)}
         </span>
       </div>
@@ -209,19 +221,23 @@ export default function AdminPage() {
                         padding: "0.15rem 0.5rem",
                         borderRadius: 4,
                         fontSize: "0.7rem",
-                        background: c.state === "live" ? "#16a34a22" : "#33333344",
+                        background:
+                          c.state === "live" ? "#16a34a22" : "#33333344",
                         color: c.state === "live" ? "#4ade80" : "#888",
                       }}
                     >
                       {c.state}
                     </span>
                   </td>
-                  <td style={{ ...cellStyle, fontSize: "0.75rem", color: "#888" }}>
+                  <td
+                    style={{ ...cellStyle, fontSize: "0.75rem", color: "#888" }}
+                  >
                     {new Date(c.startTime).toLocaleDateString()} —{" "}
                     {new Date(c.endTime).toLocaleDateString()}
                   </td>
                   <td style={{ ...cellStyle, textAlign: "right" }}>
-                    {c.standings?.length ?? c.enrolledCount} / {c.participantCap}
+                    {c.standings?.length ?? c.enrolledCount} /{" "}
+                    {c.participantCap}
                   </td>
                 </tr>
               ))}
@@ -261,7 +277,9 @@ export default function AdminPage() {
                       opacity: t.abuseFlags?.length > 0 ? 0.5 : 1,
                     }}
                   >
-                    <td style={{ ...cellStyle, textAlign: "right" }}>{t.rank}</td>
+                    <td style={{ ...cellStyle, textAlign: "right" }}>
+                      {t.rank}
+                    </td>
                     <td style={cellStyle}>{t.displayName}</td>
                     <td
                       style={{
@@ -284,8 +302,17 @@ export default function AdminPage() {
                     <td style={{ ...cellStyle, textAlign: "right" }}>
                       {t.winRate.toFixed(0)}%
                     </td>
-                    <td style={{ ...cellStyle, textAlign: "right" }}>{t.tradeCount}</td>
-                    <td style={{ ...cellStyle, textAlign: "right", color: "#888", fontSize: "0.7rem" }}>
+                    <td style={{ ...cellStyle, textAlign: "right" }}>
+                      {t.tradeCount}
+                    </td>
+                    <td
+                      style={{
+                        ...cellStyle,
+                        textAlign: "right",
+                        color: "#888",
+                        fontSize: "0.7rem",
+                      }}
+                    >
                       ${formatVolume(t.volumeUsd)}
                     </td>
                     <td style={{ ...cellStyle, fontSize: "0.7rem" }}>
@@ -317,9 +344,13 @@ export default function AdminPage() {
         <button
           onClick={async () => {
             try {
-              const res = await fetch("/api/admin/sybil/batch-detect", { method: "POST" });
+              const res = await fetch("/api/admin/sybil/batch-detect", {
+                method: "POST",
+              });
               const data = await res.json();
-              alert(`Sybil detection complete: ${JSON.stringify(data.cohorts?.map((c: { cohortId: string; totalFlags: number }) => `${c.cohortId}: ${c.totalFlags} flags`))}`);
+              alert(
+                `Sybil detection complete: ${JSON.stringify(data.cohorts?.map((c: { cohortId: string; totalFlags: number }) => `${c.cohortId}: ${c.totalFlags} flags`))}`
+              );
             } catch (err) {
               alert(`Batch detection failed: ${err}`);
             }
@@ -338,14 +369,21 @@ export default function AdminPage() {
           Run Sybil Batch Detection
         </button>
         <span style={{ fontSize: "0.75rem", color: "#666" }}>
-          Scans all cohorts for funding clusters, pattern correlation, and PnL mirroring
+          Scans all cohorts for funding clusters, pattern correlation, and PnL
+          mirroring
         </span>
       </div>
 
       {/* Abuse Review Queue */}
       {allFlagged.length > 0 && (
         <div style={{ marginBottom: "2rem" }}>
-          <h2 style={{ fontSize: "1.1rem", marginBottom: "0.75rem", color: "#f87171" }}>
+          <h2
+            style={{
+              fontSize: "1.1rem",
+              marginBottom: "0.75rem",
+              color: "#f87171",
+            }}
+          >
             Abuse Review Queue ({allFlagged.length})
           </h2>
           <table style={tableStyle}>
@@ -366,7 +404,9 @@ export default function AdminPage() {
                   </td>
                   <td style={cellStyle}>{r.cohortName}</td>
                   <td style={cellStyle}>{r.flags.join(", ")}</td>
-                  <td style={{ ...cellStyle, color: "#888", fontSize: "0.7rem" }}>
+                  <td
+                    style={{ ...cellStyle, color: "#888", fontSize: "0.7rem" }}
+                  >
                     {r.reason}
                   </td>
                   <td style={cellStyle}>

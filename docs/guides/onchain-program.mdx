@@ -1,20 +1,23 @@
 ---
 title: "On-Chain Program"
-description: "How the Shoot Anchor program handles USDC entry fees, vaults, and settlement on Solana"
+description: "How the Shoot Anchor program handles USDC entry fees, vaults, settlement, and autonomous agent registration on Solana"
 icon: "link"
 ---
 
-The Shoot program is an Anchor smart contract on Solana that handles the financial operations: collecting USDC entry fees, holding them in escrow, and distributing USDC payouts after off-chain evaluation.
+The Shoot program is an Anchor smart contract on Solana that handles financial operations (collecting USDC entry fees, holding them in escrow, distributing payouts) and autonomous agent registration for 24/7 trading.
 
 ## Deployment
 
-| Property | Value |
-|---|---|
-| **Program ID** | `4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG` |
-| **Cluster** | Devnet |
-| **Upgrade Authority** | `CChvxUR37fry8i2Gdvyrmwu2PH8vgZeTcFwtNqLxaHDW` |
-| **Explorer** | [View on Solana Explorer](https://explorer.solana.com/address/4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG?cluster=devnet) |
-| **Source** | `programs/shoot/src/lib.rs` (465 lines) |
+| Property              | Value                                                                                                                      |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **Program ID**        | `4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG`                                                                             |
+| **Cluster**           | Devnet                                                                                                                     |
+| **Upgrade Authority** | `CChvxUR37fry8i2Gdvyrmwu2PH8vgZeTcFwtNqLxaHDW`                                                                             |
+| **Explorer**          | [View on Solana Explorer](https://explorer.solana.com/address/4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG?cluster=devnet) |
+| **Instructions**      | 11                                                                                                                         |
+| **Error Variants**    | 22                                                                                                                         |
+| **Events**            | 11                                                                                                                         |
+| **Source**            | `programs/shoot/src/lib.rs`                                                                                                |
 
 ```bash
 cd programs/shoot
@@ -28,10 +31,10 @@ solana program deploy target/deploy/shoot.so \
 
 Two separate authorities enforce separation of concerns:
 
-| Authority | Role | Who |
-|---|---|---|
-| **admin** | Creates challenges, updates status, manages config | Multisig (Squads) |
-| **result_authority** | Submits scoring results, triggers settlements | Backend hot wallet |
+| Authority            | Role                                                               | Who                |
+| -------------------- | ------------------------------------------------------------------ | ------------------ |
+| **admin**            | Creates challenges, updates status, pauses challenges              | Multisig (Squads)  |
+| **result_authority** | Submits scoring results, triggers settlements, updates agent stats | Backend hot wallet |
 
 Neither authority alone can steal funds — the admin creates challenges but can't settle, and the result_authority settles but can only pay traders (never itself).
 
@@ -40,111 +43,201 @@ Neither authority alone can steal funds — the admin creates challenges but can
 ```
 Admin
     ├── initialize_challenge  →  Challenge PDA + USDC Vault PDA
-    │
+    ├── update_challenge_status  →  Active → Settling → Closed (enforced)
+    └── pause_challenge  →  Emergency pause (blocks enrollment)
+
 Trader
     ├── enroll               →  Enrollment PDA + USDC transfer to Vault
-    │
+    ├── claim_funded_status  →  FundedTrader PDA (requires authority co-sign)
+    ├── register_agent       →  Agent PDA (autopilot registration)
+    └── retire_agent         →  Deactivate agent
+
 Result Authority
     ├── submit_result        →  Records pass/fail on Enrollment PDA
-    └── settle_challenge     →  USDC payout from Vault → Trader
+    ├── settle_challenge     →  USDC payout from Vault → Trader
+    ├── update_agent_stats   →  ELO, W/L, P&L after competition
+    └── update_agent_strategy  →  New strategy hash
 ```
 
 ## PDAs (Program Derived Addresses)
 
-| PDA | Seeds | Purpose |
-|---|---|---|
-| Challenge | `["challenge", admin, challenge_id]` | Stores challenge config (tier, fees, targets, duration) |
-| Enrollment | `["enrollment", challenge, trader]` | Stores trader's enrollment state, result, and payout |
-| Vault | `["vault", challenge]` | USDC token account holding entry fees until settlement |
-| FundedTrader | `["funded", trader]` | Persistent funded trader status with revenue share config |
+| PDA          | Seeds                                | Purpose                                                   |
+| ------------ | ------------------------------------ | --------------------------------------------------------- |
+| Challenge    | `["challenge", admin, challenge_id]` | Stores challenge config (tier, fees, targets, duration)   |
+| Enrollment   | `["enrollment", challenge, trader]`  | Stores trader's enrollment state, result, and payout      |
+| Vault        | `["vault", challenge]`               | USDC token account holding entry fees until settlement    |
+| FundedTrader | `["funded", trader]`                 | Persistent funded trader status with revenue share config |
+| Agent        | `["agent", owner, owner[0..8]]`      | Autonomous trading bot with ELO and performance stats     |
 
 ## Token
 
 All entry fees and payouts are denominated in **USDC** (SPL token).
 
-| Network | USDC Mint |
-|---|---|
+| Network | USDC Mint                                      |
+| ------- | ---------------------------------------------- |
 | Mainnet | `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` |
-| Devnet | `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU` |
+| Devnet  | `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU` |
 
 No SOL price oracles are needed — fees are collected and distributed in the same denomination.
 
 ## Instructions
 
-### `initialize_challenge`
+### Challenge Management
+
+#### `initialize_challenge`
 
 Called by the **admin** to create a new challenge.
 
 **Parameters:**
 | Field | Type | Description |
 |---|---|---|
-| `challenge_id` | String | Unique identifier |
-| `tier_name` | String | Scout, Ranger, Veteran, Elite, or Apex |
+| `challenge_id` | String (max 32) | Unique identifier |
+| `tier_name` | String (max 16) | Scout, Ranger, Veteran, Elite, or Apex |
 | `entry_fee_usdc` | u64 | Entry fee in USDC atomic units (6 decimals) |
-| `profit_target_bps` | u16 | Target profit in basis points (e.g., 800 = 8%) |
-| `max_drawdown_bps` | u16 | Max allowed drawdown in basis points |
+| `profit_target_bps` | u16 | Target profit in basis points (must be > 0) |
+| `max_drawdown_bps` | u16 | Max allowed drawdown (must be > 0) |
 | `daily_loss_limit_bps` | u16 | Daily loss limit in basis points |
-| `duration_seconds` | i64 | Challenge window length |
+| `duration_seconds` | i64 | Challenge window length (must be > 0) |
 | `min_capital_usd` | u64 | Minimum trading capital required |
-| `participant_cap` | u16 | Maximum enrollments |
+| `participant_cap` | u16 | Maximum enrollments (must be > 0) |
 
-**Creates:**
-- Challenge PDA with all parameters stored on-chain
-- USDC token account vault (PDA-owned) for fee escrow
+**Creates:** Challenge PDA + USDC token vault (PDA-owned).
+**Emits:** `ChallengeCreated` event.
 
-### `enroll`
+#### `enroll`
 
 Called by a **trader** to join a challenge.
 
-**What happens:**
-1. Validates challenge is in `Active` status and under participant cap
-2. Transfers `entry_fee_usdc` from trader's USDC token account to the vault
-3. Creates Enrollment PDA with starting equity snapshot
+1. Validates challenge is `Active` and not paused
+2. Validates `starting_equity_usd >= min_capital_usd`
+3. Checks participant cap (with checked arithmetic)
+4. Transfers `entry_fee_usdc` from trader's USDC account to vault
+5. Creates Enrollment PDA with starting equity snapshot
+
+**Emits:** `TraderEnrolled` event.
 
 <Note>
-The `starting_equity_usd` is captured at enrollment and never changes. This prevents gaming where a trader deposits more capital mid-challenge to reduce their drawdown percentage.
+  The `starting_equity_usd` is captured at enrollment and never changes. This
+  prevents gaming where a trader deposits more capital mid-challenge to reduce
+  their drawdown percentage.
 </Note>
 
-### `submit_result`
+#### `update_challenge_status`
+
+Called by the **admin** with **state machine enforcement**:
+
+```
+Active → Settling → Closed
+```
+
+Invalid transitions (e.g., `Active → Closed`, backward transitions) are rejected with `InvalidStatusTransition`.
+
+**Emits:** `ChallengeStatusChanged` event.
+
+#### `pause_challenge`
+
+Called by the **admin** to pause/unpause a challenge. Paused challenges reject new enrollments but existing enrollments continue normally.
+
+**Emits:** `ChallengePaused` event.
+
+### Settlement
+
+#### `submit_result`
 
 Called by the **result_authority** to record the off-chain scoring outcome.
 
-**Parameters:**
-| Field | Type | Description |
-|---|---|---|
-| `status` | EnrollmentStatus | Passed, FailedDrawdown, FailedDailyLimit, or FailedTimeout |
-| `final_pnl_bps` | i32 | Final P&L in basis points |
-| `final_drawdown_bps` | u16 | Final max drawdown in basis points |
+| Field                | Type             | Description                                                |
+| -------------------- | ---------------- | ---------------------------------------------------------- |
+| `status`             | EnrollmentStatus | Passed, FailedDrawdown, FailedDailyLimit, or FailedTimeout |
+| `final_pnl_bps`      | i32              | Final P&L in basis points                                  |
+| `final_drawdown_bps` | u16              | Final max drawdown in basis points                         |
 
-This records the result but does **not** distribute funds. Settlement is a separate step.
+Records the result but does **not** distribute funds. Settlement is a separate step.
 
-### `settle_challenge`
+**Emits:** `ResultSubmitted` event.
+
+#### `settle_challenge`
 
 Called by the **result_authority** after a result is submitted.
 
-**Parameters:**
-| Field | Type | Description |
-|---|---|---|
-| `payout_usdc` | u64 | USDC amount to distribute (atomic units) |
+1. Verifies enrollment has `Passed` status
+2. **Checks vault balance** — `vault.amount >= payout_usdc` (prevents over-withdrawal)
+3. Marks enrollment as settled (irreversible)
+4. Transfers `payout_usdc` from vault to trader's USDC account
 
-**What happens:**
-1. Verifies enrollment has `Passed` status (from `submit_result`)
-2. Marks enrollment as settled (irreversible)
-3. Transfers `payout_usdc` from vault to trader's USDC token account
+**Emits:** `ChallengeSettled` event.
 
 <Warning>
-Settlement is **immutable** — once an enrollment is marked as settled, it cannot be changed. The enrollment must have a `Passed` result before settlement can proceed.
+  Settlement is **immutable** — once an enrollment is marked as settled, it
+  cannot be changed. The vault balance is checked before transfer to prevent
+  insufficient funds errors.
 </Warning>
 
-### `claim_funded_status`
+### Funded Trader
 
-Called by the **trader** after passing an Elite or Apex challenge.
+#### `claim_funded_status`
 
-Creates or upgrades a FundedTrader PDA with level and revenue share configuration.
+Called by the **trader** with **result_authority co-signature** after passing a qualifying challenge.
 
-### `update_challenge_status`
+**Security:** Requires three proofs:
 
-Called by the **admin** to transition challenge state: `Active → Settling → Closed`.
+1. Trader signs the transaction
+2. Result authority co-signs (prevents arbitrary claims)
+3. Enrollment PDA must show `Passed` status and `settled = true`
+4. Revenue share capped at 1500 bps (15%)
+
+**Emits:** `FundedStatusClaimed` event.
+
+### Agent Management (Autopilot)
+
+#### `register_agent`
+
+Called by a **trader** to register an autonomous trading autopilot.
+
+| Field           | Type            | Description                            |
+| --------------- | --------------- | -------------------------------------- |
+| `name`          | String (max 32) | Human-readable agent name              |
+| `strategy_hash` | [u8; 32]        | SHA-256 hash of strategy configuration |
+
+Creates an Agent PDA with initial ELO rating of 1000.
+
+**Emits:** `AgentRegistered` event.
+
+#### `update_agent_strategy`
+
+Called by the **agent owner** to update the strategy hash. Takes effect on next competition entry.
+
+**Emits:** `AgentStrategyUpdated` event.
+
+#### `retire_agent`
+
+Called by the **agent owner** to deactivate an agent. Cannot be done while enrolled in active competitions.
+
+**Emits:** `AgentRetired` event.
+
+#### `update_agent_stats`
+
+Called by the **result_authority** after a competition concludes. Updates ELO, W/L, P&L, and trade count with checked arithmetic (overflow protection).
+
+**Emits:** `AgentStatsUpdated` event.
+
+## Events
+
+All state-changing instructions emit Anchor events for client indexing:
+
+| Event                    | Instruction               | Key Data                                           |
+| ------------------------ | ------------------------- | -------------------------------------------------- |
+| `ChallengeCreated`       | `initialize_challenge`    | challenge, admin, tier, fee, cap                   |
+| `TraderEnrolled`         | `enroll`                  | challenge, trader, equity, count                   |
+| `ResultSubmitted`        | `submit_result`           | challenge, trader, status, PnL, drawdown           |
+| `ChallengeSettled`       | `settle_challenge`        | challenge, trader, payout                          |
+| `FundedStatusClaimed`    | `claim_funded_status`     | trader, level, revenue share, qualifying challenge |
+| `ChallengeStatusChanged` | `update_challenge_status` | challenge, new status                              |
+| `ChallengePaused`        | `pause_challenge`         | challenge, paused boolean                          |
+| `AgentRegistered`        | `register_agent`          | agent, owner, name, strategy hash                  |
+| `AgentStrategyUpdated`   | `update_agent_strategy`   | agent, new hash                                    |
+| `AgentRetired`           | `retire_agent`            | agent, owner                                       |
+| `AgentStatsUpdated`      | `update_agent_stats`      | agent, won, PnL, trades, new ELO                   |
 
 ## Enrollment Status
 
@@ -157,43 +250,56 @@ Active → Passed           (result_authority submits positive result)
 
 ## Security Properties
 
-| Property | How It's Enforced |
-|---|---|
-| USDC escrow | Entry fees held in PDA-owned token account — no admin withdrawal exists |
-| Dual authority | Admin creates, result_authority settles — neither alone controls funds |
-| Capital immutability | `starting_equity_usd` set at enrollment, never updated |
-| Two-step settlement | Result must be submitted before payout can be triggered |
-| One-time settlement | `settled` flag checked before payout — prevents double-claim |
-| Participant cap | Enrollment count checked against `participant_cap` before accepting |
-| Mint validation | Token account mints verified against challenge's `usdc_mint` |
+| Property                  | How It's Enforced                                                         |
+| ------------------------- | ------------------------------------------------------------------------- |
+| USDC escrow               | Entry fees held in PDA-owned token account — no admin withdrawal exists   |
+| Dual authority            | Admin creates, result_authority settles — neither alone controls funds    |
+| Funded claim security     | Requires trader + authority co-signature + Passed enrollment proof        |
+| Capital immutability      | `starting_equity_usd` set at enrollment, never updated                    |
+| State machine enforcement | `update_challenge_status` only allows Active → Settling → Closed          |
+| Vault balance check       | `settle_challenge` verifies `vault.amount >= payout_usdc` before transfer |
+| Pause mechanism           | `pause_challenge` blocks enrollment without closing the challenge         |
+| Checked arithmetic        | All counter increments use `checked_add` to prevent overflow              |
+| Input validation          | String lengths, parameter bounds, revenue share cap (1500 bps)            |
+| One-time settlement       | `settled` flag checked before payout — prevents double-claim              |
+| Participant cap           | Enrollment count checked against `participant_cap` before accepting       |
+| Mint validation           | Token account mints verified against challenge's `usdc_mint`              |
 
-## Integration with Off-Chain Engine
+## Error Codes
 
-The on-chain program handles **money** (USDC in, USDC out). Everything else is off-chain:
+22 error variants with descriptive messages:
 
-| Responsibility | On-Chain | Off-Chain |
-|---|---|---|
-| Collect USDC entry fees | Yes | — |
-| Hold funds in escrow | Yes | — |
-| Distribute USDC payouts | Yes | — |
-| Score computation | — | Yes |
-| Sybil detection | — | Yes |
-| Leaderboard rankings | — | Yes |
-| Challenge evaluation (pass/fail) | — | Yes |
-| World Cup tournament engine | — | Yes |
+| Error                                                        | Message                                    |
+| ------------------------------------------------------------ | ------------------------------------------ |
+| `ChallengeNotOpen`                                           | Challenge is not accepting enrollments     |
+| `ChallengeFull`                                              | Challenge has reached participant cap      |
+| `ChallengePaused`                                            | Challenge is paused                        |
+| `AlreadySettled`                                             | This enrollment has already been settled   |
+| `Unauthorized`                                               | Signer does not match required authority   |
+| `InsufficientCapital`                                        | Trader equity below tier minimum           |
+| `InsufficientVaultBalance`                                   | Insufficient vault balance for this payout |
+| `WrongMint` / `WrongOwner` / `WrongVault` / `WrongChallenge` | Account validation failures                |
+| `NotPassed` / `NotSettled`                                   | Enrollment status prerequisites            |
+| `InvalidStatus` / `InvalidStatusTransition`                  | State machine violations                   |
+| `InvalidParameter` / `InvalidRevenueShare` / `StringTooLong` | Input validation                           |
+| `Overflow`                                                   | Arithmetic overflow                        |
+| `AgentNotActive` / `AgentEnrolledInCompetition`              | Agent lifecycle violations                 |
 
 ## Testing
 
 ```bash
 cd programs/shoot
-anchor build                   # Compile .so
-npx mocha tests/shoot.test.ts  # LiteSVM tests
+anchor build
 ```
 
 Test coverage:
+
 - Challenge initialization with USDC vault creation
-- Enrollment with USDC fee transfer verification
+- Enrollment with USDC fee transfer and capital validation
 - Two-step settlement: submit_result then settle_challenge
-- Rejection of double-settlement, wrong authority, wrong mint
-- Participant cap enforcement
-- Funded trader status claiming
+- Vault balance pre-check on settlement
+- State machine enforcement (valid and invalid transitions)
+- Funded status claiming with authority co-signature
+- Agent registration, strategy update, and retirement
+- Rejection of double-settlement, wrong authority, wrong mint, paused challenges
+- Participant cap enforcement with checked arithmetic

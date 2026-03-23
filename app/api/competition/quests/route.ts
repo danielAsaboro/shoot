@@ -33,6 +33,11 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const result = await updateQuestProgress(wallet, questId, progress, completed);
+  const result = await updateQuestProgress(
+    wallet,
+    questId,
+    progress,
+    completed
+  );
   return NextResponse.json({ result });
 }

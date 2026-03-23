@@ -5,7 +5,12 @@
  * imported without pulling in the full config dependency graph.
  */
 
-import type { ChallengeTier, ChallengeTierId, SpecialistChallenge, SpecialistType } from "./types.ts";
+import type {
+  ChallengeTier,
+  ChallengeTierId,
+  SpecialistChallenge,
+  SpecialistType,
+} from "./types.ts";
 import { challengeTiers, specialistChallenges } from "./config.ts";
 
 export { challengeTiers, specialistChallenges };
@@ -16,6 +21,8 @@ export function getTierById(id: string): ChallengeTier | undefined {
 }
 
 /** Look up a specialist challenge by type. Returns undefined for unknown types. */
-export function getSpecialistChallenge(type: string): SpecialistChallenge | undefined {
+export function getSpecialistChallenge(
+  type: string
+): SpecialistChallenge | undefined {
   return specialistChallenges[type as SpecialistType];
 }

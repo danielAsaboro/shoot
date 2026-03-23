@@ -10,9 +10,7 @@
  * hook violation at runtime.
  */
 
-import {
-  usePrivy as _usePrivy,
-} from "@privy-io/react-auth";
+import { usePrivy as _usePrivy } from "@privy-io/react-auth";
 import {
   useWallets as _useWallets,
   useSignAndSendTransaction as _useSignAndSendTransaction,
@@ -32,7 +30,6 @@ const fallbackPrivy = {
 
 export function useSafePrivy(): ReturnType<typeof _usePrivy> {
   if (PRIVY_CONFIGURED) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     return _usePrivy();
   }
   return fallbackPrivy;
@@ -40,11 +37,12 @@ export function useSafePrivy(): ReturnType<typeof _usePrivy> {
 
 // ---------- useWallets wrapper ----------
 
-const fallbackWallets = { wallets: [] } as unknown as ReturnType<typeof _useWallets>;
+const fallbackWallets = { wallets: [] } as unknown as ReturnType<
+  typeof _useWallets
+>;
 
 export function useSafeWallets(): ReturnType<typeof _useWallets> {
   if (PRIVY_CONFIGURED) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     return _useWallets();
   }
   return fallbackWallets;
@@ -56,9 +54,10 @@ const fallbackSignAndSend = {
   signAndSendTransaction: async () => ({ hash: "fallback-tx-hash" }),
 } as unknown as ReturnType<typeof _useSignAndSendTransaction>;
 
-export function useSafeSignAndSendTransaction(): ReturnType<typeof _useSignAndSendTransaction> {
+export function useSafeSignAndSendTransaction(): ReturnType<
+  typeof _useSignAndSendTransaction
+> {
   if (PRIVY_CONFIGURED) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     return _useSignAndSendTransaction();
   }
   return fallbackSignAndSend;

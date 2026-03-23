@@ -47,7 +47,10 @@ export async function POST() {
           pnlPercent: s.pnlPercent,
         }));
       if (top3.length > 0) {
-        void notifyLeaderboardChange({ cohortName: cohort.name, topThree: top3 });
+        void notifyLeaderboardChange({
+          cohortName: cohort.name,
+          topThree: top3,
+        });
       }
 
       // Notify ops of any sybil flags

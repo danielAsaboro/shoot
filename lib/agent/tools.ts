@@ -61,10 +61,7 @@ export function createAgentTools(wallet: string) {
       description:
         "Get aggregated Adrena pool statistics: daily/total volume, fees, and pool name.",
       inputSchema: z.object({
-        endDate: z
-          .string()
-          .optional()
-          .describe("End date filter (YYYY-MM-DD)"),
+        endDate: z.string().optional().describe("End date filter (YYYY-MM-DD)"),
       }),
       execute: async ({ endDate }) => {
         const stats = await fetchPoolStats(
@@ -131,11 +128,7 @@ export function createAgentTools(wallet: string) {
         tokenSymbol: z
           .string()
           .describe("Market to trade (e.g. SOL, BTC, ETH, BONK)"),
-        leverage: z
-          .number()
-          .min(1.1)
-          .max(100)
-          .describe("Leverage multiplier"),
+        leverage: z.number().min(1.1).max(100).describe("Leverage multiplier"),
         takeProfit: z
           .number()
           .positive()
@@ -167,11 +160,7 @@ export function createAgentTools(wallet: string) {
         tokenSymbol: z
           .string()
           .describe("Market to trade (e.g. SOL, BTC, ETH, BONK)"),
-        leverage: z
-          .number()
-          .min(1.1)
-          .max(100)
-          .describe("Leverage multiplier"),
+        leverage: z.number().min(1.1).max(100).describe("Leverage multiplier"),
         takeProfit: z
           .number()
           .positive()
@@ -196,9 +185,7 @@ export function createAgentTools(wallet: string) {
         collateralTokenSymbol: z
           .string()
           .describe("Collateral token symbol of the position"),
-        tokenSymbol: z
-          .string()
-          .describe("Market token symbol of the position"),
+        tokenSymbol: z.string().describe("Market token symbol of the position"),
         percentage: z
           .number()
           .min(1)
@@ -219,9 +206,7 @@ export function createAgentTools(wallet: string) {
         collateralTokenSymbol: z
           .string()
           .describe("Collateral token symbol of the position"),
-        tokenSymbol: z
-          .string()
-          .describe("Market token symbol of the position"),
+        tokenSymbol: z.string().describe("Market token symbol of the position"),
         percentage: z
           .number()
           .min(1)

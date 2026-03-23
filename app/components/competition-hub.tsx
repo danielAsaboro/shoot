@@ -1,8 +1,6 @@
 "use client";
 
-import {
-  fundedDeskLadder,
-} from "@/lib/competition/content";
+import { fundedDeskLadder } from "@/lib/competition/content";
 import { fetchCompetitionSnapshot } from "@/lib/competition/api";
 import {
   loadCompetitionReceipts,
@@ -14,7 +12,11 @@ import type {
   CompetitionProjectionInput,
   CompetitionSnapshotResponse,
 } from "@/lib/competition/types";
-import { useSafePrivy as usePrivy, useSafeWallets as useWallets, useSafeSignAndSendTransaction as useSignAndSendTransaction } from "@/app/hooks/use-safe-privy";
+import {
+  useSafePrivy as usePrivy,
+  useSafeWallets as useWallets,
+  useSafeSignAndSendTransaction as useSignAndSendTransaction,
+} from "@/app/hooks/use-safe-privy";
 import bs58 from "bs58";
 import {
   Connection,
@@ -30,7 +32,11 @@ import { TierSelector } from "./tier-selector";
 import { GamificationPanel } from "./gamification-panel";
 import { challengeTiers, specialistChallenges } from "@/lib/competition/tiers";
 import type { ChallengeTierId, ChallengeTier } from "@/lib/competition/types";
-import { CardSkeleton, LeaderboardSkeleton, WalletNotConnected } from "./error-boundary";
+import {
+  CardSkeleton,
+  LeaderboardSkeleton,
+  WalletNotConnected,
+} from "./error-boundary";
 import { LeaderboardSection } from "./leaderboard-section";
 import { QuestEngine } from "@/lib/competition/quests";
 import { StreakTracker } from "@/lib/competition/streaks";
@@ -52,7 +58,11 @@ import {
 } from "@/lib/solana/program";
 import { getAssociatedTokenAddress } from "@solana/spl-token";
 
-const DEVNET_RPC = process.env.NEXT_PUBLIC_SOLANA_RPC ?? (process.env.NEXT_PUBLIC_SOLANA_CLUSTER === "mainnet" ? "https://api.mainnet-beta.solana.com" : "https://api.devnet.solana.com");
+const DEVNET_RPC =
+  process.env.NEXT_PUBLIC_SOLANA_RPC ??
+  (process.env.NEXT_PUBLIC_SOLANA_CLUSTER === "mainnet"
+    ? "https://api.mainnet-beta.solana.com"
+    : "https://api.devnet.solana.com");
 const PROGRAM_AUTHORITY = process.env.NEXT_PUBLIC_PROGRAM_AUTHORITY ?? "";
 const lamportsPerSol = 1_000_000_000;
 
@@ -123,7 +133,10 @@ interface Toast {
 let toastCounter = 0;
 
 /** Build a fresh ActiveChallengeState with default starting values. */
-function makeInitialChallenge(tierId: ChallengeTierId, tier: ChallengeTier): ActiveChallengeState {
+function makeInitialChallenge(
+  tierId: ChallengeTierId,
+  tier: ChallengeTier
+): ActiveChallengeState {
   const startingEquity = 1000;
   return {
     tierId,
@@ -160,20 +173,37 @@ export function CompetitionHub() {
   const [snapshotError, setSnapshotError] = useState<string | null>(null);
   const [isLoadingSnapshot, setIsLoadingSnapshot] = useState(true);
   const [receipts, setReceipts] = useState<CompetitionEntryReceipt[]>([]);
-  const [simulationInput, setSimulationInput] = useState(defaultSimulationInput);
+  const [simulationInput, setSimulationInput] = useState(
+    defaultSimulationInput
+  );
   const [isSendingEnrollment, setIsSendingEnrollment] = useState(false);
   const [isRequestingAirdrop, setIsRequestingAirdrop] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
-  const [activeChallenge, setActiveChallenge] = useState<ActiveChallengeState | null>(null);
-  const [challengeAttempts, setChallengeAttempts] = useState<Record<string, number>>({});
+  const [activeChallenge, setActiveChallenge] =
+    useState<ActiveChallengeState | null>(null);
+  const [challengeAttempts, setChallengeAttempts] = useState<
+    Record<string, number>
+  >({});
   const [fundedExpiration, setFundedExpiration] = useState<string | null>(null);
 
   // Quest and streak engines — DB-backed, loaded from server API
-  const questEngine = useMemo(() => new QuestEngine(walletAddress ?? undefined), [walletAddress]);
-  const streakTracker = useMemo(() => new StreakTracker(walletAddress ?? undefined), [walletAddress]);
-  const [liveQuestProgress, setLiveQuestProgress] = useState(() => questEngine.getActiveQuests());
-  const [liveStreakDays, setLiveStreakDays] = useState(() => streakTracker.getStreak());
-  const [liveStreakState, setLiveStreakState] = useState(() => streakTracker.checkWarning());
+  const questEngine = useMemo(
+    () => new QuestEngine(walletAddress ?? undefined),
+    [walletAddress]
+  );
+  const streakTracker = useMemo(
+    () => new StreakTracker(walletAddress ?? undefined),
+    [walletAddress]
+  );
+  const [liveQuestProgress, setLiveQuestProgress] = useState(() =>
+    questEngine.getActiveQuests()
+  );
+  const [liveStreakDays, setLiveStreakDays] = useState(() =>
+    streakTracker.getStreak()
+  );
+  const [liveStreakState, setLiveStreakState] = useState(() =>
+    streakTracker.checkWarning()
+  );
 
   // Load quest/streak state from server DB when wallet connects
   useEffect(() => {
@@ -188,16 +218,28 @@ export function CompetitionHub() {
       setLiveStreakState(streakTracker.checkWarning());
     }
     void loadState();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [walletAddress, questEngine, streakTracker]);
   const [earnedBadges, setEarnedBadges] = useState<string[]>([]);
   const [hasFailedChallenge, setHasFailedChallenge] = useState(false);
 
   // SSE real-time leaderboard updates
-  const { connected: sseConnected, lastUpdate: sseLastUpdate } = useCompetitionStream(authenticated);
+  const { connected: sseConnected, lastUpdate: sseLastUpdate } =
+    useCompetitionStream(authenticated);
 
   // Live trade feed (populated from SSE events)
-  const [recentTrades] = useState<{ wallet: string; market: string; side: string; pnl: number; pnlPercent: number; closedAt: string }[]>([]);
+  const [recentTrades] = useState<
+    {
+      wallet: string;
+      market: string;
+      side: string;
+      pnl: number;
+      pnlPercent: number;
+      closedAt: string;
+    }[]
+  >([]);
 
   // ── Toast helpers ────────────────────────────────────────────────────────
 
@@ -285,12 +327,16 @@ export function CompetitionHub() {
             <div className="h-12 w-64 rounded animate-pulse bg-white/10 mb-3" />
             <div className="h-4 w-80 rounded animate-pulse bg-white/8 mb-6" />
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {[...Array(4)].map((_, i) => <CardSkeleton key={i} lines={2} />)}
+              {[...Array(4)].map((_, i) => (
+                <CardSkeleton key={i} lines={2} />
+              ))}
             </div>
           </div>
           {/* Cohort cards skeleton */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {[...Array(3)].map((_, i) => <CardSkeleton key={i} lines={4} />)}
+            {[...Array(3)].map((_, i) => (
+              <CardSkeleton key={i} lines={4} />
+            ))}
           </div>
           {/* Leaderboard skeleton */}
           <div className="panel">
@@ -308,7 +354,8 @@ export function CompetitionHub() {
           Snapshot unavailable
         </h1>
         <p className="hero-copy">
-          {snapshotError ?? "Could not load competition data. Check your connection and try again."}
+          {snapshotError ??
+            "Could not load competition data. Check your connection and try again."}
         </p>
         <button
           type="button"
@@ -331,7 +378,9 @@ export function CompetitionHub() {
     streakState: snapshot.viewer.streakState,
   };
   const viewerRaffleTickets = snapshot.viewer.raffleTickets;
-  const selectedEntryFeeLamports = getDevnetEntryFee(selectedCohort.entryFeeUsd);
+  const selectedEntryFeeLamports = getDevnetEntryFee(
+    selectedCohort.entryFeeUsd
+  );
   const walletBalanceSol = balance !== null ? balance / lamportsPerSol : null;
 
   // ── Enrollment ───────────────────────────────────────────────────────────
@@ -370,9 +419,10 @@ export function CompetitionHub() {
       const [vaultPda] = findVaultPda(challengePda);
 
       // Build the enroll instruction via the Shoot program
-      const usdcMint = process.env.NEXT_PUBLIC_SOLANA_CLUSTER === "mainnet"
-        ? USDC_MINT_MAINNET
-        : USDC_MINT_DEVNET;
+      const usdcMint =
+        process.env.NEXT_PUBLIC_SOLANA_CLUSTER === "mainnet"
+          ? USDC_MINT_MAINNET
+          : USDC_MINT_DEVNET;
       const traderUsdc = await getAssociatedTokenAddress(usdcMint, traderKey);
 
       const enrollIx = await buildEnrollInstruction({
@@ -414,10 +464,7 @@ export function CompetitionHub() {
       void loadCompetitionReceipts(walletAddress).then(setReceipts);
       void fetchBalance(walletAddress);
 
-      addToast(
-        "success",
-        `Entry confirmed! Sig: ${signature.slice(0, 10)}...`
-      );
+      addToast("success", `Entry confirmed! Sig: ${signature.slice(0, 10)}...`);
     } catch (error) {
       addToast("error", `Payment failed: ${formatError(error)}`);
     } finally {
@@ -456,7 +503,10 @@ export function CompetitionHub() {
           challenge={activeChallenge}
           onClose={() => setActiveChallenge(null)}
           onPass={async (tier) => {
-            addToast("success", `✓ ${tier.name} challenge passed! Badge unlocked.`);
+            addToast(
+              "success",
+              `✓ ${tier.name} challenge passed! Badge unlocked.`
+            );
             // Quest: challenge_pass + comeback trail if previously failed
             await questEngine.checkProgress("challenge_pass");
             if (hasFailedChallenge) {
@@ -469,17 +519,30 @@ export function CompetitionHub() {
             setLiveStreakState(streakTracker.checkWarning());
             // Badge: award tier completion badge
             const tierBadge = `${tier.id}_complete`;
-            setEarnedBadges((prev) => prev.includes(tierBadge) ? prev : [...prev, tierBadge]);
+            setEarnedBadges((prev) =>
+              prev.includes(tierBadge) ? prev : [...prev, tierBadge]
+            );
             if (tier.fundedEligible) {
               const fundedDays = tier.id === "apex" ? 180 : 90;
-              const expiry = new Date(Date.now() + fundedDays * 86_400_000).toISOString();
+              const expiry = new Date(
+                Date.now() + fundedDays * 86_400_000
+              ).toISOString();
               setFundedExpiration(expiry);
-              setEarnedBadges((prev) => prev.includes("funded_trader") ? prev : [...prev, "funded_trader"]);
-              addToast("success", `Funded Trader status granted for ${fundedDays} days!`);
+              setEarnedBadges((prev) =>
+                prev.includes("funded_trader")
+                  ? prev
+                  : [...prev, "funded_trader"]
+              );
+              addToast(
+                "success",
+                `Funded Trader status granted for ${fundedDays} days!`
+              );
             }
             // Unbreakable badge check
             if (streakTracker.isUnbreakable()) {
-              setEarnedBadges((prev) => prev.includes("unbreakable") ? prev : [...prev, "unbreakable"]);
+              setEarnedBadges((prev) =>
+                prev.includes("unbreakable") ? prev : [...prev, "unbreakable"]
+              );
             }
           }}
           onFail={async (reason) => {
@@ -489,7 +552,10 @@ export function CompetitionHub() {
             const updated = await questEngine.checkProgress("challenge_fail");
             setLiveQuestProgress(updated);
             // Consolation raffle ticket on failure
-            addToast("info", "Consolation: +1 raffle ticket awarded for participation.");
+            addToast(
+              "info",
+              "Consolation: +1 raffle ticket awarded for participation."
+            );
           }}
           onRetry={async (tier, discountedFee) => {
             const attempts = (challengeAttempts[tier.id] ?? 1) + 1;
@@ -503,7 +569,10 @@ export function CompetitionHub() {
             const streakResult = await streakTracker.recordActivity();
             setLiveStreakDays(streakResult);
             setLiveStreakState(streakTracker.checkWarning());
-            addToast("info", `Retrying ${tier.name} (Attempt #${attempts}) at $${discountedFee.toFixed(2)}`);
+            addToast(
+              "info",
+              `Retrying ${tier.name} (Attempt #${attempts}) at $${discountedFee.toFixed(2)}`
+            );
           }}
         />
       )}
@@ -542,7 +611,9 @@ export function CompetitionHub() {
             </div>
             <div className="stat-card">
               <span>Prize pool</span>
-              <strong>{formatCurrency(snapshot.season.totalPrizePoolUsd)}</strong>
+              <strong>
+                {formatCurrency(snapshot.season.totalPrizePoolUsd)}
+              </strong>
             </div>
           </div>
         </div>
@@ -561,7 +632,9 @@ export function CompetitionHub() {
 
           {authenticated && walletAddress ? (
             <>
-              <div className="wallet-address">{walletAddress.slice(0, 16)}...{walletAddress.slice(-16)}</div>
+              <div className="wallet-address">
+                {walletAddress.slice(0, 16)}...{walletAddress.slice(-16)}
+              </div>
 
               <div className="wallet-balance-card">
                 <div className="metric-line">
@@ -660,7 +733,10 @@ export function CompetitionHub() {
           onSelectTier={async (tierId) => {
             const attempts = (challengeAttempts[tierId] ?? 0) + 1;
             setChallengeAttempts((prev) => ({ ...prev, [tierId]: attempts }));
-            const challenge = makeInitialChallenge(tierId, challengeTiers[tierId]);
+            const challenge = makeInitialChallenge(
+              tierId,
+              challengeTiers[tierId]
+            );
             challenge.attemptNumber = attempts > 1 ? attempts : undefined;
             setActiveChallenge(challenge);
             // Quest + streak: challenge_start
@@ -674,19 +750,27 @@ export function CompetitionHub() {
             const spec = specialistChallenges[type];
             if (!spec) return;
             const baseTier = challengeTiers.scout;
-            const specialistTier = { ...baseTier, allowedMarkets: spec.markets };
+            const specialistTier = {
+              ...baseTier,
+              allowedMarkets: spec.markets,
+            };
             const challenge = makeInitialChallenge("scout", specialistTier);
             challenge.assetClass = spec.name;
             setActiveChallenge(challenge);
             // Quest: generic start + specialist-specific event
             await questEngine.checkProgress("challenge_start");
-            if (type === "metals") await questEngine.checkProgress("challenge_start_metals");
-            if (type === "energy") await questEngine.checkProgress("challenge_start_energy");
+            if (type === "metals")
+              await questEngine.checkProgress("challenge_start_metals");
+            if (type === "energy")
+              await questEngine.checkProgress("challenge_start_energy");
             setLiveQuestProgress(questEngine.getActiveQuests());
             const streakResult = await streakTracker.recordActivity();
             setLiveStreakDays(streakResult);
             setLiveStreakState(streakTracker.checkWarning());
-            addToast("info", `Specialist: ${spec.name} — only ${spec.markets.join(", ")} trades allowed.`);
+            addToast(
+              "info",
+              `Specialist: ${spec.name} — only ${spec.markets.join(", ")} trades allowed.`
+            );
           }}
           onLogin={() => void login()}
         />
@@ -780,15 +864,15 @@ export function CompetitionHub() {
 
       {/* ── Leaderboard + Rewards ──────────────────────────────────────── */}
       <div className="mt-8">
-      <LeaderboardSection
-        selectedCohort={selectedCohort}
-        walletAddress={walletAddress}
-        enrolledCohortId={enrolledCohortId}
-        viewerRewardPreview={snapshot.viewer.rewardPreview}
-        viewerFundedStatus={snapshot.viewer.fundedStatus}
-        matchups={selectedCohort.matchups}
-        activeRiskEvents={selectedCohort.activeRiskEvents}
-      />
+        <LeaderboardSection
+          selectedCohort={selectedCohort}
+          walletAddress={walletAddress}
+          enrolledCohortId={enrolledCohortId}
+          viewerRewardPreview={snapshot.viewer.rewardPreview}
+          viewerFundedStatus={snapshot.viewer.fundedStatus}
+          matchups={selectedCohort.matchups}
+          activeRiskEvents={selectedCohort.activeRiskEvents}
+        />
       </div>
 
       {/* ── SSE Status + Live Trade Feed ─────────────────────────────── */}
@@ -798,11 +882,17 @@ export function CompetitionHub() {
             <h2 className="section-title">Live Feed</h2>
             <div className="flex items-center gap-1.5 ml-auto">
               <span
-                style={{ width: 8, height: 8, borderRadius: 2, background: sseConnected ? "#00FF87" : "#FF3D3D" }}
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: 2,
+                  background: sseConnected ? "#00FF87" : "#FF3D3D",
+                }}
               />
               <span className="text-[10px] text-white/40">
                 {sseConnected ? "Connected" : "Connecting..."}
-                {sseLastUpdate && ` · Last update ${sseLastUpdate.toLocaleTimeString()}`}
+                {sseLastUpdate &&
+                  ` · Last update ${sseLastUpdate.toLocaleTimeString()}`}
               </span>
             </div>
           </div>
@@ -810,8 +900,12 @@ export function CompetitionHub() {
             <LiveTradeFeed trades={recentTrades} />
           ) : (
             <div className="rounded-lg border border-dashed border-white/8 px-4 py-8 text-center">
-              <p className="text-sm text-white/30">Listening for trade events...</p>
-              <p className="text-xs text-white/20 mt-1">Closed positions will appear here in real-time</p>
+              <p className="text-sm text-white/30">
+                Listening for trade events...
+              </p>
+              <p className="text-xs text-white/20 mt-1">
+                Closed positions will appear here in real-time
+              </p>
             </div>
           )}
         </div>
@@ -838,7 +932,10 @@ export function CompetitionHub() {
         <section className="mt-8">
           <div className="panel">
             <h2 className="section-title mb-4">Live Commentary</h2>
-            <CompetitionCommentary feed={selectedCohort.commentaryFeed} voterWallet={walletAddress} />
+            <CompetitionCommentary
+              feed={selectedCohort.commentaryFeed}
+              voterWallet={walletAddress}
+            />
           </div>
         </section>
       )}
@@ -859,7 +956,14 @@ export function CompetitionHub() {
             revenueShareBps={
               FUNDED_LADDER.find((l) => {
                 const fs = snapshot.viewer.fundedStatus;
-                return l.level === (fs === "qualified" ? "funded" : fs === "watchlist" ? "watchlist" : "watchlist");
+                return (
+                  l.level ===
+                  (fs === "qualified"
+                    ? "funded"
+                    : fs === "watchlist"
+                      ? "watchlist"
+                      : "watchlist")
+                );
               })?.revenueShareBps ?? 0
             }
           />
@@ -890,7 +994,6 @@ export function CompetitionHub() {
               </div>
             ))}
           </div>
-
         </div>
       </section>
 
@@ -902,7 +1005,9 @@ export function CompetitionHub() {
             streakDays={liveStreakDays}
             streakState={liveStreakState}
             raffleTickets={viewerRaffleTickets}
-            fundedStatus={fundedExpiration ? "qualified" : snapshot.viewer.fundedStatus}
+            fundedStatus={
+              fundedExpiration ? "qualified" : snapshot.viewer.fundedStatus
+            }
             seasonPoints={snapshot.viewer.seasonPoints}
             fundedExpiration={fundedExpiration ?? undefined}
             earnedBadgeIds={earnedBadges}

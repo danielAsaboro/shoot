@@ -15,7 +15,7 @@ const cupColors: Record<
   crypto: { accent: "#3D7FFF", dim: "#1a2a4f", label: "CRYPTO CUP", icon: "₿" },
   metals: { accent: "#BFFF00", dim: "#2a3300", label: "METALS CUP", icon: "◆" },
   energy: { accent: "#FF3D3D", dim: "#3d1111", label: "ENERGY CUP", icon: "▲" },
-  forex:  { accent: "#00FF87", dim: "#0d2e1a", label: "FOREX CUP",  icon: "◎" },
+  forex: { accent: "#00FF87", dim: "#0d2e1a", label: "FOREX CUP", icon: "◎" },
 };
 
 function MatchBadges({ match }: { match: KnockoutMatch }) {
@@ -66,7 +66,10 @@ function KnockoutMatchBlock({
       />
 
       <div className="flex items-center gap-2 px-3 my-1">
-        <div className="flex-1 border-t" style={{ borderColor: `${accent}30` }} />
+        <div
+          className="flex-1 border-t"
+          style={{ borderColor: `${accent}30` }}
+        />
         <span
           className="font-bold text-white/20"
           style={{
@@ -77,7 +80,10 @@ function KnockoutMatchBlock({
         >
           VS
         </span>
-        <div className="flex-1 border-t" style={{ borderColor: `${accent}30` }} />
+        <div
+          className="flex-1 border-t"
+          style={{ borderColor: `${accent}30` }}
+        />
       </div>
 
       {/* Right trader */}
@@ -294,7 +300,10 @@ function TwistBanner({ twist }: { twist: MarketTwist }) {
       >
         {twist.label}
       </p>
-      <p className="text-xs text-white/40 mt-1" style={{ fontFamily: "var(--font-sans)" }}>
+      <p
+        className="text-xs text-white/40 mt-1"
+        style={{ fontFamily: "var(--font-sans)" }}
+      >
         {twist.description}
       </p>
     </div>
@@ -508,7 +517,8 @@ export function WorldCupFullBracket({
           </div>
         )}
 
-        {(bracket.redemptionBracket.round1.length > 0 || bracket.redemptionBracket.round2.length > 0) && (
+        {(bracket.redemptionBracket.round1.length > 0 ||
+          bracket.redemptionBracket.round2.length > 0) && (
           <div
             className="border p-4"
             style={{
@@ -530,7 +540,9 @@ export function WorldCupFullBracket({
             </p>
             <div className="space-y-2">
               {bracket.redemptionBracket.round1.length > 0 && (
-                <p className="text-[10px] uppercase tracking-wider text-white/38 mt-1">Round 1</p>
+                <p className="text-[10px] uppercase tracking-wider text-white/38 mt-1">
+                  Round 1
+                </p>
               )}
               {bracket.redemptionBracket.round1.map((match) => (
                 <KnockoutMatchBlock
@@ -540,7 +552,9 @@ export function WorldCupFullBracket({
                 />
               ))}
               {bracket.redemptionBracket.round2.length > 0 && (
-                <p className="text-[10px] uppercase tracking-wider text-white/38 mt-2">Round 2</p>
+                <p className="text-[10px] uppercase tracking-wider text-white/38 mt-2">
+                  Round 2
+                </p>
               )}
               {bracket.redemptionBracket.round2.map((match) => (
                 <KnockoutMatchBlock
@@ -551,7 +565,9 @@ export function WorldCupFullBracket({
               ))}
               {bracket.redemptionBracket.redemptionFinal && (
                 <>
-                  <p className="text-[10px] uppercase tracking-wider text-white/38 mt-2">Redemption Final</p>
+                  <p className="text-[10px] uppercase tracking-wider text-white/38 mt-2">
+                    Redemption Final
+                  </p>
                   <KnockoutMatchBlock
                     match={bracket.redemptionBracket.redemptionFinal}
                     accent="#BFFF00"

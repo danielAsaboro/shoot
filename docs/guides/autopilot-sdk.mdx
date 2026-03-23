@@ -1,0 +1,206 @@
+---
+title: "Autopilot SDK"
+description: "Autonomous trading playbooks that execute 24/7 within prop challenges — human-designed strategies, machine-executed"
+icon: "bolt"
+---
+
+The Autopilot SDK (`@shoot/autopilot`) lets traders configure autonomous trading playbooks that execute around the clock within Adrena prop challenges. Traders pick a playbook, tune its parameters, and the autopilot handles execution — generating continuous volume without requiring the trader to be online.
+
+## Why Autopilot?
+
+Adrena's competitions generated massive volume — but only during human trading hours. The autopilot flips this: traders configure a playbook (strategy + risk guardrails), register it on-chain as an agent, and the FlightController executes ticks 24/7. This keeps volume flowing around the clock while keeping humans in the loop for strategy design.
+
+## Architecture
+
+```
+┌──────────────────────────────────────────────────┐
+│  FlightController (cockpit/)                     │
+│  Tick loop: fetch → assess → validate → execute  │
+├──────────────────────────┬───────────────────────┤
+│  Playbooks (playbooks/)  │  RiskHarness          │
+│  TrendSurfer             │  Ceiling leverage      │
+│  FadeTrader              │  Max exposure fraction  │
+│  RangeSniper             │  Cut-loss / lock-gain   │
+│  FundingArb              │  Cooldown enforcement   │
+│  GridRunner              │                        │
+├──────────────────────────┼───────────────────────┤
+│  Indicators (indicators/)  │  Feed (feed/)          │
+│  VWAP · ATR · MACD       │  OracleTap (Pyth)     │
+│  Stochastic · Keltner    │  ReplayTap (test)      │
+├──────────────────────────┴───────────────────────┤
+│  On-chain (onchain/)                             │
+│  ShootProgram · deriveAgentPda · PerpBuilder      │
+└──────────────────────────────────────────────────┘
+```
+
+## Playbooks
+
+Each playbook implements the `Playbook` interface with an `assess()` method that returns a `Verdict`:
+
+```typescript
+interface Playbook {
+  readonly label: string;
+  readonly summary: string;
+  assess(bars: Bar[], exposure: Exposure | null): Verdict;
+}
+
+type Verdict =
+  | { kind: "buy"; conviction: number; allocation: number }
+  | { kind: "sell"; conviction: number; allocation: number }
+  | { kind: "exit"; memo: string }
+  | { kind: "pass" };
+```
+
+### TrendSurfer
+
+MACD histogram zero-line crossover. Enters when the MACD histogram crosses from negative to positive (buy) or positive to negative (sell). Exits when histogram reverses against the position direction. Uses histogram momentum — a derivative signal — rather than raw line crossover.
+
+| Parameter   | Default | Description           |
+| ----------- | ------- | --------------------- |
+| `fastLen`   | 12      | Fast MACD period      |
+| `slowLen`   | 26      | Slow MACD period      |
+| `signalLen` | 9       | Signal line smoothing |
+
+### FadeTrader
+
+Keltner Channel + Stochastic confirmation. Fades price when it breaches the outer Keltner envelope AND the Stochastic %K confirms oversold/overbought. Requires dual confirmation from two independent indicators. Exits when price returns to the Keltner basis (center EMA).
+
+| Parameter       | Default | Description                |
+| --------------- | ------- | -------------------------- |
+| `keltnerPeriod` | 20      | Keltner Channel EMA period |
+| `atrMultiplier` | 2.0     | ATR band width             |
+| `stochK`        | 14      | Stochastic %K period       |
+| `stochD`        | 3       | Stochastic %D smoothing    |
+| `stochOB`       | 80      | Overbought threshold       |
+| `stochOS`       | 20      | Oversold threshold         |
+
+<Note>
+  Keltner Channels use EMA + ATR for the envelope. This is mathematically
+  different from Bollinger Bands (SMA + standard deviation). The ATR-based
+  envelope adapts to true price range rather than just close-price variance.
+</Note>
+
+### RangeSniper
+
+ATR contraction/expansion detector with VWAP directional bias. Detects volatility squeezes (ATR declining for N consecutive bars), then enters when ATR suddenly expands and price moves away from VWAP. This captures volatility regime changes rather than static price level breaks.
+
+| Parameter         | Default | Description                       |
+| ----------------- | ------- | --------------------------------- |
+| `atrPeriod`       | 14      | ATR calculation period            |
+| `contractionBars` | 5       | Consecutive bars of declining ATR |
+| `expansionMult`   | 1.5     | Required ATR expansion ratio      |
+
+### FundingArb
+
+Perpetual funding rate exploitation via price deviation proxy. Unique to perps — estimates "implied funding" from the spread between current price and recent average price. When shorts are overcrowded (negative implied funding), goes long expecting mean reversion. Conservative allocation (counter-trend).
+
+| Parameter          | Default | Description                     |
+| ------------------ | ------- | ------------------------------- |
+| `fundingThreshold` | 0.01    | Entry threshold (1% deviation)  |
+| `exitThreshold`    | 0.003   | Exit threshold (0.3% deviation) |
+| `lookbackBars`     | 20      | Recent price window             |
+
+<Tip>
+  FundingArb is the only playbook specifically designed for perpetual futures
+  mechanics. It exploits the tendency of overcrowded positions to generate
+  funding rate pressure that eventually mean-reverts.
+</Tip>
+
+### GridRunner
+
+Dynamic ATR-based grid trading around a VWAP anchor. Places virtual buy/sell levels above and below VWAP, spaced by ATR fractions. When price crosses a grid level, it triggers a trade. Stateful: tracks which grid level was most recently crossed.
+
+| Parameter            | Default | Description                         |
+| -------------------- | ------- | ----------------------------------- |
+| `gridLevels`         | 5       | Number of levels above/below center |
+| `atrPeriod`          | 14      | ATR period for spacing              |
+| `gridSpacingAtrFrac` | 0.5     | Grid spacing as fraction of ATR     |
+
+## Indicators
+
+All indicator functions are pure (no side effects, no IO). Each takes numeric arrays or `Bar[]` and returns computed values.
+
+| Function            | Input                          | Output            | Description                           |
+| ------------------- | ------------------------------ | ----------------- | ------------------------------------- |
+| `computeVWAP`       | `Bar[]`                        | `number[]`        | Running volume-weighted average price |
+| `computeATR`        | `Bar[], period`                | `number[]`        | Wilder-smoothed average true range    |
+| `computeMACD`       | `closes[], fast, slow, signal` | `MacdResult`      | MACD line, signal, histogram          |
+| `computeStochastic` | `Bar[], kPeriod, dPeriod`      | `StochResult`     | %K and %D oscillator lines            |
+| `computeKeltner`    | `Bar[], period, atrMult`       | `KeltnerEnvelope` | EMA basis + ATR-based channels        |
+
+## Risk Management
+
+The `RiskHarness` validates every verdict before execution:
+
+```typescript
+const guardrails: Guardrails = {
+  ceilingLeverage: 5, // max leverage
+  maxExposureFrac: 0.25, // max bankroll fraction per trade
+  cutLossPct: 0.03, // 3% stop-loss
+  lockGainPct: 0.06, // 6% take-profit
+  pauseMs: 30_000, // 30s cooldown between trades
+};
+```
+
+**Checks applied to every verdict:**
+
+1. Cooldown: rejects if less than `pauseMs` since last trade
+2. Duplicate exposure: rejects buy when already long (or sell when already short)
+3. Exposure fraction: rejects if allocation exceeds `maxExposureFrac`
+4. Leverage: rejects if implied leverage exceeds `ceilingLeverage`
+5. Stop-loss / take-profit: force-exits when thresholds are breached
+
+## FlightController
+
+The `FlightController` runs the autonomous trading loop:
+
+```
+Each tick:
+1. Fetch bars from feed (OracleTap or ReplayTap)
+2. Check guardrails (stop-loss / take-profit)
+3. If guardrail exit → execute and return
+4. Get playbook verdict via assess()
+5. Validate through RiskHarness
+6. If buy/sell/exit → execute trade
+7. Wait cadenceMs, repeat
+```
+
+## On-Chain Integration
+
+Autopilot agents are registered on-chain via the Shoot Anchor program:
+
+```typescript
+import { ShootProgram, deriveAgentPda } from "@shoot/autopilot";
+
+// Derive agent PDA
+const [agentPda] = deriveAgentPda(ownerPublicKey);
+
+// Build register instruction
+const ix = await program.buildRegisterAgentIx(
+  "MyTrendSurfer",
+  strategyHash // SHA-256 of strategy config
+);
+```
+
+Each agent PDA stores:
+
+- Owner public key
+- Strategy hash (SHA-256 of config, updated on strategy change)
+- ELO rating (starts at 1000)
+- Win/loss record and total P&L
+- Competition count and last trade timestamp
+
+## Testing
+
+```shell
+cd sdk
+npm install
+npm test    # 144 tests across 14 suites
+```
+
+| Suite                                                                    | Tests | Coverage                                   |
+| ------------------------------------------------------------------------ | ----- | ------------------------------------------ |
+| Indicators (VWAP, ATR, MACD, Stochastic, Keltner)                        | 42    | Pure math, edge cases, known values        |
+| Playbooks (TrendSurfer, FadeTrader, RangeSniper, FundingArb, GridRunner) | 66    | Signals, exits, conviction, exposure       |
+| Cockpit (FlightController, RiskHarness)                                  | 23    | Risk validation, stop-loss, tick lifecycle |
+| Feed + On-chain (ReplayTap, ShootProgram, PerpBuilder)                   | 13    | Cursor replay, PDA derivation, IX builders |

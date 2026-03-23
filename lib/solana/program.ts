@@ -62,6 +62,13 @@ export function findFundedPda(trader: PublicKey): [PublicKey, number] {
   );
 }
 
+export function findAgentPda(owner: PublicKey): [PublicKey, number] {
+  return PublicKey.findProgramAddressSync(
+    [Buffer.from("agent"), owner.toBuffer(), owner.toBuffer().subarray(0, 8)],
+    SHOOT_PROGRAM_ID
+  );
+}
+
 // ── Instruction Discriminators ──────────────────────────────────────────────
 
 async function instructionDiscriminator(name: string): Promise<Buffer> {
@@ -120,7 +127,14 @@ export async function buildSubmitResultInstruction(params: {
   finalPnlBps: number;
   finalDrawdownBps: number;
 }): Promise<TransactionInstruction> {
-  const { authority, challenge, enrollment, status, finalPnlBps, finalDrawdownBps } = params;
+  const {
+    authority,
+    challenge,
+    enrollment,
+    status,
+    finalPnlBps,
+    finalDrawdownBps,
+  } = params;
 
   const discriminator = await instructionDiscriminator("submit_result");
   // Serialize: u8 (1) + i32 (4) + u16 (2) = 7 bytes
@@ -153,7 +167,8 @@ export async function buildSettleChallengeInstruction(params: {
   vault: PublicKey;
   payoutUsdc: bigint;
 }): Promise<TransactionInstruction> {
-  const { authority, challenge, trader, traderUsdc, vault, payoutUsdc } = params;
+  const { authority, challenge, trader, traderUsdc, vault, payoutUsdc } =
+    params;
   const [enrollment] = findEnrollmentPda(challenge, trader);
 
   const discriminator = await instructionDiscriminator("settle_challenge");
@@ -180,14 +195,18 @@ export async function buildSettleChallengeInstruction(params: {
 /**
  * Build a `claim_funded_status` instruction.
  * Called by the trader after passing an Elite or Apex challenge.
+ * Requires result_authority co-signature and a Passed enrollment proof.
  */
 export async function buildClaimFundedStatusInstruction(params: {
   trader: PublicKey;
+  authority: PublicKey;
+  challenge: PublicKey;
   level: number; // 0=Watchlist, 1=Funded, 2=SeniorFunded, 3=Captain, 4=Partner
   revenueShareBps: number;
 }): Promise<TransactionInstruction> {
-  const { trader, level, revenueShareBps } = params;
+  const { trader, authority, challenge, level, revenueShareBps } = params;
   const [fundedTrader] = findFundedPda(trader);
+  const [enrollment] = findEnrollmentPda(challenge, trader);
 
   const discriminator = await instructionDiscriminator("claim_funded_status");
   const data = Buffer.alloc(8 + 3);
@@ -199,7 +218,48 @@ export async function buildClaimFundedStatusInstruction(params: {
     programId: SHOOT_PROGRAM_ID,
     keys: [
       { pubkey: trader, isSigner: true, isWritable: true },
+      { pubkey: authority, isSigner: true, isWritable: false },
+      { pubkey: challenge, isSigner: false, isWritable: false },
+      { pubkey: enrollment, isSigner: false, isWritable: false },
       { pubkey: fundedTrader, isSigner: false, isWritable: true },
+      { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+    ],
+    data,
+  });
+}
+
+/**
+ * Build a `register_agent` instruction.
+ * Registers an autonomous trading autopilot on-chain.
+ */
+export async function buildRegisterAgentInstruction(params: {
+  owner: PublicKey;
+  name: string;
+  strategyHash: Uint8Array;
+}): Promise<TransactionInstruction> {
+  const { owner, name, strategyHash } = params;
+  if (strategyHash.length !== 32)
+    throw new Error("strategyHash must be 32 bytes");
+
+  const [agent] = findAgentPda(owner);
+
+  const discriminator = await instructionDiscriminator("register_agent");
+  const nameBytes = Buffer.alloc(4 + 32);
+  const truncatedName = name.slice(0, 32);
+  nameBytes.writeUInt32LE(truncatedName.length, 0);
+  nameBytes.write(truncatedName, 4, "utf-8");
+
+  const data = Buffer.concat([
+    discriminator,
+    nameBytes.subarray(0, 4 + truncatedName.length),
+    Buffer.from(strategyHash),
+  ]);
+
+  return new TransactionInstruction({
+    programId: SHOOT_PROGRAM_ID,
+    keys: [
+      { pubkey: owner, isSigner: true, isWritable: true },
+      { pubkey: agent, isSigner: false, isWritable: true },
       { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
     ],
     data,

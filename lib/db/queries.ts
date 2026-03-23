@@ -39,7 +39,9 @@ export async function updateCohortState(id: string, state: string) {
   return prisma.cohort.update({ where: { id }, data: { state } });
 }
 
-export async function getEnrolledWalletsForCohort(cohortId: string): Promise<string[]> {
+export async function getEnrolledWalletsForCohort(
+  cohortId: string
+): Promise<string[]> {
   const enrollments = await prisma.enrollment.findMany({
     where: { cohortId },
     select: { wallet: true },
@@ -105,7 +107,9 @@ export async function upsertTraderScore(data: {
   mutagenTradeCount?: number;
 }) {
   return prisma.traderScore.upsert({
-    where: { wallet_cohortId: { wallet: data.wallet, cohortId: data.cohortId } },
+    where: {
+      wallet_cohortId: { wallet: data.wallet, cohortId: data.cohortId },
+    },
     create: data,
     update: { ...data, computedAt: new Date() },
   });
@@ -328,7 +332,9 @@ export async function saveCompetitionResult(data: {
   fundedStatus?: string;
 }) {
   return prisma.competitionResult.upsert({
-    where: { cohortId_wallet: { cohortId: data.cohortId, wallet: data.wallet } },
+    where: {
+      cohortId_wallet: { cohortId: data.cohortId, wallet: data.wallet },
+    },
     create: data,
     update: data,
   });
@@ -435,7 +441,11 @@ export async function getMatchesForSeason(seasonId: string, round?: string) {
 
 // ── Desk Membership ─────────────────────────────────────────────────────────
 
-export async function joinDesk(deskId: string, wallet: string, role = "member") {
+export async function joinDesk(
+  deskId: string,
+  wallet: string,
+  role = "member"
+) {
   return prisma.deskMembership.upsert({
     where: { deskId_wallet: { deskId, wallet } },
     create: { deskId, wallet, role },

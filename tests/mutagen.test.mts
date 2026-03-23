@@ -76,7 +76,10 @@ describe("computeMutagenSizeMultiplier", () => {
   it("interpolates within $10–$1K tier", () => {
     // $10 → 0.00025, $1K → 0.05. At $500: 0.00025 + (490/990) × (0.05-0.00025) ≈ 0.024827
     const result = computeMutagenSizeMultiplier(500);
-    assert.ok(result > 0.024 && result < 0.026, `Expected ~0.025, got ${result}`);
+    assert.ok(
+      result > 0.024 && result < 0.026,
+      `Expected ~0.025, got ${result}`
+    );
   });
 
   it("interpolates within $5K–$50K tier", () => {

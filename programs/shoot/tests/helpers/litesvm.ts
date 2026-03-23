@@ -48,11 +48,7 @@ export function findChallengePda(
   challengeId: string
 ): [PublicKey, number] {
   return PublicKey.findProgramAddressSync(
-    [
-      Buffer.from("challenge"),
-      admin.toBuffer(),
-      Buffer.from(challengeId),
-    ],
+    [Buffer.from("challenge"), admin.toBuffer(), Buffer.from(challengeId)],
     PROGRAM_ID
   );
 }
@@ -69,11 +65,7 @@ export function findEnrollmentPda(
   trader: PublicKey
 ): [PublicKey, number] {
   return PublicKey.findProgramAddressSync(
-    [
-      Buffer.from("enrollment"),
-      challengePda.toBuffer(),
-      trader.toBuffer(),
-    ],
+    [Buffer.from("enrollment"), challengePda.toBuffer(), trader.toBuffer()],
     PROGRAM_ID
   );
 }
@@ -244,10 +236,7 @@ export function buildSettleChallengeIx(
 ): TransactionInstruction {
   const [enrollmentPda] = findEnrollmentPda(challengePda, trader);
 
-  const data = Buffer.concat([
-    IX_DISC.settleChallenge,
-    encodeU64(payoutUsdc),
-  ]);
+  const data = Buffer.concat([IX_DISC.settleChallenge, encodeU64(payoutUsdc)]);
 
   return new TransactionInstruction({
     programId: PROGRAM_ID,
@@ -327,36 +316,65 @@ export function decodeChallenge(data: Buffer): ChallengeAccount {
   const resultAuthority = new PublicKey(data.subarray(offset, offset + 32));
   offset += 32;
 
-  let challengeId: string;
   const cidLen = data.readUInt32LE(offset);
-  challengeId = data.subarray(offset + 4, offset + 4 + cidLen).toString("utf-8");
+  const challengeId = data
+    .subarray(offset + 4, offset + 4 + cidLen)
+    .toString("utf-8");
   offset += 4 + cidLen;
 
-  let tierName: string;
   const tnLen = data.readUInt32LE(offset);
-  tierName = data.subarray(offset + 4, offset + 4 + tnLen).toString("utf-8");
+  const tierName = data
+    .subarray(offset + 4, offset + 4 + tnLen)
+    .toString("utf-8");
   offset += 4 + tnLen;
 
-  const entryFeeUsdc = data.readBigUInt64LE(offset); offset += 8;
-  const profitTargetBps = data.readUInt16LE(offset); offset += 2;
-  const maxDrawdownBps = data.readUInt16LE(offset); offset += 2;
-  const dailyLossLimitBps = data.readUInt16LE(offset); offset += 2;
-  const durationSeconds = data.readBigInt64LE(offset); offset += 8;
-  const minCapitalUsd = data.readBigUInt64LE(offset); offset += 8;
-  const participantCap = data.readUInt16LE(offset); offset += 2;
-  const enrolledCount = data.readUInt16LE(offset); offset += 2;
-  const status = data.readUInt8(offset); offset += 1;
-  const createdAt = data.readBigInt64LE(offset); offset += 8;
-  const vault = new PublicKey(data.subarray(offset, offset + 32)); offset += 32;
-  const usdcMint = new PublicKey(data.subarray(offset, offset + 32)); offset += 32;
-  const bump = data.readUInt8(offset); offset += 1;
+  const entryFeeUsdc = data.readBigUInt64LE(offset);
+  offset += 8;
+  const profitTargetBps = data.readUInt16LE(offset);
+  offset += 2;
+  const maxDrawdownBps = data.readUInt16LE(offset);
+  offset += 2;
+  const dailyLossLimitBps = data.readUInt16LE(offset);
+  offset += 2;
+  const durationSeconds = data.readBigInt64LE(offset);
+  offset += 8;
+  const minCapitalUsd = data.readBigUInt64LE(offset);
+  offset += 8;
+  const participantCap = data.readUInt16LE(offset);
+  offset += 2;
+  const enrolledCount = data.readUInt16LE(offset);
+  offset += 2;
+  const status = data.readUInt8(offset);
+  offset += 1;
+  const createdAt = data.readBigInt64LE(offset);
+  offset += 8;
+  const vault = new PublicKey(data.subarray(offset, offset + 32));
+  offset += 32;
+  const usdcMint = new PublicKey(data.subarray(offset, offset + 32));
+  offset += 32;
+  const bump = data.readUInt8(offset);
+  offset += 1;
   const vaultBump = data.readUInt8(offset);
 
   return {
-    admin, resultAuthority, challengeId, tierName, entryFeeUsdc,
-    profitTargetBps, maxDrawdownBps, dailyLossLimitBps, durationSeconds,
-    minCapitalUsd, participantCap, enrolledCount, status, createdAt,
-    vault, usdcMint, bump, vaultBump,
+    admin,
+    resultAuthority,
+    challengeId,
+    tierName,
+    entryFeeUsdc,
+    profitTargetBps,
+    maxDrawdownBps,
+    dailyLossLimitBps,
+    durationSeconds,
+    minCapitalUsd,
+    participantCap,
+    enrolledCount,
+    status,
+    createdAt,
+    vault,
+    usdcMint,
+    bump,
+    vaultBump,
   };
 }
 
@@ -376,21 +394,40 @@ export interface EnrollmentAccount {
 
 export function decodeEnrollment(data: Buffer): EnrollmentAccount {
   let offset = 8;
-  const trader = new PublicKey(data.subarray(offset, offset + 32)); offset += 32;
-  const challenge = new PublicKey(data.subarray(offset, offset + 32)); offset += 32;
-  const startingEquityUsd = data.readBigUInt64LE(offset); offset += 8;
-  const enrolledAt = data.readBigInt64LE(offset); offset += 8;
-  const settled = data.readUInt8(offset) === 1; offset += 1;
-  const status = data.readUInt8(offset) as EnrollmentStatus; offset += 1;
-  const finalPnlBps = data.readInt32LE(offset); offset += 4;
-  const finalDrawdownBps = data.readUInt16LE(offset); offset += 2;
-  const payoutUsdc = data.readBigUInt64LE(offset); offset += 8;
-  const resultSubmittedAt = data.readBigInt64LE(offset); offset += 8;
+  const trader = new PublicKey(data.subarray(offset, offset + 32));
+  offset += 32;
+  const challenge = new PublicKey(data.subarray(offset, offset + 32));
+  offset += 32;
+  const startingEquityUsd = data.readBigUInt64LE(offset);
+  offset += 8;
+  const enrolledAt = data.readBigInt64LE(offset);
+  offset += 8;
+  const settled = data.readUInt8(offset) === 1;
+  offset += 1;
+  const status = data.readUInt8(offset) as EnrollmentStatus;
+  offset += 1;
+  const finalPnlBps = data.readInt32LE(offset);
+  offset += 4;
+  const finalDrawdownBps = data.readUInt16LE(offset);
+  offset += 2;
+  const payoutUsdc = data.readBigUInt64LE(offset);
+  offset += 8;
+  const resultSubmittedAt = data.readBigInt64LE(offset);
+  offset += 8;
   const bump = data.readUInt8(offset);
 
   return {
-    trader, challenge, startingEquityUsd, enrolledAt, settled,
-    status, finalPnlBps, finalDrawdownBps, payoutUsdc, resultSubmittedAt, bump,
+    trader,
+    challenge,
+    startingEquityUsd,
+    enrolledAt,
+    settled,
+    status,
+    finalPnlBps,
+    finalDrawdownBps,
+    payoutUsdc,
+    resultSubmittedAt,
+    bump,
   };
 }
 
@@ -406,15 +443,29 @@ export interface FundedTraderAccount {
 
 export function decodeFundedTrader(data: Buffer): FundedTraderAccount {
   let offset = 8;
-  const trader = new PublicKey(data.subarray(offset, offset + 32)); offset += 32;
-  const level = data.readUInt8(offset); offset += 1;
-  const revenueShareBps = data.readUInt16LE(offset); offset += 2;
-  const promotedAt = data.readBigInt64LE(offset); offset += 8;
-  const consecutiveWeeks = data.readUInt16LE(offset); offset += 2;
-  const totalChallengesPassed = data.readUInt16LE(offset); offset += 2;
+  const trader = new PublicKey(data.subarray(offset, offset + 32));
+  offset += 32;
+  const level = data.readUInt8(offset);
+  offset += 1;
+  const revenueShareBps = data.readUInt16LE(offset);
+  offset += 2;
+  const promotedAt = data.readBigInt64LE(offset);
+  offset += 8;
+  const consecutiveWeeks = data.readUInt16LE(offset);
+  offset += 2;
+  const totalChallengesPassed = data.readUInt16LE(offset);
+  offset += 2;
   const bump = data.readUInt8(offset);
 
-  return { trader, level, revenueShareBps, promotedAt, consecutiveWeeks, totalChallengesPassed, bump };
+  return {
+    trader,
+    level,
+    revenueShareBps,
+    promotedAt,
+    consecutiveWeeks,
+    totalChallengesPassed,
+    bump,
+  };
 }
 
 // ── SVM Helpers ─────────────────────────────────────────────────────────────
@@ -426,10 +477,7 @@ export function createTestSVM(): LiteSVM {
   return svm;
 }
 
-export function fetchAccount(
-  svm: LiteSVM,
-  address: PublicKey
-): Buffer | null {
+export function fetchAccount(svm: LiteSVM, address: PublicKey): Buffer | null {
   const acct = svm.getAccount(address);
   if (!acct) return null;
   return Buffer.from(acct.data);
@@ -480,9 +528,7 @@ export function sendTx(
 
   const result = svm.sendTransaction(tx);
   if (result instanceof FailedTransactionMetadata) {
-    throw new Error(
-      `Transaction failed: ${result.toString()}`
-    );
+    throw new Error(`Transaction failed: ${result.toString()}`);
   }
 }
 
@@ -535,8 +581,11 @@ export function sendTxExpectFail(
   let customErrorCode: number | null = null;
 
   const err = result.err();
-  if ("index" in err && typeof (err as any).err === "function") {
-    const inner = (err as any).err();
+  if (
+    "index" in err &&
+    typeof (err as Record<string, unknown>).err === "function"
+  ) {
+    const inner = (err as { err: () => { code?: number } }).err();
     if ("code" in inner && typeof inner.code === "number") {
       customErrorCode = inner.code;
     }

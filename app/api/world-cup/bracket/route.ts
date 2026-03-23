@@ -5,11 +5,15 @@ import { loadWorldCupTraders, loadDesks } from "@/lib/world-cup/data";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
-  const scenarioId = (request.nextUrl.searchParams.get("scenarioId") ?? "finals") as ScenarioId;
+  const scenarioId = (request.nextUrl.searchParams.get("scenarioId") ??
+    "finals") as ScenarioId;
   const walletAddress = request.nextUrl.searchParams.get("wallet") ?? undefined;
 
   try {
-    const [traders, desks] = await Promise.all([loadWorldCupTraders(), loadDesks()]);
+    const [traders, desks] = await Promise.all([
+      loadWorldCupTraders(),
+      loadDesks(),
+    ]);
     const data: WorldCupData = { traders, desks };
 
     const bracket = createFinalsBracket({

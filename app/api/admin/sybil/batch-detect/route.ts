@@ -1,7 +1,10 @@
 import { runSybilDetection } from "@/lib/competition/sybil-workflow";
 import { fetchPositions } from "@/lib/adrena/client";
 import type { AdrenaPosition } from "@/lib/adrena/client";
-import { getActiveCohorts, getEnrolledWalletsForCohort } from "@/lib/db/queries";
+import {
+  getActiveCohorts,
+  getEnrolledWalletsForCohort,
+} from "@/lib/db/queries";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth/admin";
 

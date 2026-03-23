@@ -11,26 +11,32 @@ type ClosedPosition = AdrenaPosition & { exit_date: string; pnl: number };
 function closedPositionsInWindow(
   positions: AdrenaPosition[],
   start: Date,
-  end: Date,
+  end: Date
 ): ClosedPosition[] {
   const startMs = start.getTime();
   const endMs = end.getTime();
 
   return positions
     .filter((p): p is AdrenaPosition & { exit_date: string; pnl: number } => {
-      if (p.status === "open" || p.exit_date === null || p.pnl === null) return false;
+      if (p.status === "open" || p.exit_date === null || p.pnl === null)
+        return false;
       const exitMs = new Date(p.exit_date).getTime();
       return exitMs >= startMs && exitMs <= endMs;
     })
-    .sort((a, b) => new Date(a.exit_date).getTime() - new Date(b.exit_date).getTime());
+    .sort(
+      (a, b) =>
+        new Date(a.exit_date).getTime() - new Date(b.exit_date).getTime()
+    );
 }
 
 /** Build cumulative equity points from closed positions. Starts at 0. */
 function buildEquityHistory(
-  closed: Array<{ pnl: number; exit_date: string }>,
+  closed: Array<{ pnl: number; exit_date: string }>
 ): { points: number[]; timestamps: string[] } {
   const points: number[] = [0];
-  const timestamps: string[] = [closed.length > 0 ? closed[0].exit_date : new Date().toISOString()];
+  const timestamps: string[] = [
+    closed.length > 0 ? closed[0].exit_date : new Date().toISOString(),
+  ];
 
   let cumulative = 0;
   for (const pos of closed) {
@@ -57,7 +63,7 @@ export async function GET(request: NextRequest) {
   if (!wallet || !cohortId) {
     return NextResponse.json(
       { error: "Missing required query params: wallet, cohortId" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -67,7 +73,7 @@ export async function GET(request: NextRequest) {
     if (!cohort) {
       return NextResponse.json(
         { error: `Cohort "${cohortId}" not found` },
-        { status: 404 },
+        { status: 404 }
       );
     }
 
@@ -75,7 +81,11 @@ export async function GET(request: NextRequest) {
     const positions = await fetchPositions(wallet);
 
     // Filter to closed positions within the cohort window
-    const closed = closedPositionsInWindow(positions, cohort.startTime, cohort.endTime);
+    const closed = closedPositionsInWindow(
+      positions,
+      cohort.startTime,
+      cohort.endTime
+    );
 
     // Build cumulative equity curve
     const { points, timestamps } = buildEquityHistory(closed);
@@ -89,7 +99,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : String(error) },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

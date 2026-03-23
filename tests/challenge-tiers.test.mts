@@ -176,15 +176,39 @@ test("RAROI produces negative value for a losing trader", () => {
 //     (wrf=1.55, af=1.5, pen=1.5)
 // Rank: Dave > Alice > Carol > Bob
 test("RAROI matches design-doc §6.2 worked examples", () => {
-  const alice = computeRAROI({ pnlPercent: 20, winRate: 60, activeDays: 13, totalDays: 14, maxDrawdownPercent: 3 });
-  const bob   = computeRAROI({ pnlPercent: 2,  winRate: 55, activeDays: 10, totalDays: 14, maxDrawdownPercent: 2 });
-  const carol = computeRAROI({ pnlPercent: 25, winRate: 50, activeDays:  7, totalDays: 14, maxDrawdownPercent: 5 });
-  const dave  = computeRAROI({ pnlPercent: 40, winRate: 70, activeDays: 14, totalDays: 14, maxDrawdownPercent: 5 });
+  const alice = computeRAROI({
+    pnlPercent: 20,
+    winRate: 60,
+    activeDays: 13,
+    totalDays: 14,
+    maxDrawdownPercent: 3,
+  });
+  const bob = computeRAROI({
+    pnlPercent: 2,
+    winRate: 55,
+    activeDays: 10,
+    totalDays: 14,
+    maxDrawdownPercent: 2,
+  });
+  const carol = computeRAROI({
+    pnlPercent: 25,
+    winRate: 50,
+    activeDays: 7,
+    totalDays: 14,
+    maxDrawdownPercent: 5,
+  });
+  const dave = computeRAROI({
+    pnlPercent: 40,
+    winRate: 70,
+    activeDays: 14,
+    totalDays: 14,
+    maxDrawdownPercent: 5,
+  });
 
   // Rank order: Dave > Alice > Carol > Bob
-  assert.ok(dave  > alice, `dave(${dave}) should beat alice(${alice})`);
+  assert.ok(dave > alice, `dave(${dave}) should beat alice(${alice})`);
   assert.ok(alice > carol, `alice(${alice}) should beat carol(${carol})`);
-  assert.ok(carol > bob,   `carol(${carol}) should beat bob(${bob})`);
+  assert.ok(carol > bob, `carol(${carol}) should beat bob(${bob})`);
 
   // All values should be positive for these profitable traders
   assert.ok(alice > 0);
@@ -195,9 +219,24 @@ test("RAROI matches design-doc §6.2 worked examples", () => {
 
 test("RAROI: same P&L, different capital discipline ranks correctly", () => {
   // Two traders with identical 15% P&L but different risk profiles
-  const disciplined = computeRAROI({ pnlPercent: 15, winRate: 65, activeDays: 12, totalDays: 14, maxDrawdownPercent: 2 });
-  const reckless    = computeRAROI({ pnlPercent: 15, winRate: 45, activeDays:  6, totalDays: 14, maxDrawdownPercent: 10 });
-  assert.ok(disciplined > reckless, `disciplined(${disciplined}) should beat reckless(${reckless})`);
+  const disciplined = computeRAROI({
+    pnlPercent: 15,
+    winRate: 65,
+    activeDays: 12,
+    totalDays: 14,
+    maxDrawdownPercent: 2,
+  });
+  const reckless = computeRAROI({
+    pnlPercent: 15,
+    winRate: 45,
+    activeDays: 6,
+    totalDays: 14,
+    maxDrawdownPercent: 10,
+  });
+  assert.ok(
+    disciplined > reckless,
+    `disciplined(${disciplined}) should beat reckless(${reckless})`
+  );
 });
 
 test("evaluateChallenge AT drawdown boundary: exactly at limit passes", () => {
@@ -234,14 +273,18 @@ test("evaluateChallenge rejects trades on disallowed markets for specialist tier
     { market: "EUR/USD" },
     { market: "BTC" }, // not in forex list
   ];
-  const result = evaluateChallenge(forexTier, {
-    pnlPercent: 10,
-    maxDrawdownPercent: 3,
-    dailyLossPercent: 2,
-    activeDays: 5,
-    totalDays: 7,
-    winRate: 55,
-  }, tradesWithRogue);
+  const result = evaluateChallenge(
+    forexTier,
+    {
+      pnlPercent: 10,
+      maxDrawdownPercent: 3,
+      dailyLossPercent: 2,
+      activeDays: 5,
+      totalDays: 7,
+      winRate: 55,
+    },
+    tradesWithRogue
+  );
   assert.equal(result.passed, false);
   assert.match(result.reason, /specialist/i);
   assert.match(result.reason, /BTC/);
@@ -252,16 +295,26 @@ test("evaluateChallenge passes specialist tier when all trades are on allowed ma
     ...challengeTiers.scout,
     allowedMarkets: specialistChallenges.crypto.markets, // ["BTC","SOL","BONK","ETH"]
   };
-  const validTrades = [{ market: "BTC" }, { market: "ETH" }, { market: "SOL" }, { market: "BTC" }, { market: "ETH" }];
-  const result = evaluateChallenge(cryptoTier, {
-    pnlPercent: 10,
-    maxDrawdownPercent: 3,
-    dailyLossPercent: 2,
-    activeDays: 5,
-    totalDays: 7,
-    winRate: 55,
-    tradeCount: 5,
-  }, validTrades);
+  const validTrades = [
+    { market: "BTC" },
+    { market: "ETH" },
+    { market: "SOL" },
+    { market: "BTC" },
+    { market: "ETH" },
+  ];
+  const result = evaluateChallenge(
+    cryptoTier,
+    {
+      pnlPercent: 10,
+      maxDrawdownPercent: 3,
+      dailyLossPercent: 2,
+      activeDays: 5,
+      totalDays: 7,
+      winRate: 55,
+      tradeCount: 5,
+    },
+    validTrades
+  );
   assert.equal(result.passed, true);
 });
 

@@ -36,11 +36,7 @@ describe("shoot", () => {
     trader: PublicKey
   ): [PublicKey, number] {
     return PublicKey.findProgramAddressSync(
-      [
-        Buffer.from("enrollment"),
-        challengePda.toBuffer(),
-        trader.toBuffer(),
-      ],
+      [Buffer.from("enrollment"), challengePda.toBuffer(), trader.toBuffer()],
       program.programId
     );
   }
@@ -173,8 +169,10 @@ describe("shoot", () => {
         })
         .rpc();
       expect.fail("Should have thrown AlreadySettled error");
-    } catch (err: any) {
-      expect(err.error.errorCode.code).to.equal("AlreadySettled");
+    } catch (err: unknown) {
+      expect(
+        (err as { error: { errorCode: { code: string } } }).error.errorCode.code
+      ).to.equal("AlreadySettled");
     }
   });
 
@@ -269,8 +267,10 @@ describe("shoot", () => {
         .signers([trader2])
         .rpc();
       expect.fail("Should have thrown ChallengeFull error");
-    } catch (err: any) {
-      expect(err.error.errorCode.code).to.equal("ChallengeFull");
+    } catch (err: unknown) {
+      expect(
+        (err as { error: { errorCode: { code: string } } }).error.errorCode.code
+      ).to.equal("ChallengeFull");
     }
   });
 

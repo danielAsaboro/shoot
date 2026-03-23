@@ -27,10 +27,7 @@ export async function verifyEnrollmentTransaction(
   rpcUrl?: string
 ): Promise<VerifyResult> {
   const { txSignature, expectedPayer, expectedVault, expectedUsdc } = params;
-  const connection = new Connection(
-    rpcUrl ?? getRpcUrl(),
-    "confirmed"
-  );
+  const connection = new Connection(rpcUrl ?? getRpcUrl(), "confirmed");
 
   let tx: Awaited<ReturnType<typeof connection.getParsedTransaction>>;
   try {

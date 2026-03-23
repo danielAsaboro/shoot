@@ -4,7 +4,13 @@ import type { NarrativeBeat, NarrativeSeverity } from "@/lib/world-cup/types";
 
 const severityStyles: Record<
   NarrativeSeverity,
-  { bg: string; borderColor: string; badgeBg: string; badgeColor: string; leftBorder: string }
+  {
+    bg: string;
+    borderColor: string;
+    badgeBg: string;
+    badgeColor: string;
+    leftBorder: string;
+  }
 > = {
   legendary: {
     bg: "linear-gradient(90deg, rgba(0,240,255,0.06), rgba(191,255,0,0.03))",
@@ -61,12 +67,23 @@ function BeatCard({ beat }: { beat: NarrativeBeat }) {
                   ? "HYPE"
                   : beat.type.replace("-", " ").toUpperCase()}
             </span>
-            <span className="text-[9px] text-white/20" style={{ fontFamily: "var(--font-mono)" }}>{timeAgo}</span>
+            <span
+              className="text-[9px] text-white/20"
+              style={{ fontFamily: "var(--font-mono)" }}
+            >
+              {timeAgo}
+            </span>
           </div>
-          <p className="text-xs font-bold text-white leading-5" style={{ fontFamily: "var(--font-sans)" }}>
+          <p
+            className="text-xs font-bold text-white leading-5"
+            style={{ fontFamily: "var(--font-sans)" }}
+          >
             {beat.headline}
           </p>
-          <p className="mt-1 text-[11px] text-white/40 leading-4" style={{ fontFamily: "var(--font-sans)" }}>
+          <p
+            className="mt-1 text-[11px] text-white/40 leading-4"
+            style={{ fontFamily: "var(--font-sans)" }}
+          >
             {beat.subtext}
           </p>
         </div>
@@ -101,20 +118,30 @@ export function WorldCupCommentary({
         <div className="flex items-center gap-2">
           <span
             className="text-xs font-bold tracking-wider"
-            style={{ fontFamily: "var(--font-display)", color: "#00F0FF", letterSpacing: "0.15em" }}
+            style={{
+              fontFamily: "var(--font-display)",
+              color: "#00F0FF",
+              letterSpacing: "0.15em",
+            }}
           >
             LIVE FEED
           </span>
           <div>
             <p
               className="text-[10px] uppercase tracking-wider text-white/40"
-              style={{ fontFamily: "var(--font-display)", letterSpacing: "0.1em" }}
+              style={{
+                fontFamily: "var(--font-display)",
+                letterSpacing: "0.1em",
+              }}
             >
               Tournament Commentary
             </p>
           </div>
         </div>
-        <span className="flex items-center gap-1.5 text-[10px] font-bold" style={{ color: "#FF3D3D", fontFamily: "var(--font-mono)" }}>
+        <span
+          className="flex items-center gap-1.5 text-[10px] font-bold"
+          style={{ color: "#FF3D3D", fontFamily: "var(--font-mono)" }}
+        >
           <span
             className="animate-live-blink"
             style={{
@@ -137,7 +164,10 @@ export function WorldCupCommentary({
       </div>
 
       {beats.length > maxBeats && (
-        <p className="text-center text-[10px] text-white/20" style={{ fontFamily: "var(--font-mono)" }}>
+        <p
+          className="text-center text-[10px] text-white/20"
+          style={{ fontFamily: "var(--font-mono)" }}
+        >
           +{beats.length - maxBeats} more beats
         </p>
       )}

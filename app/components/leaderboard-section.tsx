@@ -61,7 +61,8 @@ function getMatchupIndicator(
     if (m.status !== "completed" || !m.result) continue;
     if (m.traderA !== wallet && m.traderB !== wallet) continue;
     if (m.result.isDraw) return { label: "D", className: "matchup-draw" };
-    if (m.result.winnerId === wallet) return { label: "W", className: "matchup-win" };
+    if (m.result.winnerId === wallet)
+      return { label: "W", className: "matchup-win" };
     return { label: "L", className: "matchup-loss" };
   }
   return null;
@@ -74,7 +75,15 @@ function getActiveRiskBadge(
   if (!riskEvents || riskEvents.length === 0) return null;
   for (const event of riskEvents) {
     const tierId =
-      rank <= 5 ? "apex" : rank <= 10 ? "elite" : rank <= 15 ? "veteran" : rank <= 20 ? "ranger" : "scout";
+      rank <= 5
+        ? "apex"
+        : rank <= 10
+          ? "elite"
+          : rank <= 15
+            ? "veteran"
+            : rank <= 20
+              ? "ranger"
+              : "scout";
     if (event.affectedTiers.includes(tierId as never)) return event;
   }
   return null;
@@ -89,18 +98,26 @@ export function LeaderboardSection({
   matchups,
   activeRiskEvents,
 }: LeaderboardSectionProps) {
-  const hasMutagen = selectedCohort.standings.some((e) => e.mutagenScore != null);
-  const [scoreMode, setScoreMode] = useState<"tournament" | "mutagen">("tournament");
+  const hasMutagen = selectedCohort.standings.some(
+    (e) => e.mutagenScore != null
+  );
+  const [scoreMode, setScoreMode] = useState<"tournament" | "mutagen">(
+    "tournament"
+  );
 
   // Fetch equity curves for sparklines
-  const [equityByWallet, setEquityByWallet] = useState<Record<string, number[]>>({});
+  const [equityByWallet, setEquityByWallet] = useState<
+    Record<string, number[]>
+  >({});
   useEffect(() => {
     const cohortId = selectedCohort.id;
     const wallets = selectedCohort.standings.slice(0, 10).map((e) => e.wallet);
     let cancelled = false;
     Promise.all(
       wallets.map((wallet) =>
-        fetch(`/api/competition/equity?wallet=${encodeURIComponent(wallet)}&cohortId=${encodeURIComponent(cohortId)}`)
+        fetch(
+          `/api/competition/equity?wallet=${encodeURIComponent(wallet)}&cohortId=${encodeURIComponent(cohortId)}`
+        )
           .then((res) => res.json())
           .then((data) => ({ wallet, points: data.points as number[] }))
           .catch(() => ({ wallet, points: [] as number[] }))
@@ -111,15 +128,25 @@ export function LeaderboardSection({
       for (const r of results) map[r.wallet] = r.points;
       setEquityByWallet(map);
     });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [selectedCohort.id, selectedCohort.standings]);
 
   // Re-sort by mutagen if in mutagen mode
-  const sortedStandings = scoreMode === "mutagen" && hasMutagen
-    ? [...selectedCohort.standings].sort(
-        (a, b) => (b.mutagenScore?.totalMutagen ?? 0) - (a.mutagenScore?.totalMutagen ?? 0)
-      ).map((entry, idx) => ({ ...entry, displayRank: idx + 1 }))
-    : selectedCohort.standings.map((entry) => ({ ...entry, displayRank: entry.rank }));
+  const sortedStandings =
+    scoreMode === "mutagen" && hasMutagen
+      ? [...selectedCohort.standings]
+          .sort(
+            (a, b) =>
+              (b.mutagenScore?.totalMutagen ?? 0) -
+              (a.mutagenScore?.totalMutagen ?? 0)
+          )
+          .map((entry, idx) => ({ ...entry, displayRank: idx + 1 }))
+      : selectedCohort.standings.map((entry) => ({
+          ...entry,
+          displayRank: entry.rank,
+        }));
 
   return (
     <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
@@ -161,7 +188,14 @@ export function LeaderboardSection({
               LIVE
             </span>
           </span>
-          <span className="text-xs" style={{ color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-mono)", fontSize: "10px" }}>
+          <span
+            className="text-xs"
+            style={{
+              color: "rgba(255,255,255,0.3)",
+              fontFamily: "var(--font-mono)",
+              fontSize: "10px",
+            }}
+          >
             Updates every 30s
           </span>
 
@@ -183,7 +217,11 @@ export function LeaderboardSection({
             }}
             title="Share leaderboard on X"
           >
-            <svg viewBox="0 0 24 24" className="h-3 w-3 fill-current" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-3 w-3 fill-current"
+              aria-hidden="true"
+            >
               <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
             </svg>
             Share
@@ -208,14 +246,26 @@ export function LeaderboardSection({
                   fontWeight: 700,
                   letterSpacing: "0.08em",
                   textTransform: "uppercase",
-                  background: scoreMode === "tournament" ? "rgba(255,255,255,0.1)" : "transparent",
-                  color: scoreMode === "tournament" ? "#fff" : "rgba(255,255,255,0.4)",
+                  background:
+                    scoreMode === "tournament"
+                      ? "rgba(255,255,255,0.1)"
+                      : "transparent",
+                  color:
+                    scoreMode === "tournament"
+                      ? "#fff"
+                      : "rgba(255,255,255,0.4)",
                 }}
                 onClick={() => setScoreMode("tournament")}
               >
                 TOURNAMENT
               </button>
-              <span style={{ width: "1px", height: "18px", background: "rgba(255,255,255,0.1)" }} />
+              <span
+                style={{
+                  width: "1px",
+                  height: "18px",
+                  background: "rgba(255,255,255,0.1)",
+                }}
+              />
               <button
                 type="button"
                 className="transition"
@@ -227,8 +277,14 @@ export function LeaderboardSection({
                   fontWeight: 700,
                   letterSpacing: "0.08em",
                   textTransform: "uppercase",
-                  background: scoreMode === "mutagen" ? "rgba(0,240,255,0.12)" : "transparent",
-                  color: scoreMode === "mutagen" ? "#00F0FF" : "rgba(255,255,255,0.4)",
+                  background:
+                    scoreMode === "mutagen"
+                      ? "rgba(0,240,255,0.12)"
+                      : "transparent",
+                  color:
+                    scoreMode === "mutagen"
+                      ? "#00F0FF"
+                      : "rgba(255,255,255,0.4)",
                 }}
                 onClick={() => setScoreMode("mutagen")}
               >
@@ -255,7 +311,13 @@ export function LeaderboardSection({
               <tr>
                 <th>Rank</th>
                 <th>Trader</th>
-                <th title={scoreMode === "mutagen" ? "Adrena Mutagen score" : "Tournament score (hover for breakdown)"}>
+                <th
+                  title={
+                    scoreMode === "mutagen"
+                      ? "Adrena Mutagen score"
+                      : "Tournament score (hover for breakdown)"
+                  }
+                >
                   {scoreMode === "mutagen" ? "Mutagen" : "Score"} ⓘ
                 </th>
                 <th>PnL</th>
@@ -270,12 +332,20 @@ export function LeaderboardSection({
             </thead>
             <tbody>
               {sortedStandings.map((entry, idx) => {
-                const isViewer = walletAddress && entry.wallet === walletAddress;
+                const isViewer =
+                  walletAddress && entry.wallet === walletAddress;
                 const isFunded = entry.eligible && entry.rank <= 5;
-                const isWatchlist = entry.eligible && entry.rank > 5 && entry.rank <= 10;
+                const isWatchlist =
+                  entry.eligible && entry.rank > 5 && entry.rank <= 10;
                 const rankDelta = 0;
-                const matchupResult = getMatchupIndicator(entry.wallet, matchups);
-                const riskBadge = getActiveRiskBadge(entry.rank, activeRiskEvents);
+                const matchupResult = getMatchupIndicator(
+                  entry.wallet,
+                  matchups
+                );
+                const riskBadge = getActiveRiskBadge(
+                  entry.rank,
+                  activeRiskEvents
+                );
 
                 return (
                   <tr
@@ -294,14 +364,25 @@ export function LeaderboardSection({
                             fontSize: "1.5rem",
                             fontWeight: 700,
                             lineHeight: 1,
-                            color: entry.displayRank <= 3 ? "#00F0FF" : "rgba(255,255,255,0.5)",
+                            color:
+                              entry.displayRank <= 3
+                                ? "#00F0FF"
+                                : "rgba(255,255,255,0.5)",
                           }}
                         >
                           #{entry.displayRank}
                         </span>
                         {rankDelta !== 0 && (
-                          <span className={rankDelta > 0 ? "rank-delta-up" : "rank-delta-down"}>
-                            {rankDelta > 0 ? `▲${rankDelta}` : `▼${Math.abs(rankDelta)}`}
+                          <span
+                            className={
+                              rankDelta > 0
+                                ? "rank-delta-up"
+                                : "rank-delta-down"
+                            }
+                          >
+                            {rankDelta > 0
+                              ? `▲${rankDelta}`
+                              : `▼${Math.abs(rankDelta)}`}
                           </span>
                         )}
                       </div>
@@ -309,7 +390,10 @@ export function LeaderboardSection({
                     <td>
                       <div className="flex flex-col">
                         <div className="flex items-center gap-1.5">
-                          <Link href="/profile" className="font-semibold hover:text-[--accent] transition-colors">
+                          <Link
+                            href="/profile"
+                            className="font-semibold hover:text-[--accent] transition-colors"
+                          >
                             {entry.displayName}
                           </Link>
                           {isFunded && (
@@ -432,7 +516,9 @@ export function LeaderboardSection({
                             </span>
                           )}
                         </div>
-                        <span className="text-xs text-white/40">{entry.badge}</span>
+                        <span className="text-xs text-white/40">
+                          {entry.badge}
+                        </span>
                       </div>
                     </td>
                     <td>
@@ -460,15 +546,26 @@ export function LeaderboardSection({
                                 Mutagen Breakdown
                               </p>
                               {[
-                                ["Mutagen Total", entry.mutagenScore.totalMutagen.toFixed(4)],
-                                ["Trade Count", String(entry.mutagenScore.tradeCount)],
+                                [
+                                  "Mutagen Total",
+                                  entry.mutagenScore.totalMutagen.toFixed(4),
+                                ],
+                                [
+                                  "Trade Count",
+                                  String(entry.mutagenScore.tradeCount),
+                                ],
                               ].map(([k, v]) => (
                                 <div key={k} className="score-tooltip-row">
                                   <span>{k}</span>
-                                  <strong className="value-positive">{v}</strong>
+                                  <strong className="value-positive">
+                                    {v}
+                                  </strong>
                                 </div>
                               ))}
-                              <div className="score-tooltip-row mt-2 border-t border-white/10 pt-2 text-white/40" style={{ fontSize: "9px" }}>
+                              <div
+                                className="score-tooltip-row mt-2 border-t border-white/10 pt-2 text-white/40"
+                                style={{ fontSize: "9px" }}
+                              >
                                 Formula: (Perf + Dur) x Size x Bonus
                               </div>
                             </>
@@ -488,27 +585,58 @@ export function LeaderboardSection({
                                 Score Breakdown
                               </p>
                               {[
-                                ["P&L", `+${(entry.pnlPercent * 8.5).toFixed(1)}`],
-                                ["Volume", `+${(Math.log10(entry.volumeUsd + 1) * 6).toFixed(1)}`],
-                                ["Consistency", `+${(entry.consistencyScore * 0.28).toFixed(1)}`],
-                                ["Win Rate", `+${(entry.winRate * 0.08).toFixed(1)}`],
-                                ["DD Penalty", `−${(entry.maxDrawdownPercent * 0.65).toFixed(1)}`],
+                                [
+                                  "P&L",
+                                  `+${(entry.pnlPercent * 8.5).toFixed(1)}`,
+                                ],
+                                [
+                                  "Volume",
+                                  `+${(Math.log10(entry.volumeUsd + 1) * 6).toFixed(1)}`,
+                                ],
+                                [
+                                  "Consistency",
+                                  `+${(entry.consistencyScore * 0.28).toFixed(1)}`,
+                                ],
+                                [
+                                  "Win Rate",
+                                  `+${(entry.winRate * 0.08).toFixed(1)}`,
+                                ],
+                                [
+                                  "DD Penalty",
+                                  `−${(entry.maxDrawdownPercent * 0.65).toFixed(1)}`,
+                                ],
                               ].map(([k, v]) => (
                                 <div key={k} className="score-tooltip-row">
                                   <span>{k}</span>
-                                  <strong className={v.startsWith("−") ? "value-negative" : "value-positive"}>{v}</strong>
+                                  <strong
+                                    className={
+                                      v.startsWith("−")
+                                        ? "value-negative"
+                                        : "value-positive"
+                                    }
+                                  >
+                                    {v}
+                                  </strong>
                                 </div>
                               ))}
                               <div className="score-tooltip-row mt-2 border-t border-white/10 pt-2">
                                 <span>Total</span>
-                                <strong className="value-accent">{entry.tournamentScore}</strong>
+                                <strong className="value-accent">
+                                  {entry.tournamentScore}
+                                </strong>
                               </div>
                             </>
                           )}
                         </div>
                       </div>
                     </td>
-                    <td className={entry.pnlPercent >= 0 ? "value-positive" : "value-negative"}>
+                    <td
+                      className={
+                        entry.pnlPercent >= 0
+                          ? "value-positive"
+                          : "value-negative"
+                      }
+                    >
                       {formatSignedNumber(entry.pnlPercent)}%
                     </td>
                     <td>{formatCurrency(entry.volumeUsd)}</td>
@@ -517,14 +645,19 @@ export function LeaderboardSection({
                     <td>{entry.activeDays ?? "—"}</td>
                     <td>
                       {equityByWallet[entry.wallet]?.length > 1 && (
-                        <EquitySparkline points={equityByWallet[entry.wallet]} />
+                        <EquitySparkline
+                          points={equityByWallet[entry.wallet]}
+                        />
                       )}
                     </td>
                     <td>
                       {entry.eligible ? (
                         <span className="status-okay">Eligible</span>
                       ) : (
-                        <span className="status-flagged" title={entry.disqualificationReason}>
+                        <span
+                          className="status-flagged"
+                          title={entry.disqualificationReason}
+                        >
                           ⚠ Flagged
                         </span>
                       )}
@@ -544,7 +677,11 @@ export function LeaderboardSection({
                         }}
                         title="Share on X"
                       >
-                        <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-current" aria-hidden="true">
+                        <svg
+                          viewBox="0 0 24 24"
+                          className="h-3.5 w-3.5 fill-current"
+                          aria-hidden="true"
+                        >
                           <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                         </svg>
                       </a>
@@ -599,10 +736,18 @@ export function LeaderboardSection({
                 </p>
               </div>
               <div className="text-right">
-                <strong style={{ fontFamily: "var(--font-mono)", color: "#00F0FF" }}>
+                <strong
+                  style={{ fontFamily: "var(--font-mono)", color: "#00F0FF" }}
+                >
                   {formatCurrency(reward.payoutUsd)}
                 </strong>
-                <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.55)", fontFamily: "var(--font-mono)" }}>
+                <p
+                  style={{
+                    fontSize: "13px",
+                    color: "rgba(255,255,255,0.55)",
+                    fontFamily: "var(--font-mono)",
+                  }}
+                >
                   {reward.fundedStatus} / {reward.revenueShareBps} bps
                 </p>
               </div>
@@ -644,7 +789,6 @@ export function LeaderboardSection({
             </strong>
           </div>
         </div>
-
       </aside>
     </section>
   );

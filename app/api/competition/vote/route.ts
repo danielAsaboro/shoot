@@ -1,4 +1,8 @@
-import { upsertVote, getVotesForMatch, getVoteCountsByMatch } from "@/lib/db/queries";
+import {
+  upsertVote,
+  getVotesForMatch,
+  getVoteCountsByMatch,
+} from "@/lib/db/queries";
 import { getCompetitionSnapshotResponse } from "@/lib/competition/provider";
 import { NextRequest, NextResponse } from "next/server";
 

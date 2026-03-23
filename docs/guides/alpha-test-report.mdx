@@ -5,11 +5,12 @@ icon: "flask"
 ---
 
 <Warning>
-**Simulated Data Notice:** All quantitative metrics in this report (pass rates,
-retry rates, NPS) were generated from procedurally simulated trading profiles
-on devnet — NOT from live trading on Adrena mainnet. This alpha validated
-UI/UX and engagement loops only. See [Live Validation](/guides/live-validation)
-for results from real Adrena trader wallets.
+  **Simulated Data Notice:** All quantitative metrics in this report (pass
+  rates, retry rates, NPS) were generated from procedurally simulated trading
+  profiles on devnet — NOT from live trading on Adrena mainnet. This alpha
+  validated UI/UX and engagement loops only. See [Live
+  Validation](/guides/live-validation) for results from real Adrena trader
+  wallets.
 </Warning>
 
 **Event:** Adrena Prop Challenge Hub — Alpha Test (UI/UX Validation)
@@ -19,57 +20,59 @@ for results from real Adrena trader wallets.
 
 ## Participant Profile
 
-| Segment | Count | Description |
-|---|---|---|
-| Active Adrena traders | 9 | Already using the live protocol |
-| Casual DeFi users | 8 | Use DEXes but not perps regularly |
-| First-time perps traders | 7 | Connected wallet but never traded perps before |
+| Segment                  | Count | Description                                    |
+| ------------------------ | ----- | ---------------------------------------------- |
+| Active Adrena traders    | 9     | Already using the live protocol                |
+| Casual DeFi users        | 8     | Use DEXes but not perps regularly              |
+| First-time perps traders | 7     | Connected wallet but never traded perps before |
 
 ## Quantitative Results
 
 ### Prop Challenge Metrics
 
-| Metric | Scout Tier | Ranger Tier |
-|---|---|---|
-| Challenges started | 31 | 14 |
-| Challenges passed | 11 (35.5%) | 3 (21.4%) |
-| Challenges failed — drawdown | 8 (25.8%) | 6 (42.9%) |
-| Challenges failed — daily limit | 4 (12.9%) | 2 (14.3%) |
-| Challenges failed — timeout | 8 (25.8%) | 3 (21.4%) |
-| Average trades per challenge | 9.2 | 11.7 |
-| Median time to first trade | 4m 38s | 6m 12s |
+| Metric                          | Scout Tier | Ranger Tier |
+| ------------------------------- | ---------- | ----------- |
+| Challenges started              | 31         | 14          |
+| Challenges passed               | 11 (35.5%) | 3 (21.4%)   |
+| Challenges failed — drawdown    | 8 (25.8%)  | 6 (42.9%)   |
+| Challenges failed — daily limit | 4 (12.9%)  | 2 (14.3%)   |
+| Challenges failed — timeout     | 8 (25.8%)  | 3 (21.4%)   |
+| Average trades per challenge    | 9.2        | 11.7        |
+| Median time to first trade      | 4m 38s     | 6m 12s      |
 
 Scout at 35.5% matches the ~35% design target. Ranger at 21.4% is slightly below the 25% target — recommend relaxing max drawdown from 8% to 9% in the first production run.
 
 ### Retry Behavior
 
-| Metric | Value |
-|---|---|
+| Metric                                    | Value       |
+| ----------------------------------------- | ----------- |
 | Failed challenges that retried within 48h | 11/20 (55%) |
-| Retried at discounted fee | 10/11 (91%) |
-| Passed on retry | 4/11 (36%) |
+| Retried at discounted fee                 | 10/11 (91%) |
+| Passed on retry                           | 4/11 (36%)  |
 
 55% retry rate significantly exceeded the 25% target. The 30% discount is an effective psychological hook. Revenue projections may be conservative by 2x.
 
 ### New User Behavior
 
 Of the 7 first-time perps traders:
+
 - 6 completed their first-ever simulated trade during the challenge (86%)
 - 4 passed Scout tier (57% — higher than experienced traders' 32% pass rate)
 - New traders are more disciplined because they follow the challenge rules as their mental model
 
 <Note>
-**This validates the core design principle: challenges onboard new traders better than open platforms.**
+  **This validates the core design principle: challenges onboard new traders
+  better than open platforms.**
 </Note>
 
 ### World Cup Mini-Test
 
 2 days, 16 traders, 2 divisions:
 
-| Division | Registrations | Qualifying | Knockout |
-|---|---|---|---|
-| Crypto Cup | 10 | 8 | 6 |
-| Metals Cup | 6 | 5 | 5 |
+| Division   | Registrations | Qualifying | Knockout |
+| ---------- | ------------- | ---------- | -------- |
+| Crypto Cup | 10            | 8          | 6        |
+| Metals Cup | 6             | 5          | 5        |
 
 - **Redemption Bracket:** 7/11 eliminated traders joined (64%, target was 40%)
 - **Spectator engagement:** 47 unique wallets viewed the bracket without competing (2.9x competitors, target was 2x)
@@ -77,13 +80,13 @@ Of the 7 first-time perps traders:
 
 ## Hypothesis Validation
 
-| Hypothesis | Target | Result | Verdict |
-|---|---|---|---|
-| Entry fees prevent sybil farming | 0 sybil clusters | 0 clusters (entry fee EV was -$1.84) | Pass |
-| Challenges onboard new traders | >30% first-timers | 29% first-timers; 86% made first trade | Pass |
-| Specialist Challenges drive RWA adoption | >20% RWA volume increase | Metals Cup = 37.5% of WC registrations (vs 15% normal) | Pass |
-| World Cup creates spectator engagement | >2x viewers vs competitors | 2.9x (47 spectators vs 16 competitors) | Pass |
-| RAROI rewards skill over capital | Correlation \<0.3 | r = 0.21 (Pearson, n=16) | Pass |
+| Hypothesis                               | Target                     | Result                                                 | Verdict |
+| ---------------------------------------- | -------------------------- | ------------------------------------------------------ | ------- |
+| Entry fees prevent sybil farming         | 0 sybil clusters           | 0 clusters (entry fee EV was -$1.84)                   | Pass    |
+| Challenges onboard new traders           | >30% first-timers          | 29% first-timers; 86% made first trade                 | Pass    |
+| Specialist Challenges drive RWA adoption | >20% RWA volume increase   | Metals Cup = 37.5% of WC registrations (vs 15% normal) | Pass    |
+| World Cup creates spectator engagement   | >2x viewers vs competitors | 2.9x (47 spectators vs 16 competitors)                 | Pass    |
+| RAROI rewards skill over capital         | Correlation \<0.3          | r = 0.21 (Pearson, n=16)                               | Pass    |
 
 All five hypotheses validated on first alpha run.
 
@@ -97,7 +100,7 @@ All five hypotheses validated on first alpha run.
 - Passives (7-8): 7 respondents
 - Detractors (0-6): 1 respondent
 
-*NPS = ((14 − 1) / 22) × 100 = 59.09 ≈ 59*
+_NPS = ((14 − 1) / 22) × 100 = 59.09 ≈ 59_
 
 <Accordion title="Selected user quotes">
 > "The countdown timer actually made me feel stressed — in a good way. I've never felt that trading on a DEX before."
@@ -111,45 +114,58 @@ All five hypotheses validated on first alpha run.
 > "I came in not knowing what a prop challenge was. The onboarding modal explained it well. I passed Scout on my second try."
 
 > "The Redemption Bracket was actually fun. I got knocked out in Round 1 and was still competing 2 days later."
+
 </Accordion>
 
 ## Bugs Found
 
-| Bug | Severity | Status |
-|---|---|---|
-| Daily loss limit didn't reset at UTC midnight on Day 3 | High | Fixed |
-| Devnet airdrop occasionally returns 429 with no UI feedback | Medium | Fixed |
-| Retry discount showed "0%" for 1 participant (float rounding) | Medium | Fixed |
-| World Cup bracket showed correct winner but score columns swapped | Low | Fixed |
+| Bug                                                               | Severity | Status |
+| ----------------------------------------------------------------- | -------- | ------ |
+| Daily loss limit didn't reset at UTC midnight on Day 3            | High     | Fixed  |
+| Devnet airdrop occasionally returns 429 with no UI feedback       | Medium   | Fixed  |
+| Retry discount showed "0%" for 1 participant (float rounding)     | Medium   | Fixed  |
+| World Cup bracket showed correct winner but score columns swapped | Low      | Fixed  |
 
 ## Iteration Priorities
 
 <Accordion title="P1: P&L Chart History (High Impact, Medium Effort)">
-The #1 feature request. Traders want to see their equity curve during the challenge. Even a simple sparkline showing the last 24 hours of equity would dramatically improve the "this is real" feeling. Store equity snapshots every 5 minutes, render as SVG sparkline.
+  The #1 feature request. Traders want to see their equity curve during the
+  challenge. Even a simple sparkline showing the last 24 hours of equity would
+  dramatically improve the "this is real" feeling. Store equity snapshots every
+  5 minutes, render as SVG sparkline.
 </Accordion>
 
 <Accordion title="P2: Opponent Stats in World Cup (High Impact, Low Effort)">
-During knockout rounds, show both traders' current RAROI, trade count, and equity in a split-screen layout. Creates the head-to-head drama the format is designed for.
+  During knockout rounds, show both traders' current RAROI, trade count, and
+  equity in a split-screen layout. Creates the head-to-head drama the format is
+  designed for.
 </Accordion>
 
 <Accordion title="P3: Ranger Drawdown Adjustment (High Impact, Very Low Effort)">
-Ranger max drawdown 8% → 9%. Pass rate 21% is below target. This is a config change.
+  Ranger max drawdown 8% → 9%. Pass rate 21% is below target. This is a config
+  change.
 </Accordion>
 
 <Accordion title="P4: Badge Discovery (Medium Impact, Low Effort)">
-Show all possible badges (including locked) with "How to earn" tooltips. Users didn't know what badges existed until they earned one.
+  Show all possible badges (including locked) with "How to earn" tooltips. Users
+  didn't know what badges existed until they earned one.
 </Accordion>
 
 <Accordion title="P5: First Challenge Free (Medium Impact, Medium Effort)">
-A "First Scout challenge free" offer for wallets with fewer than 30 days of Adrena history. Lowers onboarding barrier while keeping anti-sybil for repeat attempts.
+  A "First Scout challenge free" offer for wallets with fewer than 30 days of
+  Adrena history. Lowers onboarding barrier while keeping anti-sybil for repeat
+  attempts.
 </Accordion>
 
 <Accordion title="P6: Live Data Connection (High Impact, High Effort)">
-Connect scoring engine to the Adrena competition API. The adapter is already built — set `NEXT_PUBLIC_COMPETITION_PROVIDER=adrena`. Highest-impact change for production readiness.
+  Connect scoring engine to the Adrena competition API. The adapter is already
+  built — set `NEXT_PUBLIC_COMPETITION_PROVIDER=adrena`. Highest-impact change
+  for production readiness.
 </Accordion>
 
 <Accordion title="P7: Snapshot-Based World Cup Qualifying (Low Impact, High Effort)">
-Auto-qualify based on best 48-hour RAROI in the past 30 days. Low priority for v1 — address in Season 2 if participation drops.
+  Auto-qualify based on best 48-hour RAROI in the past 30 days. Low priority for
+  v1 — address in Season 2 if participation drops.
 </Accordion>
 
 ## Rollout Recommendation
@@ -163,21 +179,20 @@ Based on alpha results, the system is ready for a limited mainnet beta:
 5. Prize pool: 60% USDC rewards, 25% ADX buyback, 15% raffle
 
 <Warning>
-**Do not launch Elite or Apex until:**
-- Live trade data is connected
-- Admin multisig is configured for prize distribution
-- Sybil detector batch job is running in production
+  **Do not launch Elite or Apex until:** - Live trade data is connected - Admin
+  multisig is configured for prize distribution - Sybil detector batch job is
+  running in production
 </Warning>
 
 ### Success Metrics for Mainnet Beta
 
-| Metric | Target |
-|---|---|
-| Scout attempts in first week | >50 |
-| Retry rate among failures | >25% |
-| World Cup registrations | >20 |
-| Post-event NPS | >=50 |
-| Undetected sybil clusters | 0 |
+| Metric                       | Target |
+| ---------------------------- | ------ |
+| Scout attempts in first week | >50    |
+| Retry rate among failures    | >25%   |
+| World Cup registrations      | >20    |
+| Post-event NPS               | >=50   |
+| Undetected sybil clusters    | 0      |
 
 ## Running a Live Mini-Competition
 

@@ -28,12 +28,18 @@ import {
 // ── Configuration ────────────────────────────────────────────────────────────
 
 const SAVE_FLAG = process.argv.includes("--save");
-const OUTPUT_PATH = path.join(process.cwd(), "docs", "mini-competition-results.md");
+const OUTPUT_PATH = path.join(
+  process.cwd(),
+  "docs",
+  "mini-competition-results.md"
+);
 
 /** Competition window: last 14 days from now. */
 const WINDOW_DAYS = 14;
 const windowEnd = new Date();
-const windowStart = new Date(windowEnd.getTime() - WINDOW_DAYS * 24 * 60 * 60 * 1000);
+const windowStart = new Date(
+  windowEnd.getTime() - WINDOW_DAYS * 24 * 60 * 60 * 1000
+);
 
 /**
  * Curated wallet list — wallets from competition-cohorts.json that showed
@@ -74,7 +80,8 @@ function walletToBadge(wallet: string): string {
 }
 
 function formatUsd(value: number): string {
-  if (Math.abs(value) >= 1_000_000) return `$${(value / 1_000_000).toFixed(2)}M`;
+  if (Math.abs(value) >= 1_000_000)
+    return `$${(value / 1_000_000).toFixed(2)}M`;
   if (Math.abs(value) >= 1_000) return `$${(value / 1_000).toFixed(1)}K`;
   return `$${value.toFixed(0)}`;
 }
@@ -99,7 +106,9 @@ interface WalletResult {
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
-  console.error(`[mini-competition] Window: ${windowStart.toISOString()} → ${windowEnd.toISOString()}`);
+  console.error(
+    `[mini-competition] Window: ${windowStart.toISOString()} → ${windowEnd.toISOString()}`
+  );
   console.error(`[mini-competition] Wallets: ${WALLETS.length}`);
   console.error("");
 
@@ -113,7 +122,11 @@ async function main() {
       const positions = await fetchPositions(wallet);
 
       // 2. Compute metrics
-      const perf = computeMetricsFromPositions(positions, windowStart, windowEnd);
+      const perf = computeMetricsFromPositions(
+        positions,
+        windowStart,
+        windowEnd
+      );
 
       // Tournament score
       const tournamentScore = computeTournamentScore({
@@ -131,7 +144,11 @@ async function main() {
       });
 
       // Mutagen
-      const mutagen = computeAggregateMutagen(positions, windowStart, windowEnd);
+      const mutagen = computeAggregateMutagen(
+        positions,
+        windowStart,
+        windowEnd
+      );
 
       results.push({
         wallet,
@@ -147,9 +164,13 @@ async function main() {
         totalMutagen: mutagen.totalMutagen,
       });
 
-      console.error(`    → ${positions.length} positions, ${perf.tradeCount ?? 0} in window`);
+      console.error(
+        `    → ${positions.length} positions, ${perf.tradeCount ?? 0} in window`
+      );
     } catch (err) {
-      console.error(`    → ERROR: ${err instanceof Error ? err.message : String(err)}`);
+      console.error(
+        `    → ERROR: ${err instanceof Error ? err.message : String(err)}`
+      );
       results.push({
         wallet,
         short,

@@ -114,7 +114,8 @@ export const fundedDeskLadder = [
   {
     tier: "Partner",
     target: "Win a cohort or 4,000 points, 12 active weeks",
-    reward: "Governance participation, protocol advisory, 1500 bps revenue share",
+    reward:
+      "Governance participation, protocol advisory, 1500 bps revenue share",
   },
 ];
 

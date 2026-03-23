@@ -6,16 +6,28 @@ icon: "flag-checkered"
 
 ## Summary
 
-We built **Arena Hub** — a complete competition module for Adrena with two interlocking formats: rolling prop challenges (always-on) and a seasonal World Cup knockout tournament. The system is live on Railway, backed by PostgreSQL, with an Anchor program deployed to devnet for USDC entry fee collection and settlement.
+We built **Arena Hub** — a complete competition module for Adrena with three interlocking systems: rolling prop challenges (always-on), a seasonal World Cup knockout tournament, and autonomous autopilot trading for 24/7 volume generation. The system is live on Railway, backed by PostgreSQL, with an Anchor program (11 instructions, 22 errors, 11 events) deployed to devnet, a Rust keeper service matching Adrena's infrastructure, and an Autopilot SDK with 4 trading strategies.
 
 <Columns cols={3}>
-  <Card title="Live App" icon="globe" href="https://shoot-production-f218.up.railway.app/">
+  <Card
+    title="Live App"
+    icon="globe"
+    href="https://shoot-production-f218.up.railway.app/"
+  >
     Deployed on Railway
   </Card>
-  <Card title="On-Chain Program" icon="link" href="https://explorer.solana.com/address/4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG?cluster=devnet">
+  <Card
+    title="On-Chain Program"
+    icon="link"
+    href="https://explorer.solana.com/address/4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG?cluster=devnet"
+  >
     Devnet — Solana Explorer
   </Card>
-  <Card title="Documentation" icon="book" href="https://docs-1f2b6c2c.mintlify.app/">
+  <Card
+    title="Documentation"
+    icon="book"
+    href="https://docs-1f2b6c2c.mintlify.app/"
+  >
     Full docs on Mintlify
   </Card>
 </Columns>
@@ -28,35 +40,38 @@ The bounty asks for three deliverables. Here's exactly where each one is.
 
 ### 1. Competition Design Document
 
-| Requirement | Where |
-|---|---|
-| Proposed competition format | [Competition Design](/guides/competition-design) — two formats: prop challenges + World Cup |
-| Rules, scoring mechanics, reward structure | [Scoring Engine](/guides/scoring-engine) — tournament score, Mutagen, RAROI formulas |
-| | [Revenue Model](/guides/revenue-model) — 60/25/15 fee split, funded trader revenue share |
-| Integration with Adrena's existing infrastructure | [Integration Contract](/guides/integration-contract) — API contract for upstream snapshot |
-| | [Architecture](/guides/architecture) — system flow, data pipeline, Adrena adapter |
-| Why more engaging than alternatives | [Competition Design § Competitive Analysis](/guides/competition-design) — vs Jupiter, Drift, Hyperliquid |
-| Edge cases and abuse prevention | [Sybil Detection](/guides/sybil-detection) — 3 heuristics, convergence filter, audit trail |
+| Requirement                                       | Where                                                                                                    |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Proposed competition format                       | [Competition Design](/guides/competition-design) — two formats: prop challenges + World Cup              |
+| Rules, scoring mechanics, reward structure        | [Scoring Engine](/guides/scoring-engine) — tournament score, Mutagen, RAROI formulas                     |
+|                                                   | [Revenue Model](/guides/revenue-model) — 60/25/15 fee split, funded trader revenue share                 |
+| Integration with Adrena's existing infrastructure | [Integration Contract](/guides/integration-contract) — API contract for upstream snapshot                |
+|                                                   | [Architecture](/guides/architecture) — system flow, data pipeline, Adrena adapter                        |
+| Why more engaging than alternatives               | [Competition Design § Competitive Analysis](/guides/competition-design) — vs Jupiter, Drift, Hyperliquid |
+| Edge cases and abuse prevention                   | [Sybil Detection](/guides/sybil-detection) — 3 heuristics, convergence filter, audit trail               |
 
 ### 2. Working Prototype or Implementation
 
-| Requirement | Where |
-|---|---|
-| Functional code that can be reviewed and tested | [GitHub repo](https://github.com/) — 93 TypeScript files in `lib/`, 30+ React components, 191 tests |
-| Integration with Adrena's existing systems | `lib/competition/adrena-live-adapter.ts` — fetches real positions from `datapi.adrena.trade` |
-| | `lib/adrena/client.ts` — Adrena Data API client (positions, pool stats, liquidity, APR) |
-| | `programs/shoot/src/lib.rs` — Anchor program deployed to devnet |
-| Documentation on how to deploy and configure | [Deployment Guide](/guides/deployment) — Railway, Docker, PostgreSQL, cron setup |
-| | [Configuration Reference](/guides/configuration) — env vars, cohort config, tier parameters |
+| Requirement                                     | Where                                                                                                 |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Functional code that can be reviewed and tested | GitHub repo — 397+ tests across 3 modules (main app, autopilot SDK, Rust keeper)                      |
+| Integration with Adrena's existing systems      | `lib/competition/adrena-live-adapter.ts` — fetches real positions from `datapi.adrena.trade`          |
+|                                                 | `keeper/src/grpc/subscriber.rs` — Yellowstone gRPC position monitor (matches Adrena's keeper pattern) |
+|                                                 | `sdk/src/client/adrena-trader.ts` — builds real Adrena perp trading instructions                      |
+|                                                 | `programs/shoot/src/lib.rs` — Anchor program (11 ix, 22 errors, 11 events) deployed to devnet         |
+| Documentation on how to deploy and configure    | [Deployment Guide](/guides/deployment) — Railway, Docker, PostgreSQL, keeper, cron setup              |
+|                                                 | [Autopilot SDK](/guides/autopilot-sdk) — strategy configuration, risk management, execution loop      |
+|                                                 | [Keeper Service](/guides/keeper-service) — gRPC, scoring engine, lifecycle FSM                        |
+|                                                 | [Configuration Reference](/guides/configuration) — env vars, cohort config, tier parameters           |
 
 ### 3. Testing & Feedback
 
-| Requirement | Where |
-|---|---|
+| Requirement                               | Where                                                                                                   |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | Run a test competition with a small group | [Alpha Test Report](/guides/alpha-test-report) — 7-day test, 24 participants, devnet simulated profiles |
-| Collect feedback and document results | [Alpha Test Report § Survey](/guides/alpha-test-report) — NPS 59, user quotes, bug list |
-| | [Live Validation](/guides/live-validation) — pipeline tested against 22 real Adrena wallets |
-| Recommendations for iteration | [Alpha Test Report § Iteration Priorities](/guides/alpha-test-report) — P1–P7 ranked by impact/effort |
+| Collect feedback and document results     | [Alpha Test Report § Survey](/guides/alpha-test-report) — NPS 59, user quotes, bug list                 |
+|                                           | [Live Validation](/guides/live-validation) — pipeline tested against 22 real Adrena wallets             |
+| Recommendations for iteration             | [Alpha Test Report § Iteration Priorities](/guides/alpha-test-report) — P1–P7 ranked by impact/effort   |
 
 ---
 
@@ -105,6 +120,12 @@ Adrena's biggest differentiator is RWA markets (Forex, Gold, Oil) via the Autono
 
 In the alpha, the Metals Cup drew 37.5% of World Cup registrations from traders who had never touched Gold perpetuals before. The competition format is doing the RWA adoption work automatically.
 
+### Key Design Decision: 24/7 Volume via Autopilots
+
+Adrena's competitions generated massive volume — but only during human trading hours. We solved this with the Autopilot SDK: traders configure a playbook (TrendSurfer, FadeTrader, RangeSniper, FundingArb, or GridRunner), set risk guardrails, and the FlightController executes ticks 24/7 within their prop challenge. This generates continuous volume without requiring the trader to be online.
+
+The autopilot approach differs from pure AI agent systems because it keeps humans in the loop — traders design the strategy, tune parameters, and own the risk. The machine just executes consistently.
+
 ### Evolution During Development
 
 1. **Started** with mock data to validate UI/UX and scoring logic
@@ -114,7 +135,10 @@ In the alpha, the Metals Cup drew 37.5% of World Cup registrations from traders 
 5. **Built** the Anchor program for on-chain entry fees and settlement
 6. **Deployed** the program to devnet and the app to Railway
 7. **Implemented** Jupiter V6 buyback for the 25% ADX allocation
-8. **Shipped** documentation site on Mintlify
+8. **Built** the Rust keeper service (Yellowstone gRPC, scoring engine, lifecycle FSM)
+9. **Built** the Autopilot SDK (5 playbooks, indicators, risk harness, 144 tests)
+10. **Hardened** the Anchor program (11 instructions, 22 errors, 11 events, state machine enforcement)
+11. **Shipped** documentation site on Mintlify
 
 ---
 
@@ -131,22 +155,47 @@ See [Feature Status](/guides/feature-status) for the full breakdown. In short:
 ## Technical Highlights
 
 ### On-Chain Program
-- **Anchor** smart contract with dual-authority model (admin + result_authority)
-- USDC entry fees held in PDA-derived vaults
-- Settlement distributes USDC directly to trader wallets
+
+- **Anchor** smart contract with **11 instructions, 22 error variants, 11 events**
+- Dual-authority model (admin multisig + result_authority hot wallet)
+- USDC entry fees held in PDA-derived vaults with balance pre-checks
+- State machine enforcement on challenge status transitions
+- Agent registration for autonomous autopilots (ELO, W/L, strategy hash)
 - Deployed to devnet: [`4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG`](https://explorer.solana.com/address/4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG?cluster=devnet)
 
+### Autopilot SDK
+
+- **144 tests** across 14 suites — indicators, playbooks, cockpit, feed, on-chain
+- 5 playbooks (TrendSurfer, FadeTrader, RangeSniper, FundingArb, GridRunner) with configurable parameters
+- RiskHarness enforcement: ceiling leverage, exposure fraction, cut-loss, lock-gain, cooldown
+- Pyth Hermes price feed integration + mock provider for testing
+
+### Keeper Service (Rust)
+
+- **60+ tests** — scoring engine, metrics, position decoder, lifecycle FSM
+- Yellowstone gRPC subscriber for real-time Adrena position monitoring
+- Pure-function scoring: `(Net P&L / max(Drawdown, 0.01)) × Activity × Duration`
+- Axum REST API with health, leaderboard, SSE live updates, Prometheus metrics
+
 ### Testing
-- **191 unit tests** across 21 suites (scoring, sybil, enrollment, projections, World Cup, narrative, desks, funded ladder, Adrena schema normalization)
+
+- **397+ tests** across 3 modules:
+  - Main app: 278 tests (scoring, sybil, enrollment, projections, World Cup, narrative, desks)
+  - Autopilot SDK: 144 tests (indicators, playbooks, cockpit, feed, on-chain)
+  - Keeper: 60+ tests (scoring, metrics, decoder, lifecycle)
 - **Alpha test**: 24 participants, NPS 59, 35.5% Scout pass rate, 55% retry rate
 - **Live validation**: 22 real Adrena wallets, 0 API errors, 0 sybil false positives
 
 ### Database
+
 - **18 Prisma models** covering cohorts, enrollments, scores, quests, streaks, raffle, sybil flags, World Cup, desks, narrative beats, competition results
 - PostgreSQL with proper indexing and relations
 
 ### Infrastructure
+
 - **Railway** deployment via multi-stage Docker build
+- **Rust keeper** matching Adrena's keeper infrastructure (Yellowstone gRPC + PostgreSQL)
+- **Health endpoint** (`/api/health`) with DB ping and latency
 - **Cron endpoints** as POST routes triggered by external scheduler (no Vercel dependency)
 - **SSE streaming** for real-time leaderboard + narrative updates
 - **Discord webhooks** for ops alerts (sybil flags, settlement events)

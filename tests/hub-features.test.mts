@@ -20,7 +20,11 @@ const rootDir = join(__dirname, "..");
 
 // ── Phase 1.1: Tier extraction ──────────────────────────────────────────────
 
-import { getTierById, getSpecialistChallenge, challengeTiers } from "../lib/competition/tiers.ts";
+import {
+  getTierById,
+  getSpecialistChallenge,
+  challengeTiers,
+} from "../lib/competition/tiers.ts";
 
 test("getTierById returns correct tier for valid id", () => {
   const scout = getTierById("scout");
@@ -54,15 +58,22 @@ test("all tiers have minCapital defined", () => {
 
 test("minCapital increases with tier difficulty", () => {
   assert.ok(challengeTiers.ranger.minCapital > challengeTiers.scout.minCapital);
-  assert.ok(challengeTiers.veteran.minCapital > challengeTiers.ranger.minCapital);
-  assert.ok(challengeTiers.elite.minCapital > challengeTiers.veteran.minCapital);
+  assert.ok(
+    challengeTiers.veteran.minCapital > challengeTiers.ranger.minCapital
+  );
+  assert.ok(
+    challengeTiers.elite.minCapital > challengeTiers.veteran.minCapital
+  );
   assert.ok(challengeTiers.apex.minCapital > challengeTiers.elite.minCapital);
 });
 
 // ── Phase 1.2: Schema validation ────────────────────────────────────────────
 
 test("schema.sql contains expected tables", () => {
-  const schema = readFileSync(join(rootDir, "lib/competition/schema.sql"), "utf-8");
+  const schema = readFileSync(
+    join(rootDir, "lib/competition/schema.sql"),
+    "utf-8"
+  );
   assert.match(schema, /CREATE TABLE IF NOT EXISTS challenges/);
   assert.match(schema, /CREATE TABLE IF NOT EXISTS worldcup_seasons/);
   assert.match(schema, /CREATE TABLE IF NOT EXISTS worldcup_registrations/);
@@ -71,7 +82,10 @@ test("schema.sql contains expected tables", () => {
 });
 
 test("schema.sql contains expected columns", () => {
-  const schema = readFileSync(join(rootDir, "lib/competition/schema.sql"), "utf-8");
+  const schema = readFileSync(
+    join(rootDir, "lib/competition/schema.sql"),
+    "utf-8"
+  );
   // challenges table
   assert.match(schema, /wallet\s+TEXT NOT NULL/);
   assert.match(schema, /tier_id\s+TEXT NOT NULL/);
@@ -84,7 +98,10 @@ test("schema.sql contains expected columns", () => {
 });
 
 test("schema.sql creates indexes", () => {
-  const schema = readFileSync(join(rootDir, "lib/competition/schema.sql"), "utf-8");
+  const schema = readFileSync(
+    join(rootDir, "lib/competition/schema.sql"),
+    "utf-8"
+  );
   assert.match(schema, /CREATE INDEX IF NOT EXISTS idx_challenges_wallet/);
   assert.match(schema, /CREATE INDEX IF NOT EXISTS idx_trade_events_wallet/);
   assert.match(schema, /CREATE INDEX IF NOT EXISTS idx_wc_matches_season/);
@@ -120,7 +137,10 @@ test("generateEquityPath returns valid SVG path for normal data", () => {
   assert.ok(path.includes("L"), "Path should contain L commands");
   assert.ok(typeof startY === "number");
   assert.ok(typeof hwmY === "number");
-  assert.ok(hwmY <= startY, "HWM should be at or above start (lower Y = higher on screen)");
+  assert.ok(
+    hwmY <= startY,
+    "HWM should be at or above start (lower Y = higher on screen)"
+  );
 });
 
 test("generateEquityPath returns empty for single point", () => {
@@ -147,7 +167,7 @@ test("QuestEngine increments progress on matching events", () => {
   engine.reset();
   engine.checkProgress("challenge_start");
   const quests = engine.getActiveQuests();
-  const firstChallenge = quests.find(q => q.label === "First Challenge");
+  const firstChallenge = quests.find((q) => q.label === "First Challenge");
   assert.ok(firstChallenge);
   assert.equal(firstChallenge.progress, 1);
 });
@@ -159,7 +179,7 @@ test("QuestEngine does not exceed target", () => {
   engine.checkProgress("challenge_start");
   engine.checkProgress("challenge_start");
   const quests = engine.getActiveQuests();
-  const firstChallenge = quests.find(q => q.label === "First Challenge");
+  const firstChallenge = quests.find((q) => q.label === "First Challenge");
   assert.ok(firstChallenge);
   assert.equal(firstChallenge.progress, 1);
 });
@@ -169,7 +189,7 @@ test("QuestEngine tracks completed quests", () => {
   engine.reset();
   engine.checkProgress("challenge_start");
   const completed = engine.getCompletedQuests();
-  assert.ok(completed.some(q => q.label === "First Challenge"));
+  assert.ok(completed.some((q) => q.label === "First Challenge"));
 });
 
 test("QuestEngine tracks Comeback Trail on pass-after-fail", () => {
@@ -177,7 +197,7 @@ test("QuestEngine tracks Comeback Trail on pass-after-fail", () => {
   engine.reset();
   engine.checkProgress("challenge_pass_after_fail");
   const quests = engine.getActiveQuests();
-  const comeback = quests.find(q => q.label === "Comeback Trail");
+  const comeback = quests.find((q) => q.label === "Comeback Trail");
   assert.ok(comeback);
   assert.equal(comeback.progress, 1);
 });
@@ -253,8 +273,14 @@ test("StreakTracker checkWarning returns correct states", () => {
 
   tracker.recordActivity(new Date("2026-03-19T12:00:00Z"));
   assert.equal(tracker.checkWarning(new Date("2026-03-19T18:00:00Z")), "alive");
-  assert.equal(tracker.checkWarning(new Date("2026-03-20T12:00:00Z")), "warning");
-  assert.equal(tracker.checkWarning(new Date("2026-03-21T12:00:00Z")), "broken");
+  assert.equal(
+    tracker.checkWarning(new Date("2026-03-20T12:00:00Z")),
+    "warning"
+  );
+  assert.equal(
+    tracker.checkWarning(new Date("2026-03-21T12:00:00Z")),
+    "broken"
+  );
 });
 
 test("StreakTracker isUnbreakable at 10+ days", () => {
@@ -262,7 +288,9 @@ test("StreakTracker isUnbreakable at 10+ days", () => {
   tracker.reset();
   // Simulate 10 consecutive days
   for (let i = 0; i < 10; i++) {
-    tracker.recordActivity(new Date(`2026-03-${String(10 + i).padStart(2, "0")}T12:00:00Z`));
+    tracker.recordActivity(
+      new Date(`2026-03-${String(10 + i).padStart(2, "0")}T12:00:00Z`)
+    );
   }
   assert.equal(tracker.isUnbreakable(), true);
   assert.equal(tracker.getMultiplier(), 5);
@@ -270,15 +298,33 @@ test("StreakTracker isUnbreakable at 10+ days", () => {
 
 // ── Phase 6.1: Sybil detection ──────────────────────────────────────────────
 
-import { detectSybilClusters, isWalletFlagged } from "../lib/competition/sybil-detector.ts";
+import {
+  detectSybilClusters,
+  isWalletFlagged,
+} from "../lib/competition/sybil-detector.ts";
 import type { WalletInfo } from "../lib/competition/sybil-detector.ts";
 
 test("detectSybilClusters finds cluster from same funding source", () => {
   const now = Date.now();
   const wallets: WalletInfo[] = [
-    { address: "wallet1", fundingSource: "sourceA", fundedAt: now, entryTimestamp: now + 1000 },
-    { address: "wallet2", fundingSource: "sourceA", fundedAt: now + 30_000, entryTimestamp: now + 31_000 },
-    { address: "wallet3", fundingSource: "sourceA", fundedAt: now + 60_000, entryTimestamp: now + 61_000 },
+    {
+      address: "wallet1",
+      fundingSource: "sourceA",
+      fundedAt: now,
+      entryTimestamp: now + 1000,
+    },
+    {
+      address: "wallet2",
+      fundingSource: "sourceA",
+      fundedAt: now + 30_000,
+      entryTimestamp: now + 31_000,
+    },
+    {
+      address: "wallet3",
+      fundingSource: "sourceA",
+      fundedAt: now + 60_000,
+      entryTimestamp: now + 61_000,
+    },
   ];
   const clusters = detectSybilClusters(wallets);
   assert.equal(clusters.length, 1);
@@ -289,8 +335,18 @@ test("detectSybilClusters finds cluster from same funding source", () => {
 test("detectSybilClusters does not flag small clusters", () => {
   const now = Date.now();
   const wallets: WalletInfo[] = [
-    { address: "wallet1", fundingSource: "sourceA", fundedAt: now, entryTimestamp: now },
-    { address: "wallet2", fundingSource: "sourceA", fundedAt: now + 30_000, entryTimestamp: now + 31_000 },
+    {
+      address: "wallet1",
+      fundingSource: "sourceA",
+      fundedAt: now,
+      entryTimestamp: now,
+    },
+    {
+      address: "wallet2",
+      fundingSource: "sourceA",
+      fundedAt: now + 30_000,
+      entryTimestamp: now + 31_000,
+    },
   ];
   const clusters = detectSybilClusters(wallets);
   assert.equal(clusters.length, 1);
@@ -301,8 +357,18 @@ test("detectSybilClusters does not flag small clusters", () => {
 test("detectSybilClusters returns empty for unique funding sources", () => {
   const now = Date.now();
   const wallets: WalletInfo[] = [
-    { address: "wallet1", fundingSource: "sourceA", fundedAt: now, entryTimestamp: now },
-    { address: "wallet2", fundingSource: "sourceB", fundedAt: now, entryTimestamp: now },
+    {
+      address: "wallet1",
+      fundingSource: "sourceA",
+      fundedAt: now,
+      entryTimestamp: now,
+    },
+    {
+      address: "wallet2",
+      fundingSource: "sourceB",
+      fundedAt: now,
+      entryTimestamp: now,
+    },
   ];
   const clusters = detectSybilClusters(wallets);
   assert.equal(clusters.length, 0);
@@ -311,9 +377,24 @@ test("detectSybilClusters returns empty for unique funding sources", () => {
 test("detectSybilClusters elevates confidence for synchronized entry", () => {
   const now = Date.now();
   const wallets: WalletInfo[] = [
-    { address: "w1", fundingSource: "src", fundedAt: now, entryTimestamp: now + 1000 },
-    { address: "w2", fundingSource: "src", fundedAt: now + 10_000, entryTimestamp: now + 2000 },
-    { address: "w3", fundingSource: "src", fundedAt: now + 20_000, entryTimestamp: now + 3000 },
+    {
+      address: "w1",
+      fundingSource: "src",
+      fundedAt: now,
+      entryTimestamp: now + 1000,
+    },
+    {
+      address: "w2",
+      fundingSource: "src",
+      fundedAt: now + 10_000,
+      entryTimestamp: now + 2000,
+    },
+    {
+      address: "w3",
+      fundingSource: "src",
+      fundedAt: now + 20_000,
+      entryTimestamp: now + 3000,
+    },
   ];
   const clusters = detectSybilClusters(wallets);
   assert.equal(clusters[0].confidence, "high");
@@ -323,8 +404,18 @@ test("isWalletFlagged returns true for wallet in flagged cluster", () => {
   const now = Date.now();
   const wallets: WalletInfo[] = [
     { address: "w1", fundingSource: "src", fundedAt: now, entryTimestamp: now },
-    { address: "w2", fundingSource: "src", fundedAt: now + 1000, entryTimestamp: now },
-    { address: "w3", fundingSource: "src", fundedAt: now + 2000, entryTimestamp: now },
+    {
+      address: "w2",
+      fundingSource: "src",
+      fundedAt: now + 1000,
+      entryTimestamp: now,
+    },
+    {
+      address: "w3",
+      fundingSource: "src",
+      fundedAt: now + 2000,
+      entryTimestamp: now,
+    },
   ];
   const clusters = detectSybilClusters(wallets);
   assert.equal(isWalletFlagged("w1", clusters), true);

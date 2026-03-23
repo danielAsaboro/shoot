@@ -6,13 +6,16 @@ export function detectRivalries(
   matchupHistory: HeadToHeadMatch[]
 ): PropRivalry[] {
   // Aggregate meetings between pairs
-  const pairMap = new Map<string, {
-    walletA: string;
-    walletB: string;
-    aWins: number;
-    bWins: number;
-    draws: number;
-  }>();
+  const pairMap = new Map<
+    string,
+    {
+      walletA: string;
+      walletB: string;
+      aWins: number;
+      bWins: number;
+      draws: number;
+    }
+  >();
 
   for (const match of matchupHistory) {
     if (!match.result) continue;
@@ -46,7 +49,10 @@ export function detectRivalries(
     const meetings = pair.aWins + pair.bWins + pair.draws;
     if (meetings < 2) continue;
 
-    const intensity = Math.min(10, meetings * 2 + Math.abs(pair.aWins - pair.bWins));
+    const intensity = Math.min(
+      10,
+      meetings * 2 + Math.abs(pair.aWins - pair.bWins)
+    );
     const tag = generateRivalryTag({
       walletA: pair.walletA,
       walletB: pair.walletB,

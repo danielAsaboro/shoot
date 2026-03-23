@@ -35,14 +35,14 @@ function useUtcMidnightCountdown() {
     function compute() {
       const now = new Date();
       const utcMidnight = new Date(
-        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1),
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1)
       );
       const diff = utcMidnight.getTime() - now.getTime();
       const h = Math.floor(diff / 3_600_000);
       const m = Math.floor((diff % 3_600_000) / 60_000);
       const s = Math.floor((diff % 60_000) / 1_000);
       setRemaining(
-        `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`,
+        `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
       );
     }
 
@@ -60,7 +60,7 @@ export function DailyMissions({ missions, results }: Props) {
   const countdown = useUtcMidnightCountdown();
 
   const resultsByType = new Map(
-    (results ?? []).map((r) => [r.type, r.leaders]),
+    (results ?? []).map((r) => [r.type, r.leaders])
   );
 
   return (
@@ -88,7 +88,10 @@ export function DailyMissions({ missions, results }: Props) {
               background: "#FF3D3D",
             }}
           />
-          <span className="text-sm text-white/40" style={{ fontFamily: "var(--font-mono)" }}>
+          <span
+            className="text-sm text-white/40"
+            style={{ fontFamily: "var(--font-mono)" }}
+          >
             Resets in {countdown}
           </span>
         </div>
@@ -109,7 +112,12 @@ export function DailyMissions({ missions, results }: Props) {
                 <div className="flex items-center gap-2 mb-1">
                   <span
                     className="flex-shrink-0"
-                    style={{ width: 6, height: 6, minWidth: 6, background: "#00F0FF" }}
+                    style={{
+                      width: 6,
+                      height: 6,
+                      minWidth: 6,
+                      background: "#00F0FF",
+                    }}
                   />
                   <span className="text-sm font-semibold text-white">
                     {mission.name}
@@ -155,11 +163,18 @@ export function DailyMissions({ missions, results }: Props) {
                           >
                             {leader.rank}
                           </span>
-                          <span className="text-xs text-white/60" style={{ fontFamily: "var(--font-mono)" }}>
-                            {leader.wallet.slice(0, 4)}...{leader.wallet.slice(-4)}
+                          <span
+                            className="text-xs text-white/60"
+                            style={{ fontFamily: "var(--font-mono)" }}
+                          >
+                            {leader.wallet.slice(0, 4)}...
+                            {leader.wallet.slice(-4)}
                           </span>
                         </div>
-                        <span className="text-xs font-semibold text-white/80" style={{ fontFamily: "var(--font-mono)" }}>
+                        <span
+                          className="text-xs font-semibold text-white/80"
+                          style={{ fontFamily: "var(--font-mono)" }}
+                        >
                           {typeof leader.value === "number" &&
                           leader.value < 1 &&
                           leader.value > 0

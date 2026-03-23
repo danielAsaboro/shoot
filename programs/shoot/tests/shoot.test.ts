@@ -75,9 +75,7 @@ describe("shoot (LiteSVM)", () => {
       expect(challenge.profitTargetBps).to.equal(800);
       expect(challenge.maxDrawdownBps).to.equal(500);
       expect(challenge.dailyLossLimitBps).to.equal(300);
-      expect(challenge.durationSeconds).to.equal(
-        BigInt(7 * 24 * 60 * 60)
-      );
+      expect(challenge.durationSeconds).to.equal(BigInt(7 * 24 * 60 * 60));
       expect(challenge.minCapitalUsd).to.equal(BigInt(50));
       expect(challenge.participantCap).to.equal(128);
       expect(challenge.enrolledCount).to.equal(0);
@@ -97,9 +95,7 @@ describe("shoot (LiteSVM)", () => {
       expect(enrollment.trader.toBase58()).to.equal(
         trader.publicKey.toBase58()
       );
-      expect(enrollment.challenge.toBase58()).to.equal(
-        challengePda.toBase58()
-      );
+      expect(enrollment.challenge.toBase58()).to.equal(challengePda.toBase58());
       expect(enrollment.startingEquityUsd).to.equal(BigInt(500));
       expect(enrollment.settled).to.be.false;
       expect(enrollment.passed).to.be.false;
@@ -142,10 +138,7 @@ describe("shoot (LiteSVM)", () => {
       const failTrader = Keypair.generate();
       svm.airdrop(failTrader.publicKey, AIRDROP_AMOUNT);
 
-      const [failChallenge] = findChallengePda(
-        authority.publicKey,
-        failId
-      );
+      const [failChallenge] = findChallengePda(authority.publicKey, failId);
 
       // Create challenge
       sendTx(
@@ -165,11 +158,9 @@ describe("shoot (LiteSVM)", () => {
       );
 
       // Enroll
-      sendTx(
-        svm,
-        buildEnrollIx(failTrader.publicKey, failChallenge, 100),
-        [failTrader]
-      );
+      sendTx(svm, buildEnrollIx(failTrader.publicKey, failChallenge, 100), [
+        failTrader,
+      ]);
 
       // Settle as fail
       sendTx(
@@ -211,9 +202,7 @@ describe("shoot (LiteSVM)", () => {
 
       const [fundedPda] = findFundedPda(trader.publicKey);
       const funded = fetchFundedTrader(svm, fundedPda);
-      expect(funded.trader.toBase58()).to.equal(
-        trader.publicKey.toBase58()
-      );
+      expect(funded.trader.toBase58()).to.equal(trader.publicKey.toBase58());
       expect(funded.level).to.equal(FundedLevel.Watchlist);
       expect(funded.revenueShareBps).to.equal(150);
     });
@@ -259,10 +248,7 @@ describe("shoot (LiteSVM)", () => {
         [authority]
       );
 
-      const [tinyChallenge] = findChallengePda(
-        authority.publicKey,
-        tinyId
-      );
+      const [tinyChallenge] = findChallengePda(authority.publicKey, tinyId);
 
       // First enrollment succeeds
       const t1 = Keypair.generate();
@@ -301,18 +287,13 @@ describe("shoot (LiteSVM)", () => {
         [authority]
       );
 
-      const [unauthChallenge] = findChallengePda(
-        authority.publicKey,
-        unauthId
-      );
+      const [unauthChallenge] = findChallengePda(authority.publicKey, unauthId);
       const unauthTrader = Keypair.generate();
       svm.airdrop(unauthTrader.publicKey, AIRDROP_AMOUNT);
 
-      sendTx(
-        svm,
-        buildEnrollIx(unauthTrader.publicKey, unauthChallenge, 100),
-        [unauthTrader]
-      );
+      sendTx(svm, buildEnrollIx(unauthTrader.publicKey, unauthChallenge, 100), [
+        unauthTrader,
+      ]);
 
       // Try to settle with a random signer (not the authority)
       const imposter = Keypair.generate();
@@ -354,10 +335,7 @@ describe("shoot (LiteSVM)", () => {
         [authority]
       );
 
-      const [stateChallenge] = findChallengePda(
-        authority.publicKey,
-        stateId
-      );
+      const [stateChallenge] = findChallengePda(authority.publicKey, stateId);
 
       // Fetch raw account and flip state byte
       const acct = svm.getAccount(stateChallenge)!;
@@ -417,14 +395,8 @@ describe("shoot (LiteSVM)", () => {
 
     it("same trader + different challenges produce different enrollment PDAs", () => {
       const traderKey = Keypair.generate().publicKey;
-      const [challengeA] = findChallengePda(
-        authority.publicKey,
-        "challenge-a"
-      );
-      const [challengeB] = findChallengePda(
-        authority.publicKey,
-        "challenge-b"
-      );
+      const [challengeA] = findChallengePda(authority.publicKey, "challenge-a");
+      const [challengeB] = findChallengePda(authority.publicKey, "challenge-b");
 
       const [enrollA] = findEnrollmentPda(challengeA, traderKey);
       const [enrollB] = findEnrollmentPda(challengeB, traderKey);

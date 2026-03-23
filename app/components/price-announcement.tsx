@@ -45,10 +45,13 @@ export function PriceAnnouncement({ assets }: Props) {
       }
       prevPrices.current[a.symbol] = a.price;
     }
-    setFlash(next);
+    const frame = requestAnimationFrame(() => setFlash(next));
     const id = setTimeout(() => setFlash({}), 1200);
-    return () => clearTimeout(id);
-  }, [assets]);
+    return () => {
+      cancelAnimationFrame(frame);
+      clearTimeout(id);
+    };
+  }, [assets]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // cycle through assets
   useEffect(() => {
@@ -83,14 +86,14 @@ export function PriceAnnouncement({ assets }: Props) {
   const current = assets[activeIdx];
   const dir = flash[current.symbol];
   const priceColor =
-    dir === "up"
-      ? "#00FF87"
-      : dir === "down"
-        ? "#FF3D3D"
-        : "var(--foreground)";
+    dir === "up" ? "#00FF87" : dir === "down" ? "#FF3D3D" : "var(--foreground)";
 
   const translateY =
-    phase === "enter" ? "translateY(110%)" : phase === "exit" ? "translateY(-110%)" : "translateY(0)";
+    phase === "enter"
+      ? "translateY(110%)"
+      : phase === "exit"
+        ? "translateY(-110%)"
+        : "translateY(0)";
 
   const opacity = phase === "hold" ? 1 : 0.15;
 

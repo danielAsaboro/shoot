@@ -154,7 +154,10 @@ export async function resolveFundingSource(
         jsonrpc: "2.0",
         id: 2,
         method: "getTransaction",
-        params: [sig, { encoding: "jsonParsed", maxSupportedTransactionVersion: 0 }],
+        params: [
+          sig,
+          { encoding: "jsonParsed", maxSupportedTransactionVersion: 0 },
+        ],
       }),
     });
     const txJson = await txRes.json();
@@ -170,7 +173,7 @@ export async function resolveFundingSource(
     const feePayer =
       typeof accountKeys[0] === "string"
         ? accountKeys[0]
-        : accountKeys[0]?.pubkey ?? "unknown";
+        : (accountKeys[0]?.pubkey ?? "unknown");
 
     return {
       source: feePayer === address ? "self-funded" : feePayer,
@@ -187,7 +190,10 @@ export async function resolveFundingSource(
 }
 
 // In-memory cache to avoid redundant RPC calls within a single detection run
-const fundingSourceCache = new Map<string, { source: string; fundedAt: number }>();
+const fundingSourceCache = new Map<
+  string,
+  { source: string; fundedAt: number }
+>();
 
 /**
  * Build WalletInfo entries with real funding source data from Solana RPC.
@@ -311,7 +317,9 @@ export async function runSybilDetection(
       `${tradeProfiles.length} trade profiles, ${pnlProfiles.length} PnL profiles`
   );
 
-  const unknownCount = walletInfos.filter((w) => w.fundingSource === "unknown").length;
+  const unknownCount = walletInfos.filter(
+    (w) => w.fundingSource === "unknown"
+  ).length;
   if (unknownCount > 0) {
     console.log(
       `[sybil-workflow] ${unknownCount}/${wallets.length} wallets have unknown funding source ` +

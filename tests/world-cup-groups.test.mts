@@ -1,12 +1,24 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { drawGroups, generateRoundRobinSchedule } from "../lib/world-cup/group-draw.ts";
-import { createExpandedLeaderboard, runGroupStage, type WorldCupData } from "../lib/world-cup/engine.ts";
+import {
+  drawGroups,
+  generateRoundRobinSchedule,
+} from "../lib/world-cup/group-draw.ts";
+import {
+  createExpandedLeaderboard,
+  runGroupStage,
+  type WorldCupData,
+} from "../lib/world-cup/engine.ts";
 import { defaultWeights, defaultGuardrails } from "../lib/world-cup/types.ts";
 import { buildTestData } from "./world-cup-test-helpers.ts";
 
-const allDivisionData: WorldCupData = buildTestData(["crypto", "metals", "energy", "forex"]);
+const allDivisionData: WorldCupData = buildTestData([
+  "crypto",
+  "metals",
+  "energy",
+  "forex",
+]);
 
 test("drawGroups produces 8 groups of 4 from 32 qualifiers", () => {
   const leaderboard = createExpandedLeaderboard({
@@ -22,7 +34,11 @@ test("drawGroups produces 8 groups of 4 from 32 qualifiers", () => {
 
   assert.equal(groups.length, 8, "Should produce 8 groups");
   for (const group of groups) {
-    assert.equal(group.traders.length, 4, `${group.label} should have 4 traders`);
+    assert.equal(
+      group.traders.length,
+      4,
+      `${group.label} should have 4 traders`
+    );
   }
 });
 
@@ -39,7 +55,10 @@ test("drawGroups produces at least 1 Group of Death", () => {
   const groups = drawGroups(top32, "metals");
 
   const groupsOfDeath = groups.filter((g) => g.isGroupOfDeath);
-  assert.ok(groupsOfDeath.length >= 1, "At least 1 Group of Death should exist");
+  assert.ok(
+    groupsOfDeath.length >= 1,
+    "At least 1 Group of Death should exist"
+  );
 });
 
 test("drawGroups is deterministic across calls", () => {
@@ -58,7 +77,11 @@ test("drawGroups is deterministic across calls", () => {
   for (let i = 0; i < 8; i++) {
     const ids1 = groups1[i].traders.map((t) => t.trader.id).join(",");
     const ids2 = groups2[i].traders.map((t) => t.trader.id).join(",");
-    assert.equal(ids1, ids2, `Group ${i} should have same traders on repeated calls`);
+    assert.equal(
+      ids1,
+      ids2,
+      `Group ${i} should have same traders on repeated calls`
+    );
   }
 });
 
@@ -94,12 +117,18 @@ test("computeGroupStandings sorts correctly and marks top 2 as qualified", () =>
       weights: defaultWeights,
       guardrails: defaultGuardrails,
       data: allDivisionData,
-    }).slice(0, 32).map((e, i) => ({ ...e, rank: i + 1 })),
+    })
+      .slice(0, 32)
+      .map((e, i) => ({ ...e, rank: i + 1 })),
     "forex"
   );
 
   for (const group of groups) {
-    assert.equal(group.standings.length, 4, `${group.label} should have 4 standings`);
+    assert.equal(
+      group.standings.length,
+      4,
+      `${group.label} should have 4 standings`
+    );
 
     // Points should be descending
     for (let i = 0; i < group.standings.length - 1; i++) {
@@ -111,10 +140,17 @@ test("computeGroupStandings sorts correctly and marks top 2 as qualified", () =>
 
     // Top 2 qualified, bottom 2 not
     const qualified = group.standings.filter((s) => s.qualified);
-    assert.equal(qualified.length, 2, `${group.label} should have exactly 2 qualified`);
+    assert.equal(
+      qualified.length,
+      2,
+      `${group.label} should have exactly 2 qualified`
+    );
 
     // First should be group winner
-    assert.ok(group.standings[0].groupWinner, `${group.label} first place should be group winner`);
+    assert.ok(
+      group.standings[0].groupWinner,
+      `${group.label} first place should be group winner`
+    );
   }
 });
 
@@ -133,12 +169,24 @@ test("runGroupStage produces groups with matches and standings", () => {
   assert.equal(groups.length, 8);
 
   for (const group of groups) {
-    assert.equal(group.matches.length, 6, `${group.label} should have 6 matches`);
-    assert.equal(group.standings.length, 4, `${group.label} should have 4 standings`);
+    assert.equal(
+      group.matches.length,
+      6,
+      `${group.label} should have 6 matches`
+    );
+    assert.equal(
+      group.standings.length,
+      4,
+      `${group.label} should have 4 standings`
+    );
 
     // Each trader should have played 3 matches
     for (const standing of group.standings) {
-      assert.equal(standing.played, 3, `${standing.trader.alias} should have played 3 matches`);
+      assert.equal(
+        standing.played,
+        3,
+        `${standing.trader.alias} should have played 3 matches`
+      );
     }
   }
 });
@@ -151,7 +199,9 @@ test("standings tiebreakers work with head-to-head", () => {
       weights: defaultWeights,
       guardrails: defaultGuardrails,
       data: allDivisionData,
-    }).slice(0, 32).map((e, i) => ({ ...e, rank: i + 1 })),
+    })
+      .slice(0, 32)
+      .map((e, i) => ({ ...e, rank: i + 1 })),
     "metals"
   );
 

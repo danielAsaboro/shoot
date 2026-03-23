@@ -52,7 +52,12 @@ export interface MonthlyRevenueProjection {
 export const DEFAULT_TIER_STATS: TierCohortStats[] = [
   { tierId: "scout", entryFee: 2, expectedCohortSize: 80, monthlyCohorts: 12 },
   { tierId: "ranger", entryFee: 5, expectedCohortSize: 60, monthlyCohorts: 10 },
-  { tierId: "veteran", entryFee: 10, expectedCohortSize: 40, monthlyCohorts: 8 },
+  {
+    tierId: "veteran",
+    entryFee: 10,
+    expectedCohortSize: 40,
+    monthlyCohorts: 8,
+  },
   { tierId: "elite", entryFee: 25, expectedCohortSize: 25, monthlyCohorts: 6 },
   { tierId: "apex", entryFee: 50, expectedCohortSize: 15, monthlyCohorts: 4 },
 ];
@@ -87,11 +92,36 @@ export interface VolumeImpactProjection {
 }
 
 export const DEFAULT_VOLUME_STATS: TierVolumeStats[] = [
-  { tierId: "scout", avgTradesPerCohort: 8, avgNotionalPerTrade: 200, participantsPerMonth: 960 },
-  { tierId: "ranger", avgTradesPerCohort: 12, avgNotionalPerTrade: 800, participantsPerMonth: 600 },
-  { tierId: "veteran", avgTradesPerCohort: 15, avgNotionalPerTrade: 2000, participantsPerMonth: 320 },
-  { tierId: "elite", avgTradesPerCohort: 20, avgNotionalPerTrade: 8000, participantsPerMonth: 150 },
-  { tierId: "apex", avgTradesPerCohort: 25, avgNotionalPerTrade: 20000, participantsPerMonth: 60 },
+  {
+    tierId: "scout",
+    avgTradesPerCohort: 8,
+    avgNotionalPerTrade: 200,
+    participantsPerMonth: 960,
+  },
+  {
+    tierId: "ranger",
+    avgTradesPerCohort: 12,
+    avgNotionalPerTrade: 800,
+    participantsPerMonth: 600,
+  },
+  {
+    tierId: "veteran",
+    avgTradesPerCohort: 15,
+    avgNotionalPerTrade: 2000,
+    participantsPerMonth: 320,
+  },
+  {
+    tierId: "elite",
+    avgTradesPerCohort: 20,
+    avgNotionalPerTrade: 8000,
+    participantsPerMonth: 150,
+  },
+  {
+    tierId: "apex",
+    avgTradesPerCohort: 25,
+    avgNotionalPerTrade: 20000,
+    participantsPerMonth: 60,
+  },
 ];
 
 const CLOSE_FEE_BPS = 8; // 8 bps close fee
@@ -151,7 +181,8 @@ export const ADX_ACCRUAL_MECHANISMS: ADXAccrualMechanism[] = [
   {
     id: "specialist-adx-multiplier",
     label: "Specialist Bonus × ADX Stake",
-    description: "Staking ADX could amplify the specialist track bonus multiplier",
+    description:
+      "Staking ADX could amplify the specialist track bonus multiplier",
     estimatedMonthlyImpact: "Aligns token holding with competition rewards",
   },
 ];

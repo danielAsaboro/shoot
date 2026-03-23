@@ -7,7 +7,10 @@ import type {
   RiskEvent,
   SpectatorVote,
 } from "./types.ts";
-import { generatePropNarrativeBeats, findCohortGoldenTrade } from "./narrative.ts";
+import {
+  generatePropNarrativeBeats,
+  findCohortGoldenTrade,
+} from "./narrative.ts";
 import { detectRivalries } from "./rivalries.ts";
 
 // ── Crowd Favorites Computation ──────────────────────────────────────────────

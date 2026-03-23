@@ -18,7 +18,7 @@ const EVALUATORS: Record<
   (
     positions: Map<string, AdrenaPosition[]>,
     start: Date,
-    end: Date,
+    end: Date
   ) => { wallet: string; value: number; rank: number }[]
 > = {
   evaluateBestRoi,
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
   if (!cohortId) {
     return NextResponse.json(
       { error: "cohortId is required." },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
   if (!cohort) {
     return NextResponse.json(
       { error: `Cohort "${cohortId}" not found.` },
-      { status: 404 },
+      { status: 404 }
     );
   }
   const enrolledWallets = await getEnrolledWalletsForCohort(cohortId);
@@ -68,17 +68,17 @@ export async function POST(request: NextRequest) {
         positionsMap.set(wallet, positions);
       } catch (err) {
         fetchErrors.push(
-          `${wallet}: ${err instanceof Error ? err.message : String(err)}`,
+          `${wallet}: ${err instanceof Error ? err.message : String(err)}`
         );
       }
-    }),
+    })
   );
 
   // ── Determine today's window (UTC day) ─────────────────────────────────────
 
   const now = new Date();
   const windowStart = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
   );
   const windowEnd = new Date(windowStart.getTime() + 86_400_000);
 

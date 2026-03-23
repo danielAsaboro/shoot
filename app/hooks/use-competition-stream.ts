@@ -9,13 +9,18 @@ interface UseCompetitionStreamResult {
   lastUpdate: Date | null;
 }
 
-export function useCompetitionStream(enabled: boolean): UseCompetitionStreamResult {
+export function useCompetitionStream(
+  enabled: boolean
+): UseCompetitionStreamResult {
   const [standings, setStandings] = useState<StandingsEntry[] | null>(null);
   const [connected, setConnected] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
   const eventSourceRef = useRef<EventSource | null>(null);
-  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+  const connectRef = useRef<() => void>(() => {});
 
   const cleanup = useCallback(() => {
     if (eventSourceRef.current) {
@@ -59,17 +64,22 @@ export function useCompetitionStream(enabled: boolean): UseCompetitionStreamResu
       // Reconnect with 5s backoff
       reconnectTimeoutRef.current = setTimeout(() => {
         reconnectTimeoutRef.current = null;
-        connect();
+        connectRef.current();
       }, 5_000);
     };
   }, [cleanup]);
+
+  // Keep ref in sync with latest connect callback
+  useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
 
   useEffect(() => {
     if (enabled) {
       connect();
     } else {
       cleanup();
-      setConnected(false);
+      requestAnimationFrame(() => setConnected(false));
     }
 
     return cleanup;

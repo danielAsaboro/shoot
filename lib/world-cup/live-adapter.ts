@@ -66,9 +66,10 @@ export function adrenaToWorldCupMetrics(params: {
 
   // Max single-trade share — estimate from volume and trade count
   const avgTradeSize = tradeCount > 0 ? volumeUsd / tradeCount : volumeUsd;
-  const maxSingleTradeShare = volumeUsd > 0
-    ? Math.min(100, (avgTradeSize / volumeUsd) * 100 * 1.5) // ~1.5x average as rough max
-    : 100;
+  const maxSingleTradeShare =
+    volumeUsd > 0
+      ? Math.min(100, (avgTradeSize / volumeUsd) * 100 * 1.5) // ~1.5x average as rough max
+      : 100;
 
   return {
     riskAdjustedPnl: Math.max(0, riskAdjustedPnl),
@@ -116,9 +117,24 @@ function inferDivision(custodyMints: string[]): AssetClassId {
   // These are rough heuristics based on Adrena's custody mint naming
   // In production, this would map against the custody-map.ts definitions
   const mintStr = custodyMints.join(" ").toLowerCase();
-  if (mintStr.includes("gold") || mintStr.includes("silver") || mintStr.includes("xau")) return "metals";
-  if (mintStr.includes("oil") || mintStr.includes("gas") || mintStr.includes("wti")) return "energy";
-  if (mintStr.includes("eur") || mintStr.includes("gbp") || mintStr.includes("jpy")) return "forex";
+  if (
+    mintStr.includes("gold") ||
+    mintStr.includes("silver") ||
+    mintStr.includes("xau")
+  )
+    return "metals";
+  if (
+    mintStr.includes("oil") ||
+    mintStr.includes("gas") ||
+    mintStr.includes("wti")
+  )
+    return "energy";
+  if (
+    mintStr.includes("eur") ||
+    mintStr.includes("gbp") ||
+    mintStr.includes("jpy")
+  )
+    return "forex";
   return "crypto";
 }
 
@@ -185,9 +201,8 @@ export async function loadLiveWorldCupTraders(
   for (const score of scores) {
     const quests = questByWallet.get(score.wallet) ?? [];
     const completedQuests = quests.filter((q) => q.completedAt !== null).length;
-    const questCompletionPercent = quests.length > 0
-      ? (completedQuests / quests.length) * 100
-      : 50; // Default mid-range
+    const questCompletionPercent =
+      quests.length > 0 ? (completedQuests / quests.length) * 100 : 50; // Default mid-range
 
     const streakDays = streakByWallet.get(score.wallet) ?? 0;
     const raffleTickets = raffleByWallet.get(score.wallet) ?? 0;

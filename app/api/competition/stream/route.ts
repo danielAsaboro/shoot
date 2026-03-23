@@ -1,6 +1,9 @@
 import { getCompetitionSnapshotResponse } from "@/lib/competition/provider";
 import type { StandingsEntry } from "@/lib/competition/types";
-import { AdrenaWsConsumer, type ParsedTradeEvent } from "@/lib/adrena/ws-consumer";
+import {
+  AdrenaWsConsumer,
+  type ParsedTradeEvent,
+} from "@/lib/adrena/ws-consumer";
 import { generatePropNarrativeBeats } from "@/lib/competition/narrative";
 import {
   generateStorylineBeats,
@@ -106,7 +109,8 @@ export async function GET() {
                 );
 
                 // Storyline beats (continuity, archetypes, closing gaps)
-                const prevStandings = previousStandingsByCohort.get(cohort.id) ?? [];
+                const prevStandings =
+                  previousStandingsByCohort.get(cohort.id) ?? [];
                 const storylineBeats = generateStorylineBeats(
                   cohort.id,
                   cohort.standings,
@@ -115,10 +119,16 @@ export async function GET() {
 
                 // Match summary beats
                 const matchSummaryBeats = (cohort.matchups ?? [])
-                  .map((m) => generateMatchSummary(m, cohort.standings, cohort.id))
+                  .map((m) =>
+                    generateMatchSummary(m, cohort.standings, cohort.id)
+                  )
                   .filter((b): b is NonNullable<typeof b> => b !== null);
 
-                const allBeats = [...coreBeats, ...storylineBeats, ...matchSummaryBeats];
+                const allBeats = [
+                  ...coreBeats,
+                  ...storylineBeats,
+                  ...matchSummaryBeats,
+                ];
 
                 // Store current standings for next comparison
                 previousStandingsByCohort.set(cohort.id, [...cohort.standings]);

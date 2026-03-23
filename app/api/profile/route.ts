@@ -21,39 +21,33 @@ export async function GET(request: NextRequest) {
 
   try {
     // Run all queries in parallel
-    const [
-      scores,
-      results,
-      streak,
-      quests,
-      enrollments,
-      worldCupMatches,
-    ] = await Promise.all([
-      prisma.traderScore.findMany({
-        where: { wallet },
-        orderBy: { computedAt: "desc" },
-      }),
-      prisma.competitionResult.findMany({
-        where: { wallet },
-        orderBy: { completedAt: "desc" },
-      }),
-      prisma.streakState.findUnique({
-        where: { wallet },
-      }),
-      prisma.questProgress.findMany({
-        where: { wallet },
-      }),
-      prisma.enrollment.findMany({
-        where: { wallet },
-        orderBy: { enrolledAt: "desc" },
-      }),
-      prisma.worldCupMatch.findMany({
-        where: {
-          OR: [{ traderA: wallet }, { traderB: wallet }],
-        },
-        orderBy: { scheduledAt: "desc" },
-      }),
-    ]);
+    const [scores, results, streak, quests, enrollments, worldCupMatches] =
+      await Promise.all([
+        prisma.traderScore.findMany({
+          where: { wallet },
+          orderBy: { computedAt: "desc" },
+        }),
+        prisma.competitionResult.findMany({
+          where: { wallet },
+          orderBy: { completedAt: "desc" },
+        }),
+        prisma.streakState.findUnique({
+          where: { wallet },
+        }),
+        prisma.questProgress.findMany({
+          where: { wallet },
+        }),
+        prisma.enrollment.findMany({
+          where: { wallet },
+          orderBy: { enrolledAt: "desc" },
+        }),
+        prisma.worldCupMatch.findMany({
+          where: {
+            OR: [{ traderA: wallet }, { traderB: wallet }],
+          },
+          orderBy: { scheduledAt: "desc" },
+        }),
+      ]);
 
     // If we have no data at all, return not found
     if (
@@ -79,14 +73,17 @@ export async function GET(request: NextRequest) {
       : null;
 
     // --- Overall score: best tournament score ---
-    const overallScore = scores.length > 0
-      ? Math.max(...scores.map((s) => s.tournamentScore))
-      : 0;
+    const overallScore =
+      scores.length > 0 ? Math.max(...scores.map((s) => s.tournamentScore)) : 0;
 
     // --- Season rank: best finalRank from results ---
-    const bestResult = results.length > 0
-      ? results.reduce((best, r) => (r.finalRank < best.finalRank ? r : best), results[0])
-      : null;
+    const bestResult =
+      results.length > 0
+        ? results.reduce(
+            (best, r) => (r.finalRank < best.finalRank ? r : best),
+            results[0]
+          )
+        : null;
     const seasonRank = bestResult?.finalRank ?? null;
 
     // --- Funded status ---
@@ -148,7 +145,8 @@ export async function GET(request: NextRequest) {
         /^(sprint|scout|ranger|veteran|elite|apex)/i
       );
       const tier = tierMatch
-        ? tierMatch[1].charAt(0).toUpperCase() + tierMatch[1].slice(1).toLowerCase()
+        ? tierMatch[1].charAt(0).toUpperCase() +
+          tierMatch[1].slice(1).toLowerCase()
         : r.cohortId;
 
       const passed = r.fundedStatus != null || r.finalRank <= 5;

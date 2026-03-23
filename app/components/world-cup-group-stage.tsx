@@ -43,9 +43,7 @@ function StandingRow({
       }}
     >
       <td className="px-2 py-2 text-center" style={{ fontSize: "1rem" }}>
-        <span className="font-display font-bold text-white/60">
-          {position}
-        </span>
+        <span className="font-display font-bold text-white/60">{position}</span>
         {isWinner && (
           <span
             className="ml-1 inline-block"
@@ -78,7 +76,10 @@ function StandingRow({
       <td className="px-2 py-2 text-center font-mono text-xs text-white/60">
         {standing.lost}
       </td>
-      <td className="px-2 py-2 text-center font-mono text-xs font-bold" style={{ color: accent }}>
+      <td
+        className="px-2 py-2 text-center font-mono text-xs font-bold"
+        style={{ color: accent }}
+      >
         {standing.points}
       </td>
       <td
@@ -158,13 +159,7 @@ function MatchResult({ match }: { match: GroupMatch }) {
   );
 }
 
-function GroupCard({
-  group,
-  accent,
-}: {
-  group: Group;
-  accent: string;
-}) {
+function GroupCard({ group, accent }: { group: Group; accent: string }) {
   const [expanded, setExpanded] = useState(false);
   const matchdays = [1, 2, 3];
 
@@ -173,9 +168,7 @@ function GroupCard({
       className="border overflow-hidden"
       style={{
         borderRadius: "4px",
-        background: group.isGroupOfDeath
-          ? "rgba(255,61,61,0.04)"
-          : "#0a0a0a",
+        background: group.isGroupOfDeath ? "rgba(255,61,61,0.04)" : "#0a0a0a",
         borderColor: group.isGroupOfDeath
           ? "rgba(255,61,61,0.25)"
           : "rgba(255,255,255,0.08)",
@@ -307,7 +300,9 @@ export function WorldCupGroupStage({
           <p className="font-display text-[10px] uppercase tracking-[0.2em] text-white/40">
             Group Stage
           </p>
-          <h3 className="font-display font-bold text-white uppercase tracking-wide">{c.label}</h3>
+          <h3 className="font-display font-bold text-white uppercase tracking-wide">
+            {c.label}
+          </h3>
         </div>
         <div className="flex items-center gap-3">
           <span

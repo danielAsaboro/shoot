@@ -17,7 +17,14 @@ export type AbuseFlagDetail = {
 };
 
 // Shared across both formats
-export type FundedStatus = "none" | "watchlist" | "qualified" | "funded" | "senior_funded" | "captain" | "partner";
+export type FundedStatus =
+  | "none"
+  | "watchlist"
+  | "qualified"
+  | "funded"
+  | "senior_funded"
+  | "captain"
+  | "partner";
 export type StreakState = "alive" | "warning" | "broken";
 export type CompetitionState = "upcoming" | "live" | "closed";
 

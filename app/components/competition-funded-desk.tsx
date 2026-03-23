@@ -1,7 +1,10 @@
 "use client";
 
 import { FUNDED_LADDER } from "@/lib/competition/funded-ladder";
-import type { FundedDeskConfig, FundedDeskLevel } from "@/lib/competition/types";
+import type {
+  FundedDeskConfig,
+  FundedDeskLevel,
+} from "@/lib/competition/types";
 
 // ── Props ────────────────────────────────────────────────────────────────────
 
@@ -45,17 +48,21 @@ function LadderTierCard({
           : isPast
             ? `${color}05`
             : "rgba(255,255,255,0.02)",
-        borderColor: isActive ? `${color}40` : isPast ? `${color}15` : "rgba(255,255,255,0.08)",
+        borderColor: isActive
+          ? `${color}40`
+          : isPast
+            ? `${color}15`
+            : "rgba(255,255,255,0.08)",
         opacity: isPast || isActive ? 1 : 0.5,
       }}
     >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <div
-            className="h-3 w-3"
-            style={{ background: color }}
-          />
-          <span className="text-sm font-bold" style={{ color: isActive ? color : "white" }}>
+          <div className="h-3 w-3" style={{ background: color }} />
+          <span
+            className="text-sm font-bold"
+            style={{ color: isActive ? color : "white" }}
+          >
             {config.label}
           </span>
         </div>
@@ -68,14 +75,18 @@ function LadderTierCard({
           </span>
         )}
         {isPast && !isActive && (
-          <span className="text-[9px] font-bold" style={{ color: "#00FF87" }}>EARNED</span>
+          <span className="text-[9px] font-bold" style={{ color: "#00FF87" }}>
+            EARNED
+          </span>
         )}
       </div>
 
       <div className="grid grid-cols-3 gap-2 text-xs mb-3">
         <div>
           <p className="text-white/40">Points</p>
-          <p className="font-mono font-semibold">{config.pointsThreshold.toLocaleString()}</p>
+          <p className="font-mono font-semibold">
+            {config.pointsThreshold.toLocaleString()}
+          </p>
         </div>
         <div>
           <p className="text-white/40">Min Finish</p>
@@ -83,7 +94,9 @@ function LadderTierCard({
         </div>
         <div>
           <p className="text-white/40">Active Weeks</p>
-          <p className="font-mono font-semibold">{config.minConsecutiveWeeks}</p>
+          <p className="font-mono font-semibold">
+            {config.minConsecutiveWeeks}
+          </p>
         </div>
       </div>
 
@@ -122,11 +135,24 @@ export function CompetitionFundedDesk({
   return (
     <div className="space-y-6">
       {/* Design-phase notice */}
-      <div style={{ borderRadius: 4, border: "1px solid rgba(0,240,255,0.2)", background: "rgba(0,240,255,0.05)", padding: "0.75rem 1rem", fontSize: "0.75rem", color: "rgba(0,240,255,0.8)" }}>
+      <div
+        style={{
+          borderRadius: 4,
+          border: "1px solid rgba(0,240,255,0.2)",
+          background: "rgba(0,240,255,0.05)",
+          padding: "0.75rem 1rem",
+          fontSize: "0.75rem",
+          color: "rgba(0,240,255,0.8)",
+        }}
+      >
         <strong style={{ color: "#00F0FF" }}>Design Proposal</strong> — The
         evaluation engine is implemented. Revenue share distribution and
         on-chain capital allocation require protocol integration.{" "}
-        <a href="/docs/funded-trader-proposal.md" className="underline underline-offset-2" style={{ color: "#00F0FF" }}>
+        <a
+          href="/docs/funded-trader-proposal.md"
+          className="underline underline-offset-2"
+          style={{ color: "#00F0FF" }}
+        >
           See integration path →
         </a>
       </div>
@@ -135,8 +161,18 @@ export function CompetitionFundedDesk({
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <div className="stat-card">
           <span>Current Level</span>
-          <strong style={{ color: currentLevel !== "none" ? LEVEL_COLORS[currentLevel as FundedDeskLevel] : "#94a3b8" }}>
-            {currentLevel === "none" ? "Unranked" : FUNDED_LADDER.find((c) => c.level === currentLevel)?.label ?? currentLevel}
+          <strong
+            style={{
+              color:
+                currentLevel !== "none"
+                  ? LEVEL_COLORS[currentLevel as FundedDeskLevel]
+                  : "#94a3b8",
+            }}
+          >
+            {currentLevel === "none"
+              ? "Unranked"
+              : (FUNDED_LADDER.find((c) => c.level === currentLevel)?.label ??
+                currentLevel)}
           </strong>
         </div>
         <div className="stat-card">
@@ -151,7 +187,10 @@ export function CompetitionFundedDesk({
 
       {/* Promotion progress bar */}
       {currentIdx < FUNDED_LADDER.length - 1 && currentIdx >= 0 && (
-        <div className="border border-white/10 bg-white/[0.02] p-4" style={{ borderRadius: 4 }}>
+        <div
+          className="border border-white/10 bg-white/[0.02] p-4"
+          style={{ borderRadius: 4 }}
+        >
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs font-semibold uppercase tracking-wider text-white/50">
               Promotion Progress
@@ -170,7 +209,8 @@ export function CompetitionFundedDesk({
             />
           </div>
           <p className="mt-1.5 text-[10px] text-white/30">
-            {(promotionProgress * 100).toFixed(0)}% — meet points, finish, and active weeks requirements
+            {(promotionProgress * 100).toFixed(0)}% — meet points, finish, and
+            active weeks requirements
           </p>
         </div>
       )}

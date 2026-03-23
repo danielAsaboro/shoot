@@ -1,5 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# claude
+CLAUDE.md
+
 # dependencies
 /node_modules
 /.pnp
@@ -51,3 +54,10 @@ programs/**/target/
 programs/**/node_modules/
 programs/**/package-lock.json
 programs/**/Cargo.lock
+
+# sdk
+sdk/node_modules/
+sdk/dist/
+
+# keeper
+keeper/target/

@@ -1,6 +1,11 @@
 export type AssetClassId = "crypto" | "metals" | "energy" | "forex";
 
-export type ScenarioId = "specialization" | "bubble" | "finals" | "integrity" | "group_stage";
+export type ScenarioId =
+  | "specialization"
+  | "bubble"
+  | "finals"
+  | "integrity"
+  | "group_stage";
 
 export type ScoreWeights = {
   riskAdjustedPnl: number;
@@ -366,7 +371,11 @@ export type MarketTwist = {
 
 // ── Power-ups ─────────────────────────────────────────────────────────────────
 
-export type PowerUpType = "mulligan" | "double_points" | "market_swap" | "overtime_shield";
+export type PowerUpType =
+  | "mulligan"
+  | "double_points"
+  | "market_swap"
+  | "overtime_shield";
 
 export type PowerUp = {
   type: PowerUpType;
@@ -389,25 +398,29 @@ export const POWER_UP_CATALOG: PowerUp[] = [
   {
     type: "mulligan",
     label: "Mulligan",
-    description: "Cancel your worst single trade from this match's scoring window. The trade's P&L and volume are excluded from RAROI computation.",
+    description:
+      "Cancel your worst single trade from this match's scoring window. The trade's P&L and volume are excluded from RAROI computation.",
     eligibleRounds: ["round-of-16", "quarterfinal", "semifinal"],
   },
   {
     type: "double_points",
     label: "Double Points",
-    description: "2x scoring multiplier on all trades for a 24-hour window within the match. Must be activated before the midpoint.",
+    description:
+      "2x scoring multiplier on all trades for a 24-hour window within the match. Must be activated before the midpoint.",
     eligibleRounds: ["round-of-16", "quarterfinal"],
   },
   {
     type: "market_swap",
     label: "Market Swap",
-    description: "Switch your division's required market to any other market in the same asset class. Lasts for the remainder of the match.",
+    description:
+      "Switch your division's required market to any other market in the same asset class. Lasts for the remainder of the match.",
     eligibleRounds: ["quarterfinal", "semifinal"],
   },
   {
     type: "overtime_shield",
     label: "Overtime Shield",
-    description: "If the match is within 5% score differential at expiry, extend it by 12 hours. Both traders continue trading.",
+    description:
+      "If the match is within 5% score differential at expiry, extend it by 12 hours. Both traders continue trading.",
     eligibleRounds: ["semifinal", "final"],
   },
 ];
@@ -419,4 +432,3 @@ export const KNOCKOUT_BUYIN_USDC = 10;
 
 /** Funded Traders skip the knockout buy-in (incentive for Prop Challenge progression). */
 export const FUNDED_TRADER_BUYIN_EXEMPT = true;
-

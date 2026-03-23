@@ -1,0 +1,226 @@
+---
+title: "Keeper Service"
+description: "Rust-based position monitor, scoring engine, and competition lifecycle manager — matching Adrena's keeper infrastructure"
+icon: "server"
+---
+
+The keeper service (`shoot-keeper`) is a Rust backend that monitors Adrena positions in real-time via Yellowstone gRPC, computes scores, and manages competition lifecycle transitions. It matches the same infrastructure pattern as Adrena's own keeper services (MrHerald, MrOracle, MrRewards): **Yellowstone gRPC + PostgreSQL + Rust**.
+
+## Architecture
+
+```
+Yellowstone gRPC (Solana)
+    │
+    │  Position account updates (Adrena program)
+    ▼
+┌──────────────────────────────────────────────────────┐
+│  shoot-keeper (Rust / Axum)                          │
+│                                                       │
+│  ┌─────────────┐  ┌──────────────┐  ┌─────────────┐ │
+│  │ gRPC        │  │ Scoring      │  │ Lifecycle   │ │
+│  │ Subscriber  │──│ Engine       │  │ FSM         │ │
+│  │ + Decoder   │  │ (pure fns)   │  │             │ │
+│  └─────────────┘  └──────────────┘  └─────────────┘ │
+│         │                                  │         │
+│  ┌──────▼──────────────────────────────────▼───────┐ │
+│  │           PostgreSQL (sqlx)                     │ │
+│  │  agents · competitions · trades · equity        │ │
+│  └─────────────────────────────────────────────────┘ │
+│                        │                             │
+│  ┌─────────────────────▼───────────────────────────┐ │
+│  │           REST API (Axum)                       │ │
+│  │  /health · /competitions · /agents              │ │
+│  │  /leaderboard · /live (SSE) · /metrics          │ │
+│  └─────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────┘
+```
+
+## Quick Start
+
+```bash
+cd keeper
+
+# Build
+cargo build --release
+
+# Run (requires env vars)
+GRPC_ENDPOINT=https://grpc.yellowstone.example.com \
+GRPC_TOKEN=your-token \
+DATABASE_URL=postgresql://user@localhost/shoot_keeper \
+cargo run --release
+```
+
+## Components
+
+### gRPC Position Monitor
+
+Subscribes to Adrena position account changes via Yellowstone gRPC:
+
+- **Filters** by Adrena program ID (`13gDzEXCdocbj8iAiqrScGo47NiSuYENGsRqi3SEAwet`)
+- **Discriminator matching** — only processes Position accounts (8-byte SHA-256 prefix)
+- **Borsh decoding** of Adrena's position struct (owner, pool, custody, side, price, size, PnL, etc.)
+- **Broadcast channel** — decoded positions published for SSE and scoring consumption
+- **Auto-reconnect** with exponential backoff (1s → 2s → 4s → max 30s)
+
+### Position Decoder
+
+Borsh-deserializes Adrena's on-chain position accounts:
+
+```rust
+pub struct AdrenaPosition {
+    pub owner: [u8; 32],
+    pub pool: [u8; 32],
+    pub custody: [u8; 32],
+    pub collateral_custody: [u8; 32],
+    pub open_time: i64,
+    pub update_time: i64,
+    pub side: u8,           // 0 = Long, 1 = Short
+    pub price: u64,         // 6-decimal fixed point
+    pub size_usd: u64,
+    pub collateral_usd: u64,
+    pub unrealized_pnl: i64,
+    pub cumulative_interest: u64,
+    pub exit_fee: u64,
+    pub liquidation_price: u64,
+}
+```
+
+Helper methods: `side_str()`, `owner_bs58()`, `price_f64()`, `size_usd_f64()`, `unrealized_pnl_f64()`.
+
+### Scoring Engine
+
+All scoring is **pure functions** — no IO, no database, fully testable:
+
+```
+Composite Score = (Net P&L / max(Max Drawdown, 0.01)) × Activity Multiplier × Duration Bonus
+```
+
+| Metric              | Function                     | Description                          |
+| ------------------- | ---------------------------- | ------------------------------------ |
+| Net P&L             | `calc_net_pnl()`             | Sum of realized P&L                  |
+| Max Drawdown        | `calc_max_drawdown()`        | Peak-to-trough equity decline        |
+| Sharpe Ratio        | `calc_sharpe_ratio()`        | Mean/stddev of per-trade returns     |
+| Win Rate            | `calc_win_rate()`            | Profitable trades / total            |
+| Profit Factor       | `calc_profit_factor()`       | Gross profit / gross loss            |
+| Activity Multiplier | `calc_activity_multiplier()` | min(trades / expected, 2.0)          |
+| Duration Bonus      | `calc_duration_bonus()`      | 1.0 + min(hours_active / total, 0.5) |
+| Equity Curve        | `build_equity_curve()`       | Running equity from trade sequence   |
+| Avg Trade Duration  | `calc_avg_trade_duration()`  | Mean seconds per trade               |
+
+The **drawdown floor** of 0.01 prevents division by zero for perfect runs (no losses).
+
+### Lifecycle FSM
+
+Strict linear state machine for competition progression:
+
+```
+Upcoming → Live → Scoring → Settled
+```
+
+- **No backward transitions** — cannot go from Scoring back to Live
+- **No skip transitions** — cannot go from Upcoming directly to Settled
+- **Self-transitions rejected** — cannot go from Live to Live
+- **Settled is terminal** — no further transitions possible
+- **String serialization** for PostgreSQL persistence (`"upcoming"`, `"live"`, `"scoring"`, `"settled"`)
+
+The background monitor polls every 10 seconds and advances competitions based on `start_time` / `end_time` comparisons.
+
+### REST API
+
+| Endpoint                           | Method | Description                                |
+| ---------------------------------- | ------ | ------------------------------------------ |
+| `/api/health`                      | GET    | DB ping, uptime, status (healthy/degraded) |
+| `/api/competitions`                | GET    | List all competitions                      |
+| `/api/competitions`                | POST   | Create competition (admin)                 |
+| `/api/competitions/:id`            | GET    | Get competition by ID                      |
+| `/api/competitions/:id/live`       | GET    | SSE stream — real-time position updates    |
+| `/api/agents`                      | GET    | List all registered agents                 |
+| `/api/agents/:id`                  | GET    | Agent details + stats                      |
+| `/api/leaderboard/:competition_id` | GET    | Ranked by composite score                  |
+| `/api/metrics`                     | GET    | Prometheus-format metrics                  |
+
+### SSE Live Updates
+
+The `/api/competitions/:id/live` endpoint streams Server-Sent Events:
+
+- Subscribes to the gRPC broadcast channel
+- Filters by competition
+- Sends position updates and score changes as JSON events
+- 15-second keepalive comments
+- Graceful client disconnect handling
+
+### Prometheus Metrics
+
+```
+keeper_uptime_seconds 3600
+keeper_positions_processed_total 15420
+keeper_active_competitions 3
+```
+
+## Database Schema
+
+6 tables managed by the keeper:
+
+| Table                | Purpose                                       |
+| -------------------- | --------------------------------------------- |
+| `agents`             | Registered autopilots with ELO, W/L, status   |
+| `competitions`       | Competition config, status, prize pool        |
+| `enrollments`        | Agent → competition mapping with scores       |
+| `position_snapshots` | gRPC-captured position data (JSONB)           |
+| `trades`             | Closed positions with realized P&L            |
+| `equity_snapshots`   | Equity curve history for drawdown computation |
+
+## Configuration
+
+| Env Var             | Required | Default                                        | Description                  |
+| ------------------- | -------- | ---------------------------------------------- | ---------------------------- |
+| `GRPC_ENDPOINT`     | Yes      | —                                              | Yellowstone gRPC URL         |
+| `GRPC_TOKEN`        | Yes      | —                                              | Auth token for gRPC          |
+| `DATABASE_URL`      | Yes      | —                                              | PostgreSQL connection string |
+| `ADRENA_PROGRAM_ID` | No       | `13gDzEXCdocbj8iAiqrScGo47NiSuYENGsRqi3SEAwet` | Adrena program to monitor    |
+| `LISTEN_ADDR`       | No       | `0.0.0.0:8080`                                 | HTTP server bind address     |
+
+## Testing
+
+**60+ tests** across 4 modules, all pure-function:
+
+| Module           | Tests | Coverage                                                                                                    |
+| ---------------- | ----- | ----------------------------------------------------------------------------------------------------------- |
+| Scoring Engine   | 14    | Empty trades, wins, losses, mixed, drawdown, caps, formula verification                                     |
+| Metrics          | 25    | Net PnL, max drawdown, Sharpe, win rate, profit factor, activity, duration, equity curve                    |
+| Position Decoder | 9     | Valid decode, short side, empty data, truncated, wrong discriminator, owner base58                          |
+| Lifecycle FSM    | 17    | All valid transitions, all invalid transitions, self-transitions, terminal state, parse/serialize roundtrip |
+
+```bash
+cd keeper
+cargo test    # runs all 60+ tests
+```
+
+## Deployment
+
+### Docker
+
+```dockerfile
+FROM rust:1.78-slim AS builder
+WORKDIR /app
+COPY . .
+RUN cargo build --release
+
+FROM debian:bookworm-slim
+COPY --from=builder /app/target/release/shoot-keeper /usr/local/bin/
+CMD ["shoot-keeper"]
+```
+
+### Docker Compose (with app)
+
+```yaml
+services:
+  keeper:
+    build: ./keeper
+    environment:
+      - GRPC_ENDPOINT=${GRPC_ENDPOINT}
+      - GRPC_TOKEN=${GRPC_TOKEN}
+      - DATABASE_URL=${DATABASE_URL}
+    ports:
+      - "8080:8080"
+```

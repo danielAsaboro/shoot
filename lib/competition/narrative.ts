@@ -26,8 +26,10 @@ export function generatePropNarrativeBeats(
 
   // ── Rank surge: trader climbed 3+ ranks (uses previousRank if available) ──
   for (const entry of standings) {
-    const rankDelta = (entry as StandingsEntry & { previousRank?: number }).previousRank
-      ? ((entry as StandingsEntry & { previousRank?: number }).previousRank! - entry.rank)
+    const rankDelta = (entry as StandingsEntry & { previousRank?: number })
+      .previousRank
+      ? (entry as StandingsEntry & { previousRank?: number }).previousRank! -
+        entry.rank
       : 0;
 
     if (rankDelta >= 3) {
@@ -48,7 +50,8 @@ export function generatePropNarrativeBeats(
       beats.push({
         type: "drawdown-recovery",
         headline: `IRON HANDS: ${entry.displayName} hits +${entry.pnlPercent.toFixed(1)}% with only ${entry.maxDrawdownPercent.toFixed(1)}% max drawdown`,
-        subtext: "Clean risk profile with strong returns. Textbook challenge execution.",
+        subtext:
+          "Clean risk profile with strong returns. Textbook challenge execution.",
         timestamp: now - Math.floor(Math.random() * 1800000),
         severity: "hype",
         cohortId,
@@ -77,7 +80,8 @@ export function generatePropNarrativeBeats(
       beats.push({
         type: "funded-promotion",
         headline: `FUNDED: ${entry.displayName} locks in funded trader status at #${entry.rank}`,
-        subtext: "Revenue share and capital allocation unlocked for the season.",
+        subtext:
+          "Revenue share and capital allocation unlocked for the season.",
         timestamp: now - Math.floor(Math.random() * 600000),
         severity: "hype",
         cohortId,
@@ -89,8 +93,12 @@ export function generatePropNarrativeBeats(
   for (const match of matchups) {
     if (!match.result || match.result.isDraw) continue;
 
-    const winnerEntry = standings.find((s) => s.wallet === match.result!.winnerId);
-    const loserEntry = standings.find((s) => s.wallet === match.result!.loserId);
+    const winnerEntry = standings.find(
+      (s) => s.wallet === match.result!.winnerId
+    );
+    const loserEntry = standings.find(
+      (s) => s.wallet === match.result!.loserId
+    );
 
     if (winnerEntry && loserEntry && winnerEntry.rank > loserEntry.rank + 5) {
       beats.push({
@@ -119,7 +127,8 @@ export function generatePropNarrativeBeats(
 
   // ── Streak milestone (uses streakDays from standings if available) ──
   for (const entry of standings) {
-    const streakDays = (entry as StandingsEntry & { streakDays?: number }).streakDays ?? 0;
+    const streakDays =
+      (entry as StandingsEntry & { streakDays?: number }).streakDays ?? 0;
     if (streakDays >= 10) {
       beats.push({
         type: "streak-milestone",
@@ -228,7 +237,7 @@ export function findCohortGoldenTrade(
     displayName: best.displayName,
     market: best.badge ?? "PERP",
     direction: best.pnlPercent > 0 ? "long" : "short",
-    pnlUsd: Math.round(best.volumeUsd * best.pnlPercent / 100),
+    pnlUsd: Math.round((best.volumeUsd * best.pnlPercent) / 100),
     pnlPercent: best.pnlPercent,
     leverage: 1,
     cohortContext: `${cohortId} — ranked #${best.rank}`,

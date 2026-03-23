@@ -30,9 +30,7 @@ export const FUNDED_LADDER: FundedDeskConfig[] = [
     minFinish: 15,
     minConsecutiveWeeks: 1,
     revenueShareBps: 150,
-    perks: [
-      "Badge, priority cohort invites",
-    ],
+    perks: ["Badge, priority cohort invites"],
   },
   {
     level: "funded",
@@ -41,9 +39,7 @@ export const FUNDED_LADDER: FundedDeskConfig[] = [
     minFinish: 5,
     minConsecutiveWeeks: 2,
     revenueShareBps: 450,
-    perks: [
-      "Private desk chat, analytics dashboard",
-    ],
+    perks: ["Private desk chat, analytics dashboard"],
   },
   {
     level: "senior_funded",
@@ -52,9 +48,7 @@ export const FUNDED_LADDER: FundedDeskConfig[] = [
     minFinish: 3,
     minConsecutiveWeeks: 4,
     revenueShareBps: 700,
-    perks: [
-      "Direct support access, premium analytics",
-    ],
+    perks: ["Direct support access, premium analytics"],
   },
   {
     level: "captain",
@@ -63,9 +57,7 @@ export const FUNDED_LADDER: FundedDeskConfig[] = [
     minFinish: 1,
     minConsecutiveWeeks: 6,
     revenueShareBps: 1000,
-    perks: [
-      "Desk leadership, strategy sessions",
-    ],
+    perks: ["Desk leadership, strategy sessions"],
   },
   {
     level: "partner",
@@ -74,9 +66,7 @@ export const FUNDED_LADDER: FundedDeskConfig[] = [
     minFinish: 1,
     minConsecutiveWeeks: 12,
     revenueShareBps: 1500,
-    perks: [
-      "Governance participation, protocol advisory",
-    ],
+    perks: ["Governance participation, protocol advisory"],
   },
 ];
 
@@ -118,8 +108,14 @@ export function computePromotionProgress(
 
   // Progress is the minimum of the three criteria ratios
   const pointsProgress = Math.min(1, seasonPoints / next.pointsThreshold);
-  const finishProgress = bestFinish <= next.minFinish ? 1 : Math.max(0, 1 - (bestFinish - next.minFinish) / 15);
-  const weeksProgress = Math.min(1, consecutiveWeeks / next.minConsecutiveWeeks);
+  const finishProgress =
+    bestFinish <= next.minFinish
+      ? 1
+      : Math.max(0, 1 - (bestFinish - next.minFinish) / 15);
+  const weeksProgress = Math.min(
+    1,
+    consecutiveWeeks / next.minConsecutiveWeeks
+  );
 
   const progress = Number(
     Math.min(pointsProgress, finishProgress, weeksProgress).toFixed(3)

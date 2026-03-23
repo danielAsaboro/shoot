@@ -38,6 +38,9 @@ test("world cup snapshot works for all four cups", async () => {
       weights: defaultWeights,
       guardrails: defaultGuardrails,
     });
-    assert.ok(snapshot.leaderboard.length > 0, `${cupId} leaderboard should have entries`);
+    assert.ok(
+      snapshot.leaderboard.length > 0,
+      `${cupId} leaderboard should have entries`
+    );
   }
 });

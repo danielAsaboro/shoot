@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import type { ChallengeTier, ChallengeTierId, SpecialistChallenge, SpecialistType } from "@/lib/competition/types";
+import type {
+  ChallengeTier,
+  ChallengeTierId,
+  SpecialistChallenge,
+  SpecialistType,
+} from "@/lib/competition/types";
 import { challengeTiers, specialistChallenges } from "@/lib/competition/tiers";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -15,9 +20,19 @@ interface Props {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const tierOrder: ChallengeTierId[] = ["sprint", "scout", "ranger", "veteran", "elite", "apex"];
+const tierOrder: ChallengeTierId[] = [
+  "sprint",
+  "scout",
+  "ranger",
+  "veteran",
+  "elite",
+  "apex",
+];
 
-const tierColors: Record<ChallengeTierId, { bg: string; border: string; accent: string; text: string }> = {
+const tierColors: Record<
+  ChallengeTierId,
+  { bg: string; border: string; accent: string; text: string }
+> = {
   sprint: {
     bg: "rgba(0,240,255,0.03)",
     border: "rgba(0,240,255,0.19)",
@@ -56,7 +71,10 @@ const tierColors: Record<ChallengeTierId, { bg: string; border: string; accent: 
   },
 };
 
-const specialistColors: Record<SpecialistType, { letter: string; accent: string; label: string }> = {
+const specialistColors: Record<
+  SpecialistType,
+  { letter: string; accent: string; label: string }
+> = {
   crypto: { letter: "B", accent: "#3D7FFF", label: "Crypto" },
   metals: { letter: "M", accent: "#BFFF00", label: "Metals" },
   energy: { letter: "E", accent: "#FF3D3D", label: "Energy" },
@@ -141,14 +159,25 @@ function OnboardingModal({ onDismiss }: { onDismiss: () => void }) {
               {step + 1}
             </div>
             <div>
-              <p className="font-display text-[10px] uppercase tracking-wider text-white/40">STEP {step + 1} OF {steps.length}</p>
-              <h3 className="font-display text-base font-bold uppercase text-white">{current.title}</h3>
+              <p className="font-display text-[10px] uppercase tracking-wider text-white/40">
+                STEP {step + 1} OF {steps.length}
+              </p>
+              <h3 className="font-display text-base font-bold uppercase text-white">
+                {current.title}
+              </h3>
             </div>
           </div>
-          <button onClick={onDismiss} className="text-white/30 hover:text-white/70 text-lg leading-none">×</button>
+          <button
+            onClick={onDismiss}
+            className="text-white/30 hover:text-white/70 text-lg leading-none"
+          >
+            ×
+          </button>
         </div>
 
-        <p className="font-sans text-sm text-white/70 leading-relaxed mb-6">{current.body}</p>
+        <p className="font-sans text-sm text-white/70 leading-relaxed mb-6">
+          {current.body}
+        </p>
 
         {/* Progress dots — sharp rectangles */}
         <div className="flex gap-1.5 justify-center mb-5">
@@ -214,10 +243,21 @@ function EntryConfirmModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
       <div
         className="w-full max-w-sm border bg-[#0a0a0a] p-6 shadow-2xl"
-        style={{ borderRadius: "4px", borderColor: c.border, boxShadow: `0 0 60px ${c.accent}22` }}
+        style={{
+          borderRadius: "4px",
+          borderColor: c.border,
+          boxShadow: `0 0 60px ${c.accent}22`,
+        }}
       >
-        <h3 className="mb-1 font-display text-xl font-bold uppercase" style={{ color: c.text }}>{tier.name} Challenge</h3>
-        <p className="mb-5 text-sm text-white/50">Confirm your entry. Rules are binding from the moment you pay.</p>
+        <h3
+          className="mb-1 font-display text-xl font-bold uppercase"
+          style={{ color: c.text }}
+        >
+          {tier.name} Challenge
+        </h3>
+        <p className="mb-5 text-sm text-white/50">
+          Confirm your entry. Rules are binding from the moment you pay.
+        </p>
 
         <div
           className="mb-5 space-y-2 border border-white/8 bg-white/[0.03] p-4"
@@ -233,7 +273,9 @@ function EntryConfirmModal({
             ["Retry discount", `${tier.retryDiscount}% off within 48h`],
           ].map(([k, v]) => (
             <div key={k} className="flex justify-between text-sm">
-              <span className="text-white/50 font-display uppercase text-xs tracking-wide">{k}</span>
+              <span className="text-white/50 font-display uppercase text-xs tracking-wide">
+                {k}
+              </span>
               <span className="font-mono font-semibold text-white">{v}</span>
             </div>
           ))}
@@ -248,7 +290,8 @@ function EntryConfirmModal({
             color: "#66F7FF",
           }}
         >
-          Fee split: 60% → prize pool · 25% → ADX buyback · 15% → consolation raffle
+          Fee split: 60% → prize pool · 25% → ADX buyback · 15% → consolation
+          raffle
         </div>
 
         <div className="flex gap-3">
@@ -297,7 +340,9 @@ function TierCard({
         borderColor: isExpanded ? c.border : "rgba(255,255,255,0.08)",
         borderTopWidth: isExpanded ? "4px" : "1px",
         borderTopColor: isExpanded ? c.accent : undefined,
-        boxShadow: isExpanded ? `0 -8px 30px ${c.accent}12, 0 0 30px ${c.accent}08` : "none",
+        boxShadow: isExpanded
+          ? `0 -8px 30px ${c.accent}12, 0 0 30px ${c.accent}08`
+          : "none",
       }}
       onClick={onExpand}
     >
@@ -317,7 +362,9 @@ function TierCard({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-display font-bold text-white uppercase tracking-wide">{tier.name}</span>
+              <span className="font-display font-bold text-white uppercase tracking-wide">
+                {tier.name}
+              </span>
               {isFunded && (
                 <span
                   className="px-2 py-0.5 text-[10px] font-bold font-display uppercase tracking-wider"
@@ -337,26 +384,51 @@ function TierCard({
         </div>
         <div className="flex items-center gap-4 text-right">
           <div>
-            <p className="font-display text-[10px] text-white/30 uppercase tracking-wider">Fee</p>
-            <p className="font-mono text-sm font-bold" style={{ color: c.text }}>${tier.entryFee}</p>
+            <p className="font-display text-[10px] text-white/30 uppercase tracking-wider">
+              Fee
+            </p>
+            <p
+              className="font-mono text-sm font-bold"
+              style={{ color: c.text }}
+            >
+              ${tier.entryFee}
+            </p>
           </div>
           <div>
-            <p className="font-display text-[10px] text-white/30 uppercase tracking-wider">Target</p>
-            <p className="font-mono text-sm font-bold" style={{ color: "#00FF87" }}>+{tier.profitTarget}%</p>
+            <p className="font-display text-[10px] text-white/30 uppercase tracking-wider">
+              Target
+            </p>
+            <p
+              className="font-mono text-sm font-bold"
+              style={{ color: "#00FF87" }}
+            >
+              +{tier.profitTarget}%
+            </p>
           </div>
           <svg
-            width="16" height="16" viewBox="0 0 16 16" fill="none"
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
             className="text-white/30 transition-transform duration-300"
             style={{ transform: isExpanded ? "rotate(180deg)" : "none" }}
           >
-            <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <path
+              d="M4 6l4 4 4-4"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
           </svg>
         </div>
       </div>
 
       {/* Expanded details */}
       {isExpanded && (
-        <div className="border-t px-4 pb-4 pt-3" style={{ borderColor: c.border }}>
+        <div
+          className="border-t px-4 pb-4 pt-3"
+          style={{ borderColor: c.border }}
+        >
           <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm mb-4 sm:grid-cols-3">
             {[
               ["Max drawdown", `${tier.maxDrawdown}%`],
@@ -367,8 +439,12 @@ function TierCard({
               ["Rewards", tierRewards[tier.id]],
             ].map(([k, v]) => (
               <div key={k}>
-                <p className="font-display text-[10px] text-white/30 uppercase tracking-wider">{k}</p>
-                <p className="font-mono text-xs font-semibold text-white">{v}</p>
+                <p className="font-display text-[10px] text-white/30 uppercase tracking-wider">
+                  {k}
+                </p>
+                <p className="font-mono text-xs font-semibold text-white">
+                  {v}
+                </p>
               </div>
             ))}
           </div>
@@ -379,7 +455,10 @@ function TierCard({
               <span>Historical pass rate</span>
               <span className="font-mono">{tierPassRates[tier.id]}</span>
             </div>
-            <div className="h-[3px] w-full overflow-hidden bg-white/10" style={{ borderRadius: "0px" }}>
+            <div
+              className="h-[3px] w-full overflow-hidden bg-white/10"
+              style={{ borderRadius: "0px" }}
+            >
               <div
                 className="h-full transition-all duration-700"
                 style={{
@@ -394,9 +473,16 @@ function TierCard({
           <div className="flex gap-3">
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); onSelect(); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect();
+              }}
               className="flex-1 py-2.5 text-sm font-semibold text-black transition font-display uppercase tracking-wide"
-              style={{ borderRadius: "2px", background: c.accent, opacity: 0.95 }}
+              style={{
+                borderRadius: "2px",
+                background: c.accent,
+                opacity: 0.95,
+              }}
             >
               Enter {tier.name} — ${tier.entryFee} USDC
             </button>
@@ -444,8 +530,12 @@ function SpecialistCard({
             {info.letter}
           </div>
           <div>
-            <p className="text-sm font-bold font-display uppercase tracking-wide text-white">{challenge.name}</p>
-            <p className="text-xs text-white/40">{challenge.markets.join(", ")}</p>
+            <p className="text-sm font-bold font-display uppercase tracking-wide text-white">
+              {challenge.name}
+            </p>
+            <p className="text-xs text-white/40">
+              {challenge.markets.join(", ")}
+            </p>
           </div>
         </div>
         <div
@@ -461,15 +551,21 @@ function SpecialistCard({
       </div>
       <div className="flex gap-3 text-xs">
         <div>
-          <p className="text-white/30 font-display uppercase tracking-wider">Entry</p>
+          <p className="text-white/30 font-display uppercase tracking-wider">
+            Entry
+          </p>
           <p className="font-mono font-bold text-white">5 USDC</p>
         </div>
         <div>
-          <p className="text-white/30 font-display uppercase tracking-wider">Duration</p>
+          <p className="text-white/30 font-display uppercase tracking-wider">
+            Duration
+          </p>
           <p className="font-mono font-bold text-white">7 days</p>
         </div>
         <div>
-          <p className="text-white/30 font-display uppercase tracking-wider">Trades required</p>
+          <p className="text-white/30 font-display uppercase tracking-wider">
+            Trades required
+          </p>
           <p className="font-mono font-bold text-white">Specialist only</p>
         </div>
       </div>
@@ -479,13 +575,22 @@ function SpecialistCard({
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function TierSelector({ isAuthenticated, onSelectTier, onLogin }: Props) {
-  const [expandedTier, setExpandedTier] = useState<ChallengeTierId | null>("scout");
+export function TierSelector({
+  isAuthenticated,
+  onSelectTier,
+  onLogin,
+}: Props) {
+  const [expandedTier, setExpandedTier] = useState<ChallengeTierId | null>(
+    "scout"
+  );
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [confirmTier, setConfirmTier] = useState<ChallengeTier | null>(null);
 
   const allTiers = tierOrder.map((id) => challengeTiers[id]);
-  const allSpecialists = Object.entries(specialistChallenges) as [SpecialistType, SpecialistChallenge][];
+  const allSpecialists = Object.entries(specialistChallenges) as [
+    SpecialistType,
+    SpecialistChallenge,
+  ][];
 
   function handleSelectTier(tierId: ChallengeTierId) {
     if (!isAuthenticated) {
@@ -503,7 +608,9 @@ export function TierSelector({ isAuthenticated, onSelectTier, onLogin }: Props) 
 
   return (
     <>
-      {showOnboarding && <OnboardingModal onDismiss={() => setShowOnboarding(false)} />}
+      {showOnboarding && (
+        <OnboardingModal onDismiss={() => setShowOnboarding(false)} />
+      )}
       {confirmTier && (
         <EntryConfirmModal
           tier={confirmTier}
@@ -515,7 +622,9 @@ export function TierSelector({ isAuthenticated, onSelectTier, onLogin }: Props) 
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h2 className="section-title font-display uppercase tracking-wider">Challenge Tiers</h2>
+          <h2 className="section-title font-display uppercase tracking-wider">
+            Challenge Tiers
+          </h2>
           <button
             type="button"
             onClick={() => setShowOnboarding(true)}
@@ -532,7 +641,9 @@ export function TierSelector({ isAuthenticated, onSelectTier, onLogin }: Props) 
               key={tier.id}
               tier={tier}
               isExpanded={expandedTier === tier.id}
-              onExpand={() => setExpandedTier(expandedTier === tier.id ? null : tier.id)}
+              onExpand={() =>
+                setExpandedTier(expandedTier === tier.id ? null : tier.id)
+              }
               onSelect={() => handleSelectTier(tier.id)}
             />
           ))}
@@ -541,7 +652,9 @@ export function TierSelector({ isAuthenticated, onSelectTier, onLogin }: Props) 
         {/* Specialist challenges */}
         <div>
           <div className="mb-3 flex items-center gap-2">
-            <h3 className="font-display text-sm font-bold uppercase tracking-wider text-white">Specialist Tracks</h3>
+            <h3 className="font-display text-sm font-bold uppercase tracking-wider text-white">
+              Specialist Tracks
+            </h3>
             <span
               className="px-2 py-0.5 text-[10px] font-semibold font-display uppercase tracking-wider"
               style={{
@@ -555,7 +668,8 @@ export function TierSelector({ isAuthenticated, onSelectTier, onLogin }: Props) 
             </span>
           </div>
           <p className="mb-4 text-xs text-white/40">
-            Trade specific asset classes. The hook for Adrena&apos;s RWA markets — once you trade Gold on-chain, the behavioral barrier is broken.
+            Trade specific asset classes. The hook for Adrena&apos;s RWA markets
+            — once you trade Gold on-chain, the behavioral barrier is broken.
           </p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {allSpecialists.map(([type, challenge]) => (
@@ -563,18 +677,22 @@ export function TierSelector({ isAuthenticated, onSelectTier, onLogin }: Props) 
                 key={type}
                 type={type}
                 challenge={challenge}
-                onSelect={() => isAuthenticated ? setConfirmTier({
-                  id: "scout", // specialist uses scout-level rules
-                  name: challenge.name,
-                  entryFee: 5,
-                  profitTarget: 8,
-                  maxDrawdown: 5,
-                  dailyLossLimit: 3,
-                  durationDays: 7,
-                  fundedEligible: false,
-                  retryDiscount: 30,
-                  minCapital: 50,
-                }) : onLogin()}
+                onSelect={() =>
+                  isAuthenticated
+                    ? setConfirmTier({
+                        id: "scout", // specialist uses scout-level rules
+                        name: challenge.name,
+                        entryFee: 5,
+                        profitTarget: 8,
+                        maxDrawdown: 5,
+                        dailyLossLimit: 3,
+                        durationDays: 7,
+                        fundedEligible: false,
+                        retryDiscount: 30,
+                        minCapital: 50,
+                      })
+                    : onLogin()
+                }
               />
             ))}
           </div>
@@ -590,7 +708,9 @@ export function TierSelector({ isAuthenticated, onSelectTier, onLogin }: Props) 
               background: "rgba(0,240,255,0.04)",
             }}
           >
-            <p className="mb-3 text-sm" style={{ color: "#66F7FF" }}>Sign in to start your first challenge</p>
+            <p className="mb-3 text-sm" style={{ color: "#66F7FF" }}>
+              Sign in to start your first challenge
+            </p>
             <button
               type="button"
               onClick={onLogin}

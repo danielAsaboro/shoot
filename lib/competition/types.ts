@@ -27,7 +27,13 @@ export interface ChallengePreset {
   raffleTickets: number;
 }
 
-export type ChallengeTierId = "sprint" | "scout" | "ranger" | "veteran" | "elite" | "apex";
+export type ChallengeTierId =
+  | "sprint"
+  | "scout"
+  | "ranger"
+  | "veteran"
+  | "elite"
+  | "apex";
 
 export interface ChallengeTier {
   id: ChallengeTierId;
@@ -45,7 +51,12 @@ export interface ChallengeTier {
   allowedMarkets?: string[];
 }
 
-export type SpecialistType = "crypto" | "metals" | "energy" | "forex" | "multi_asset";
+export type SpecialistType =
+  | "crypto"
+  | "metals"
+  | "energy"
+  | "forex"
+  | "multi_asset";
 
 export interface SpecialistChallenge {
   type: SpecialistType;
@@ -411,7 +422,12 @@ export interface DeskStanding {
 
 // ── Funded Progression (Sprint 3) ───────────────────────────────────────────
 
-export type FundedDeskLevel = "watchlist" | "funded" | "senior_funded" | "captain" | "partner";
+export type FundedDeskLevel =
+  | "watchlist"
+  | "funded"
+  | "senior_funded"
+  | "captain"
+  | "partner";
 
 export interface FundedDeskConfig {
   level: FundedDeskLevel;

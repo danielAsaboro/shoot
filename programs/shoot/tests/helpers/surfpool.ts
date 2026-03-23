@@ -78,8 +78,7 @@ export function createSurfpoolClient(
     async setAccount(pubkey, opts): Promise<void> {
       const params: Record<string, unknown> = {};
       if (opts.lamports !== undefined) params.lamports = opts.lamports;
-      if (opts.data !== undefined)
-        params.data = opts.data.toString("base64");
+      if (opts.data !== undefined) params.data = opts.data.toString("base64");
       if (opts.owner !== undefined) params.owner = opts.owner.toBase58();
       if (opts.executable !== undefined) params.executable = opts.executable;
       await surfnetRpc(rpcUrl, "surfnet_setAccount", [

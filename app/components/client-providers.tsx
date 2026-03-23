@@ -6,8 +6,7 @@ import dynamic from "next/dynamic";
 import type { PropsWithChildren } from "react";
 
 const PrivyProviders = dynamic(
-  () =>
-    import("./providers").then((m) => ({ default: m.Providers })),
+  () => import("./providers").then((m) => ({ default: m.Providers })),
   { ssr: false, loading: () => null }
 );
 

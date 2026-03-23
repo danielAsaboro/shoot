@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, type PropsWithChildren } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  type PropsWithChildren,
+} from "react";
 
 export type SolanaCluster = "localnet" | "devnet" | "mainnet";
 
@@ -48,8 +54,7 @@ export function ClusterProvider({ children }: PropsWithChildren) {
     }
   }, []);
 
-  const rpcUrl =
-    process.env.NEXT_PUBLIC_SOLANA_RPC ?? CLUSTER_RPC_MAP[cluster];
+  const rpcUrl = process.env.NEXT_PUBLIC_SOLANA_RPC ?? CLUSTER_RPC_MAP[cluster];
 
   return (
     <ClusterContext.Provider value={{ cluster, rpcUrl, setCluster }}>

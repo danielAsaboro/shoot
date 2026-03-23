@@ -1,7 +1,10 @@
+import type { CompetitionConfig } from "./types.ts";
 import type {
-  CompetitionConfig,
+  ChallengeTier,
+  ChallengeTierId,
+  SpecialistChallenge,
+  SpecialistType,
 } from "./types.ts";
-import type { ChallengeTier, ChallengeTierId, SpecialistChallenge, SpecialistType } from "./types.ts";
 
 export const competitionConfig: CompetitionConfig = {
   seasonId: "season-7",
@@ -127,40 +130,41 @@ export const challengeTiers: Record<ChallengeTierId, ChallengeTier> = {
   },
 };
 
-export const specialistChallenges: Record<SpecialistType, SpecialistChallenge> = {
-  crypto: {
-    type: "crypto",
-    name: "Crypto Track",
-    markets: ["BTC", "SOL", "BONK", "ETH"],
-    bonusMultiplier: 1.1,
-    launchPhase: 1,
-  },
-  metals: {
-    type: "metals",
-    name: "Metals Track",
-    markets: ["XAU", "XAG"],
-    bonusMultiplier: 1.2,
-    launchPhase: 1,
-  },
-  energy: {
-    type: "energy",
-    name: "Energy Track",
-    markets: ["WTI", "Brent", "NatGas"],
-    bonusMultiplier: 1.2,
-    launchPhase: 1,
-  },
-  forex: {
-    type: "forex",
-    name: "Forex Track",
-    markets: ["EUR/USD", "GBP/USD", "USD/JPY"],
-    bonusMultiplier: 1.15,
-    launchPhase: 2,
-  },
-  multi_asset: {
-    type: "multi_asset",
-    name: "Multi-Asset Track",
-    markets: ["BTC", "ETH", "XAU", "EUR/USD", "WTI"],
-    bonusMultiplier: 1.25,
-    launchPhase: 3,
-  },
-};
+export const specialistChallenges: Record<SpecialistType, SpecialistChallenge> =
+  {
+    crypto: {
+      type: "crypto",
+      name: "Crypto Track",
+      markets: ["BTC", "SOL", "BONK", "ETH"],
+      bonusMultiplier: 1.1,
+      launchPhase: 1,
+    },
+    metals: {
+      type: "metals",
+      name: "Metals Track",
+      markets: ["XAU", "XAG"],
+      bonusMultiplier: 1.2,
+      launchPhase: 1,
+    },
+    energy: {
+      type: "energy",
+      name: "Energy Track",
+      markets: ["WTI", "Brent", "NatGas"],
+      bonusMultiplier: 1.2,
+      launchPhase: 1,
+    },
+    forex: {
+      type: "forex",
+      name: "Forex Track",
+      markets: ["EUR/USD", "GBP/USD", "USD/JPY"],
+      bonusMultiplier: 1.15,
+      launchPhase: 2,
+    },
+    multi_asset: {
+      type: "multi_asset",
+      name: "Multi-Asset Track",
+      markets: ["BTC", "ETH", "XAU", "EUR/USD", "WTI"],
+      bonusMultiplier: 1.25,
+      launchPhase: 3,
+    },
+  };

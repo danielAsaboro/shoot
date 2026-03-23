@@ -136,15 +136,16 @@ export interface SizeMultiplierResult {
 
 function getCompetitionServiceBaseUrl(): string {
   const host =
-    process.env.ADRENA_WS_HOST ??
-    "adrena-competition-service.onrender.com";
+    process.env.ADRENA_WS_HOST ?? "adrena-competition-service.onrender.com";
   const key = process.env.ADRENA_API_KEY;
   if (!key) throw new Error("ADRENA_API_KEY is not set");
   return `https://${host}/${key}`;
 }
 
 /** Fetch the full size multiplier lookup table from the competition service. */
-export async function fetchSizeMultiplierTable(): Promise<SizeMultiplierTier[]> {
+export async function fetchSizeMultiplierTable(): Promise<
+  SizeMultiplierTier[]
+> {
   const base = getCompetitionServiceBaseUrl();
   const res = await fetch(`${base}/size-multiplier`);
   if (!res.ok)
@@ -157,9 +158,7 @@ export async function calculateSizeMultiplier(
   sizeUsd: number
 ): Promise<SizeMultiplierResult> {
   const base = getCompetitionServiceBaseUrl();
-  const res = await fetch(
-    `${base}/size-multiplier/calculate?size=${sizeUsd}`
-  );
+  const res = await fetch(`${base}/size-multiplier/calculate?size=${sizeUsd}`);
   if (!res.ok)
     throw new Error(`Size multiplier calculation failed: ${res.status}`);
   return res.json() as Promise<SizeMultiplierResult>;
@@ -180,9 +179,7 @@ export async function fetchCompetitionServiceHealth(): Promise<{
 // ─── Data API Client ────────────────────────────────────────────────────────
 
 function getBaseUrl(): string {
-  return (
-    process.env.ADRENA_DATA_API_BASE_URL ?? "https://datapi.adrena.trade"
-  );
+  return process.env.ADRENA_DATA_API_BASE_URL ?? "https://datapi.adrena.trade";
 }
 
 async function get<T>(path: string, revalidate = 60): Promise<T> {

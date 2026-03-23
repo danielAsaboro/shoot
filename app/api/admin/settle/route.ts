@@ -1,5 +1,15 @@
-import { getLeaderboard, getEnrollmentsForCohort, saveCompetitionResult, getCohort, updateCohortState } from "@/lib/db/queries";
-import { executeSettlements, loadAuthorityKeypair, usdToUsdc } from "@/lib/solana/settle";
+import {
+  getLeaderboard,
+  getEnrollmentsForCohort,
+  saveCompetitionResult,
+  getCohort,
+  updateCohortState,
+} from "@/lib/db/queries";
+import {
+  executeSettlements,
+  loadAuthorityKeypair,
+  usdToUsdc,
+} from "@/lib/solana/settle";
 import { competitionConfig } from "@/lib/competition/config";
 import { prisma } from "@/lib/db/client";
 import { NextRequest, NextResponse } from "next/server";
@@ -59,7 +69,8 @@ export async function POST(request: NextRequest) {
       const rank = i + 1;
       const passed = score.pnlPercent > 0 && score.maxDrawdownPercent < 15;
 
-      const splitFraction = rank <= prizePoolSplit.length ? prizePoolSplit[rank - 1] : 0;
+      const splitFraction =
+        rank <= prizePoolSplit.length ? prizePoolSplit[rank - 1] : 0;
       const payoutUsd = passed ? rewardPoolUsd * splitFraction : 0;
 
       // Save competition result to DB
@@ -84,7 +95,12 @@ export async function POST(request: NextRequest) {
     }
 
     // ── On-chain settlement execution ──────────────────────────────────
-    let onChainResult: { signatures: string[]; errors: Array<{ wallet: string; error: string }> } | undefined;
+    let onChainResult:
+      | {
+          signatures: string[];
+          errors: Array<{ wallet: string; error: string }>;
+        }
+      | undefined;
 
     if (executeOnChain) {
       const authority = loadAuthorityKeypair();

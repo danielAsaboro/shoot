@@ -77,10 +77,7 @@ export async function executeSettlements(params: {
   dryRun?: boolean;
 }): Promise<SettlementResult> {
   const { authority, challengeId, settlements, dryRun } = params;
-  const connection = new Connection(
-    params.rpcUrl ?? getRpcUrl(),
-    "confirmed"
-  );
+  const connection = new Connection(params.rpcUrl ?? getRpcUrl(), "confirmed");
 
   const [challengePda] = findChallengePda(authority.publicKey, challengeId);
   const [vaultPda] = findVaultPda(challengePda);
@@ -92,7 +89,10 @@ export async function executeSettlements(params: {
     try {
       const traderPk = new PublicKey(entry.wallet);
       const [enrollmentPda] = findEnrollmentPda(challengePda, traderPk);
-      const traderUsdc = await getAssociatedTokenAddress(getUsdcMint(), traderPk);
+      const traderUsdc = await getAssociatedTokenAddress(
+        getUsdcMint(),
+        traderPk
+      );
 
       // Step 1: Submit result
       const submitIx = await buildSubmitResultInstruction({

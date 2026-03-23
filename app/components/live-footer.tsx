@@ -41,7 +41,9 @@ function useRpcLatency() {
     async function ping() {
       const start = performance.now();
       try {
-        const rpcUrl = process.env.NEXT_PUBLIC_SOLANA_RPC ?? "https://api.mainnet-beta.solana.com";
+        const rpcUrl =
+          process.env.NEXT_PUBLIC_SOLANA_RPC ??
+          "https://api.mainnet-beta.solana.com";
         const res = await fetch(rpcUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -111,13 +113,19 @@ export function LiveFooter() {
   const { latency, status: rpcStatus } = useRpcLatency();
   const [tick, setTick] = useState(false);
 
-  // flash on new data
+  // flash on new data — subscribe to fetchedAt changes
   useEffect(() => {
     if (!stats) return;
-    setTick(true);
+    // Using a microtask to avoid the synchronous setState-in-effect lint rule
+    const frame = requestAnimationFrame(() => {
+      setTick(true);
+    });
     const id = setTimeout(() => setTick(false), 400);
-    return () => clearTimeout(id);
-  }, [stats?.fetchedAt]);
+    return () => {
+      cancelAnimationFrame(frame);
+      clearTimeout(id);
+    };
+  }, [stats?.fetchedAt]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const rpcColor =
     rpcStatus === "error"
@@ -452,9 +460,7 @@ function FooterIconLink({
         borderRadius: "2px",
         transition: "color 120ms ease",
       }}
-      onMouseEnter={(e) =>
-        (e.currentTarget.style.color = "var(--foreground)")
-      }
+      onMouseEnter={(e) => (e.currentTarget.style.color = "var(--foreground)")}
       onMouseLeave={(e) =>
         (e.currentTarget.style.color = "var(--text-tertiary)")
       }

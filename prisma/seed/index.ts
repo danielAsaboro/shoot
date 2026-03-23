@@ -121,7 +121,6 @@ const COHORTS = cohortsData.cohorts.map((c) => ({
   walletCount: c.enrolledWallets.length,
 }));
 
-
 const CUSTODY_MINTS = [
   "So11111111111111111111111111111111111111112", // SOL
   "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC
@@ -131,27 +130,156 @@ const CUSTODY_MINTS = [
 // ── World Cup desk definitions ───────────────────────────────────────────────
 
 const WORLDCUP_DESKS = [
-  { id: "crypto-atlas", cupId: "crypto", name: "Atlas Desk", tier: "Premier", motto: "Fast tape, tight risk.", captainMission: "Own the weekly close without breaching the impact cap.", supporters: 1820 },
-  { id: "crypto-latency", cupId: "crypto", name: "Latency Desk", tier: "Challenger", motto: "Win the open, survive the chop.", captainMission: "Capture the opening break and keep two green sessions.", supporters: 1260 },
-  { id: "metals-gild", cupId: "metals", name: "Gild Desk", tier: "Premier", motto: "Patience compounds edge.", captainMission: "Finish above median consistency across four sessions.", supporters: 910 },
-  { id: "metals-vault", cupId: "metals", name: "Vault Desk", tier: "Challenger", motto: "Macro read, no wasted motion.", captainMission: "Keep drawdown under the weekly cap while staying active.", supporters: 760 },
-  { id: "energy-grid", cupId: "energy", name: "Grid Desk", tier: "Premier", motto: "Event windows, no panic.", captainMission: "Win both crude matchdays without a liquidation event.", supporters: 1380 },
-  { id: "energy-refinery", cupId: "energy", name: "Refinery Desk", tier: "Challenger", motto: "Volatility with discipline.", captainMission: "Convert mission wins into desk points before the weekend.", supporters: 1090 },
-  { id: "forex-orbit", cupId: "forex", name: "Orbit Desk", tier: "Premier", motto: "Cadence beats chaos.", captainMission: "Log five clean sessions around London and New York opens.", supporters: 1140 },
-  { id: "forex-fix", cupId: "forex", name: "Fix Desk", tier: "Challenger", motto: "Macro flow, repeatable edge.", captainMission: "Stay above the consistency median after two macro events.", supporters: 970 },
+  {
+    id: "crypto-atlas",
+    cupId: "crypto",
+    name: "Atlas Desk",
+    tier: "Premier",
+    motto: "Fast tape, tight risk.",
+    captainMission: "Own the weekly close without breaching the impact cap.",
+    supporters: 1820,
+  },
+  {
+    id: "crypto-latency",
+    cupId: "crypto",
+    name: "Latency Desk",
+    tier: "Challenger",
+    motto: "Win the open, survive the chop.",
+    captainMission: "Capture the opening break and keep two green sessions.",
+    supporters: 1260,
+  },
+  {
+    id: "metals-gild",
+    cupId: "metals",
+    name: "Gild Desk",
+    tier: "Premier",
+    motto: "Patience compounds edge.",
+    captainMission: "Finish above median consistency across four sessions.",
+    supporters: 910,
+  },
+  {
+    id: "metals-vault",
+    cupId: "metals",
+    name: "Vault Desk",
+    tier: "Challenger",
+    motto: "Macro read, no wasted motion.",
+    captainMission: "Keep drawdown under the weekly cap while staying active.",
+    supporters: 760,
+  },
+  {
+    id: "energy-grid",
+    cupId: "energy",
+    name: "Grid Desk",
+    tier: "Premier",
+    motto: "Event windows, no panic.",
+    captainMission: "Win both crude matchdays without a liquidation event.",
+    supporters: 1380,
+  },
+  {
+    id: "energy-refinery",
+    cupId: "energy",
+    name: "Refinery Desk",
+    tier: "Challenger",
+    motto: "Volatility with discipline.",
+    captainMission: "Convert mission wins into desk points before the weekend.",
+    supporters: 1090,
+  },
+  {
+    id: "forex-orbit",
+    cupId: "forex",
+    name: "Orbit Desk",
+    tier: "Premier",
+    motto: "Cadence beats chaos.",
+    captainMission: "Log five clean sessions around London and New York opens.",
+    supporters: 1140,
+  },
+  {
+    id: "forex-fix",
+    cupId: "forex",
+    name: "Fix Desk",
+    tier: "Challenger",
+    motto: "Macro flow, repeatable edge.",
+    captainMission: "Stay above the consistency median after two macro events.",
+    supporters: 970,
+  },
 ];
 
 // ── Competition desk definitions ────────────────────────────────────────────
 
 const COMPETITION_DESKS = [
-  { id: "crypto-apex-desk", cupId: "crypto", name: "Apex Desk", tier: "Premier", motto: "Alpha extraction at scale.", captainMission: "Lead the desk in weekly volume without breaching drawdown.", supporters: 0 },
-  { id: "crypto-impulse-desk", cupId: "crypto", name: "Impulse Desk", tier: "Challenger", motto: "Fast conviction, fast exits.", captainMission: "Close three profitable sessions in a row.", supporters: 0 },
-  { id: "forex-orbit-desk", cupId: "forex", name: "Orbit Desk", tier: "Premier", motto: "Session discipline wins.", captainMission: "Cover London and NY opens with positive returns.", supporters: 0 },
-  { id: "forex-precision-desk", cupId: "forex", name: "Precision Desk", tier: "Challenger", motto: "Clean entries, clean exits.", captainMission: "Maintain above-median win rate across the week.", supporters: 0 },
-  { id: "metals-vault-desk", cupId: "metals", name: "Vault Desk", tier: "Premier", motto: "Patience pays in gold.", captainMission: "Hold through macro events without panic closes.", supporters: 0 },
-  { id: "energy-macro-desk", cupId: "energy", name: "Macro Desk", tier: "Premier", motto: "Event-driven edge.", captainMission: "Capture OPEC and inventory windows profitably.", supporters: 0 },
-  { id: "multi-alpha-desk", cupId: "crypto", name: "Alpha Desk", tier: "Premier", motto: "Cross-asset conviction.", captainMission: "Trade three asset classes profitably in one week.", supporters: 0 },
-  { id: "multi-rotation-desk", cupId: "forex", name: "Rotation Desk", tier: "Challenger", motto: "Rotate where edge lives.", captainMission: "Switch focus markets mid-week and stay positive.", supporters: 0 },
+  {
+    id: "crypto-apex-desk",
+    cupId: "crypto",
+    name: "Apex Desk",
+    tier: "Premier",
+    motto: "Alpha extraction at scale.",
+    captainMission:
+      "Lead the desk in weekly volume without breaching drawdown.",
+    supporters: 0,
+  },
+  {
+    id: "crypto-impulse-desk",
+    cupId: "crypto",
+    name: "Impulse Desk",
+    tier: "Challenger",
+    motto: "Fast conviction, fast exits.",
+    captainMission: "Close three profitable sessions in a row.",
+    supporters: 0,
+  },
+  {
+    id: "forex-orbit-desk",
+    cupId: "forex",
+    name: "Orbit Desk",
+    tier: "Premier",
+    motto: "Session discipline wins.",
+    captainMission: "Cover London and NY opens with positive returns.",
+    supporters: 0,
+  },
+  {
+    id: "forex-precision-desk",
+    cupId: "forex",
+    name: "Precision Desk",
+    tier: "Challenger",
+    motto: "Clean entries, clean exits.",
+    captainMission: "Maintain above-median win rate across the week.",
+    supporters: 0,
+  },
+  {
+    id: "metals-vault-desk",
+    cupId: "metals",
+    name: "Vault Desk",
+    tier: "Premier",
+    motto: "Patience pays in gold.",
+    captainMission: "Hold through macro events without panic closes.",
+    supporters: 0,
+  },
+  {
+    id: "energy-macro-desk",
+    cupId: "energy",
+    name: "Macro Desk",
+    tier: "Premier",
+    motto: "Event-driven edge.",
+    captainMission: "Capture OPEC and inventory windows profitably.",
+    supporters: 0,
+  },
+  {
+    id: "multi-alpha-desk",
+    cupId: "crypto",
+    name: "Alpha Desk",
+    tier: "Premier",
+    motto: "Cross-asset conviction.",
+    captainMission: "Trade three asset classes profitably in one week.",
+    supporters: 0,
+  },
+  {
+    id: "multi-rotation-desk",
+    cupId: "forex",
+    name: "Rotation Desk",
+    tier: "Challenger",
+    motto: "Rotate where edge lives.",
+    captainMission: "Switch focus markets mid-week and stay positive.",
+    supporters: 0,
+  },
 ];
 
 const DESK_IDS = COMPETITION_DESKS.map((d) => d.id);
@@ -159,42 +287,558 @@ const DESK_IDS = COMPETITION_DESKS.map((d) => d.id);
 // ── Static World Cup traders (the original 12) ─────────────────────────────
 
 const STATIC_WORLDCUP_TRADERS = [
-  { id: "crypto-reyes", name: "Mila Reyes", alias: "TapePilot", specialization: "crypto", tag: "Breakout sniper", bio: "Aggressive event trader who still protects her downside.", baseline: { riskAdjustedPnl: 82, consistency: 74, missionProgress: 68, streakPower: 71, raffleBonus: 55, weeklyVolume: 212000, tradeCount: 36, maxSingleTradeShare: 27, activeDays: 6, streakDays: 8, realizedPnl: 18400, drawdown: 4.2, raffleTickets: 8 }, scenarioOverrides: { finals: { missionProgress: 76, consistency: 81, streakPower: 78, realizedPnl: 23600 } } },
-  { id: "crypto-wu", name: "Jonah Wu", alias: "GammaFold", specialization: "crypto", tag: "Momentum scalper", bio: "Fast hands on crypto trend shifts with good session discipline.", baseline: { riskAdjustedPnl: 76, consistency: 70, missionProgress: 73, streakPower: 66, raffleBonus: 58, weeklyVolume: 189000, tradeCount: 42, maxSingleTradeShare: 31, activeDays: 6, streakDays: 6, realizedPnl: 16200, drawdown: 5.1, raffleTickets: 9 }, scenarioOverrides: { bubble: { missionProgress: 79, consistency: 73 } } },
-  { id: "crypto-ibrahim", name: "Amina Ibrahim", alias: "MeanRevert", specialization: "crypto", tag: "Controlled contrarian", bio: "Prefers cleaner setups and edges out rivals with drawdown control.", baseline: { riskAdjustedPnl: 71, consistency: 81, missionProgress: 64, streakPower: 72, raffleBonus: 61, weeklyVolume: 146000, tradeCount: 28, maxSingleTradeShare: 22, activeDays: 5, streakDays: 7, realizedPnl: 12700, drawdown: 3.4, raffleTickets: 10 } },
-  { id: "metals-okoro", name: "Tega Okoro", alias: "BullionDesk", specialization: "metals", tag: "Macro specialist", bio: "Wins on patience and cleaner trade distribution.", baseline: { riskAdjustedPnl: 79, consistency: 84, missionProgress: 66, streakPower: 74, raffleBonus: 49, weeklyVolume: 154000, tradeCount: 24, maxSingleTradeShare: 24, activeDays: 5, streakDays: 9, realizedPnl: 13100, drawdown: 2.8, raffleTickets: 7 }, scenarioOverrides: { finals: { consistency: 89, streakPower: 79 } } },
-  { id: "metals-kim", name: "Sora Kim", alias: "SilverTape", specialization: "metals", tag: "Session grinder", bio: "Turns stable metals sessions into weekly points accumulation.", baseline: { riskAdjustedPnl: 73, consistency: 79, missionProgress: 77, streakPower: 70, raffleBonus: 57, weeklyVolume: 138000, tradeCount: 23, maxSingleTradeShare: 28, activeDays: 6, streakDays: 7, realizedPnl: 11600, drawdown: 3.3, raffleTickets: 9 } },
-  { id: "metals-garcia", name: "Luis Garcia", alias: "MacroAnvil", specialization: "metals", tag: "Drawdown crusher", bio: "Lower upside, excellent eligibility profile, survives every week.", baseline: { riskAdjustedPnl: 68, consistency: 85, missionProgress: 61, streakPower: 75, raffleBonus: 63, weeklyVolume: 119000, tradeCount: 20, maxSingleTradeShare: 19, activeDays: 5, streakDays: 10, realizedPnl: 9200, drawdown: 2.4, raffleTickets: 11 } },
-  { id: "energy-rhodes", name: "Nadia Rhodes", alias: "RefineryRun", specialization: "energy", tag: "Event window hunter", bio: "Built for volatility spikes without losing structure.", baseline: { riskAdjustedPnl: 84, consistency: 68, missionProgress: 72, streakPower: 64, raffleBonus: 54, weeklyVolume: 228000, tradeCount: 39, maxSingleTradeShare: 34, activeDays: 6, streakDays: 5, realizedPnl: 20500, drawdown: 6.2, raffleTickets: 8 } },
-  { id: "energy-ndiaye", name: "Oumar Ndiaye", alias: "OPECWatch", specialization: "energy", tag: "Structured discretionary", bio: "Turns news windows into repeatable edge with consistent participation.", baseline: { riskAdjustedPnl: 77, consistency: 76, missionProgress: 74, streakPower: 73, raffleBonus: 58, weeklyVolume: 201000, tradeCount: 35, maxSingleTradeShare: 29, activeDays: 6, streakDays: 7, realizedPnl: 16800, drawdown: 4.9, raffleTickets: 9 } },
-  { id: "energy-holt", name: "Casey Holt", alias: "VolGrid", specialization: "energy", tag: "High conviction", bio: "Big weeks when right, but closer to the integrity thresholds.", baseline: { riskAdjustedPnl: 81, consistency: 59, missionProgress: 63, streakPower: 58, raffleBonus: 43, weeklyVolume: 176000, tradeCount: 18, maxSingleTradeShare: 52, activeDays: 4, streakDays: 3, realizedPnl: 21400, drawdown: 9.3, raffleTickets: 6 }, manualFlags: { integrity: [{ code: "single-trade-share", label: "Single trade share", severity: "medium", reason: "More than half of total performance came from one oversized trade." }] } },
-  { id: "forex-owens", name: "Priya Owens", alias: "LondonFix", specialization: "forex", tag: "Session tactician", bio: "Most balanced trader in the field with strong day-to-day cadence.", baseline: { riskAdjustedPnl: 75, consistency: 86, missionProgress: 73, streakPower: 82, raffleBonus: 59, weeklyVolume: 191000, tradeCount: 31, maxSingleTradeShare: 21, activeDays: 6, streakDays: 11, realizedPnl: 14800, drawdown: 3.1, raffleTickets: 10 } },
-  { id: "forex-lim", name: "Darren Lim", alias: "CarryFade", specialization: "forex", tag: "Macro swing trader", bio: "Wins through cleaner macro holds rather than hyperactivity.", baseline: { riskAdjustedPnl: 72, consistency: 80, missionProgress: 69, streakPower: 71, raffleBonus: 62, weeklyVolume: 165000, tradeCount: 26, maxSingleTradeShare: 26, activeDays: 5, streakDays: 8, realizedPnl: 11900, drawdown: 3.7, raffleTickets: 10 } },
-  { id: "forex-adeyemi", name: "Kemi Adeyemi", alias: "TokyoCross", specialization: "forex", tag: "News release sniper", bio: "Strong upside, slightly less consistent than the best cadence players.", baseline: { riskAdjustedPnl: 78, consistency: 72, missionProgress: 70, streakPower: 67, raffleBonus: 56, weeklyVolume: 174000, tradeCount: 29, maxSingleTradeShare: 30, activeDays: 5, streakDays: 6, realizedPnl: 15700, drawdown: 5.2, raffleTickets: 8 } },
+  {
+    id: "crypto-reyes",
+    name: "Mila Reyes",
+    alias: "TapePilot",
+    specialization: "crypto",
+    tag: "Breakout sniper",
+    bio: "Aggressive event trader who still protects her downside.",
+    baseline: {
+      riskAdjustedPnl: 82,
+      consistency: 74,
+      missionProgress: 68,
+      streakPower: 71,
+      raffleBonus: 55,
+      weeklyVolume: 212000,
+      tradeCount: 36,
+      maxSingleTradeShare: 27,
+      activeDays: 6,
+      streakDays: 8,
+      realizedPnl: 18400,
+      drawdown: 4.2,
+      raffleTickets: 8,
+    },
+    scenarioOverrides: {
+      finals: {
+        missionProgress: 76,
+        consistency: 81,
+        streakPower: 78,
+        realizedPnl: 23600,
+      },
+    },
+  },
+  {
+    id: "crypto-wu",
+    name: "Jonah Wu",
+    alias: "GammaFold",
+    specialization: "crypto",
+    tag: "Momentum scalper",
+    bio: "Fast hands on crypto trend shifts with good session discipline.",
+    baseline: {
+      riskAdjustedPnl: 76,
+      consistency: 70,
+      missionProgress: 73,
+      streakPower: 66,
+      raffleBonus: 58,
+      weeklyVolume: 189000,
+      tradeCount: 42,
+      maxSingleTradeShare: 31,
+      activeDays: 6,
+      streakDays: 6,
+      realizedPnl: 16200,
+      drawdown: 5.1,
+      raffleTickets: 9,
+    },
+    scenarioOverrides: { bubble: { missionProgress: 79, consistency: 73 } },
+  },
+  {
+    id: "crypto-ibrahim",
+    name: "Amina Ibrahim",
+    alias: "MeanRevert",
+    specialization: "crypto",
+    tag: "Controlled contrarian",
+    bio: "Prefers cleaner setups and edges out rivals with drawdown control.",
+    baseline: {
+      riskAdjustedPnl: 71,
+      consistency: 81,
+      missionProgress: 64,
+      streakPower: 72,
+      raffleBonus: 61,
+      weeklyVolume: 146000,
+      tradeCount: 28,
+      maxSingleTradeShare: 22,
+      activeDays: 5,
+      streakDays: 7,
+      realizedPnl: 12700,
+      drawdown: 3.4,
+      raffleTickets: 10,
+    },
+  },
+  {
+    id: "metals-okoro",
+    name: "Tega Okoro",
+    alias: "BullionDesk",
+    specialization: "metals",
+    tag: "Macro specialist",
+    bio: "Wins on patience and cleaner trade distribution.",
+    baseline: {
+      riskAdjustedPnl: 79,
+      consistency: 84,
+      missionProgress: 66,
+      streakPower: 74,
+      raffleBonus: 49,
+      weeklyVolume: 154000,
+      tradeCount: 24,
+      maxSingleTradeShare: 24,
+      activeDays: 5,
+      streakDays: 9,
+      realizedPnl: 13100,
+      drawdown: 2.8,
+      raffleTickets: 7,
+    },
+    scenarioOverrides: { finals: { consistency: 89, streakPower: 79 } },
+  },
+  {
+    id: "metals-kim",
+    name: "Sora Kim",
+    alias: "SilverTape",
+    specialization: "metals",
+    tag: "Session grinder",
+    bio: "Turns stable metals sessions into weekly points accumulation.",
+    baseline: {
+      riskAdjustedPnl: 73,
+      consistency: 79,
+      missionProgress: 77,
+      streakPower: 70,
+      raffleBonus: 57,
+      weeklyVolume: 138000,
+      tradeCount: 23,
+      maxSingleTradeShare: 28,
+      activeDays: 6,
+      streakDays: 7,
+      realizedPnl: 11600,
+      drawdown: 3.3,
+      raffleTickets: 9,
+    },
+  },
+  {
+    id: "metals-garcia",
+    name: "Luis Garcia",
+    alias: "MacroAnvil",
+    specialization: "metals",
+    tag: "Drawdown crusher",
+    bio: "Lower upside, excellent eligibility profile, survives every week.",
+    baseline: {
+      riskAdjustedPnl: 68,
+      consistency: 85,
+      missionProgress: 61,
+      streakPower: 75,
+      raffleBonus: 63,
+      weeklyVolume: 119000,
+      tradeCount: 20,
+      maxSingleTradeShare: 19,
+      activeDays: 5,
+      streakDays: 10,
+      realizedPnl: 9200,
+      drawdown: 2.4,
+      raffleTickets: 11,
+    },
+  },
+  {
+    id: "energy-rhodes",
+    name: "Nadia Rhodes",
+    alias: "RefineryRun",
+    specialization: "energy",
+    tag: "Event window hunter",
+    bio: "Built for volatility spikes without losing structure.",
+    baseline: {
+      riskAdjustedPnl: 84,
+      consistency: 68,
+      missionProgress: 72,
+      streakPower: 64,
+      raffleBonus: 54,
+      weeklyVolume: 228000,
+      tradeCount: 39,
+      maxSingleTradeShare: 34,
+      activeDays: 6,
+      streakDays: 5,
+      realizedPnl: 20500,
+      drawdown: 6.2,
+      raffleTickets: 8,
+    },
+  },
+  {
+    id: "energy-ndiaye",
+    name: "Oumar Ndiaye",
+    alias: "OPECWatch",
+    specialization: "energy",
+    tag: "Structured discretionary",
+    bio: "Turns news windows into repeatable edge with consistent participation.",
+    baseline: {
+      riskAdjustedPnl: 77,
+      consistency: 76,
+      missionProgress: 74,
+      streakPower: 73,
+      raffleBonus: 58,
+      weeklyVolume: 201000,
+      tradeCount: 35,
+      maxSingleTradeShare: 29,
+      activeDays: 6,
+      streakDays: 7,
+      realizedPnl: 16800,
+      drawdown: 4.9,
+      raffleTickets: 9,
+    },
+  },
+  {
+    id: "energy-holt",
+    name: "Casey Holt",
+    alias: "VolGrid",
+    specialization: "energy",
+    tag: "High conviction",
+    bio: "Big weeks when right, but closer to the integrity thresholds.",
+    baseline: {
+      riskAdjustedPnl: 81,
+      consistency: 59,
+      missionProgress: 63,
+      streakPower: 58,
+      raffleBonus: 43,
+      weeklyVolume: 176000,
+      tradeCount: 18,
+      maxSingleTradeShare: 52,
+      activeDays: 4,
+      streakDays: 3,
+      realizedPnl: 21400,
+      drawdown: 9.3,
+      raffleTickets: 6,
+    },
+    manualFlags: {
+      integrity: [
+        {
+          code: "single-trade-share",
+          label: "Single trade share",
+          severity: "medium",
+          reason:
+            "More than half of total performance came from one oversized trade.",
+        },
+      ],
+    },
+  },
+  {
+    id: "forex-owens",
+    name: "Priya Owens",
+    alias: "LondonFix",
+    specialization: "forex",
+    tag: "Session tactician",
+    bio: "Most balanced trader in the field with strong day-to-day cadence.",
+    baseline: {
+      riskAdjustedPnl: 75,
+      consistency: 86,
+      missionProgress: 73,
+      streakPower: 82,
+      raffleBonus: 59,
+      weeklyVolume: 191000,
+      tradeCount: 31,
+      maxSingleTradeShare: 21,
+      activeDays: 6,
+      streakDays: 11,
+      realizedPnl: 14800,
+      drawdown: 3.1,
+      raffleTickets: 10,
+    },
+  },
+  {
+    id: "forex-lim",
+    name: "Darren Lim",
+    alias: "CarryFade",
+    specialization: "forex",
+    tag: "Macro swing trader",
+    bio: "Wins through cleaner macro holds rather than hyperactivity.",
+    baseline: {
+      riskAdjustedPnl: 72,
+      consistency: 80,
+      missionProgress: 69,
+      streakPower: 71,
+      raffleBonus: 62,
+      weeklyVolume: 165000,
+      tradeCount: 26,
+      maxSingleTradeShare: 26,
+      activeDays: 5,
+      streakDays: 8,
+      realizedPnl: 11900,
+      drawdown: 3.7,
+      raffleTickets: 10,
+    },
+  },
+  {
+    id: "forex-adeyemi",
+    name: "Kemi Adeyemi",
+    alias: "TokyoCross",
+    specialization: "forex",
+    tag: "News release sniper",
+    bio: "Strong upside, slightly less consistent than the best cadence players.",
+    baseline: {
+      riskAdjustedPnl: 78,
+      consistency: 72,
+      missionProgress: 70,
+      streakPower: 67,
+      raffleBonus: 56,
+      weeklyVolume: 174000,
+      tradeCount: 29,
+      maxSingleTradeShare: 30,
+      activeDays: 5,
+      streakDays: 6,
+      realizedPnl: 15700,
+      drawdown: 5.2,
+      raffleTickets: 8,
+    },
+  },
 ];
 
 // ── Trader generation pools (same as lib/world-cup/traders.ts) ──────────────
 
-const WC_FIRST_NAMES = ["Alex","Jordan","Sam","Blake","Casey","Drew","Kai","Ren","Finn","Sage","Quinn","Ash","River","Skyler","Rowan","Avery","Emery","Hayden","Lennox","Morgan","Reese","Taylor","Devon","Harley","Jesse","Lane","Micah","Noel","Parker","Reed","Shay","Val","Wren","Yael","Zion","Ari","Cam","Ellis","Gray","Hunter","Indigo","Jae","Kit","Lux","Marin"];
-const WC_LAST_NAMES = ["Chen","Nakamura","Osei","Petrova","Reeves","Santos","Takeda","Uribe","Varga","Walsh","Xu","Yamamoto","Zhao","Bakshi","Cortez","Dahl","Evers","Frost","Gupta","Hart","Ismail","Joshi","Klein","Larsen","Moto","Ng","Ortiz","Park","Rao","Sato","Torres","Ulrich","Volkov","Weber","Yilmaz"];
-const WC_ALIAS_PREFIXES = ["Alpha","Beta","Gamma","Delta","Omega","Sigma","Theta","Zeta","Kappa","Nova","Pulse","Edge","Flow","Grid","Flux","Drift","Surge","Void","Peak","Core","Apex","Iron","Steel","Storm","Flash","Blitz","Sharp","Swift","Bolt","Arc"];
-const WC_ALIAS_SUFFIXES = ["Desk","Tape","Run","Trade","Grid","Flow","Edge","Shot","Wire","Link","Sync","Wave","Vault","Port","Node","Axis","Gate","Lock","Chain","Stack","Spark","Drift","Beam","Cast"];
-const WC_TAGS = ["Trend follower","Range trader","Scalp artist","Swing specialist","Breakout hunter","Momentum rider","Mean reversion","News trader","Session player","Macro caller","Pattern sniper","Volume tracker","Risk manager","Event trader","Contrarian play","Overnight hold","Gap trader","Fade specialist","Dip buyer","Rally surfer"];
+const WC_FIRST_NAMES = [
+  "Alex",
+  "Jordan",
+  "Sam",
+  "Blake",
+  "Casey",
+  "Drew",
+  "Kai",
+  "Ren",
+  "Finn",
+  "Sage",
+  "Quinn",
+  "Ash",
+  "River",
+  "Skyler",
+  "Rowan",
+  "Avery",
+  "Emery",
+  "Hayden",
+  "Lennox",
+  "Morgan",
+  "Reese",
+  "Taylor",
+  "Devon",
+  "Harley",
+  "Jesse",
+  "Lane",
+  "Micah",
+  "Noel",
+  "Parker",
+  "Reed",
+  "Shay",
+  "Val",
+  "Wren",
+  "Yael",
+  "Zion",
+  "Ari",
+  "Cam",
+  "Ellis",
+  "Gray",
+  "Hunter",
+  "Indigo",
+  "Jae",
+  "Kit",
+  "Lux",
+  "Marin",
+];
+const WC_LAST_NAMES = [
+  "Chen",
+  "Nakamura",
+  "Osei",
+  "Petrova",
+  "Reeves",
+  "Santos",
+  "Takeda",
+  "Uribe",
+  "Varga",
+  "Walsh",
+  "Xu",
+  "Yamamoto",
+  "Zhao",
+  "Bakshi",
+  "Cortez",
+  "Dahl",
+  "Evers",
+  "Frost",
+  "Gupta",
+  "Hart",
+  "Ismail",
+  "Joshi",
+  "Klein",
+  "Larsen",
+  "Moto",
+  "Ng",
+  "Ortiz",
+  "Park",
+  "Rao",
+  "Sato",
+  "Torres",
+  "Ulrich",
+  "Volkov",
+  "Weber",
+  "Yilmaz",
+];
+const WC_ALIAS_PREFIXES = [
+  "Alpha",
+  "Beta",
+  "Gamma",
+  "Delta",
+  "Omega",
+  "Sigma",
+  "Theta",
+  "Zeta",
+  "Kappa",
+  "Nova",
+  "Pulse",
+  "Edge",
+  "Flow",
+  "Grid",
+  "Flux",
+  "Drift",
+  "Surge",
+  "Void",
+  "Peak",
+  "Core",
+  "Apex",
+  "Iron",
+  "Steel",
+  "Storm",
+  "Flash",
+  "Blitz",
+  "Sharp",
+  "Swift",
+  "Bolt",
+  "Arc",
+];
+const WC_ALIAS_SUFFIXES = [
+  "Desk",
+  "Tape",
+  "Run",
+  "Trade",
+  "Grid",
+  "Flow",
+  "Edge",
+  "Shot",
+  "Wire",
+  "Link",
+  "Sync",
+  "Wave",
+  "Vault",
+  "Port",
+  "Node",
+  "Axis",
+  "Gate",
+  "Lock",
+  "Chain",
+  "Stack",
+  "Spark",
+  "Drift",
+  "Beam",
+  "Cast",
+];
+const WC_TAGS = [
+  "Trend follower",
+  "Range trader",
+  "Scalp artist",
+  "Swing specialist",
+  "Breakout hunter",
+  "Momentum rider",
+  "Mean reversion",
+  "News trader",
+  "Session player",
+  "Macro caller",
+  "Pattern sniper",
+  "Volume tracker",
+  "Risk manager",
+  "Event trader",
+  "Contrarian play",
+  "Overnight hold",
+  "Gap trader",
+  "Fade specialist",
+  "Dip buyer",
+  "Rally surfer",
+];
 const WC_BIOS: Record<string, string[]> = {
-  crypto: ["Reads tape flow on majors and memes with tight risk control.","Event-driven trades with strong position sizing discipline.","Momentum plays on altcoins backed by volume confirmation.","Scalps BTC and SOL sessions with consistent daily returns.","Catches trend shifts early and manages drawdown aggressively."],
-  metals: ["Macro-driven positions in gold with patient holding periods.","Session grinder who turns XAU/XAG ranges into weekly edge.","Consistent accumulator with focus on risk-adjusted returns.","Trades macro catalysts with structured entry and exit rules.","Low-volatility approach to metals with clean trade distribution."],
-  energy: ["Catches OPEC-driven volatility windows with tactical sizing.","Structured approach to energy markets with event-window focus.","High-conviction plays on WTI with controlled drawdown.","Reads supply-demand dynamics for directional energy trades.","Combines technical and fundamental edge in volatile markets."],
-  forex: ["Session-based trader with strong London and Tokyo coverage.","Macro swing positions on major pairs with weekly rebalancing.","Precision entries on news releases with tight stop management.","Carry trade specialist with consistent daily return profile.","Session tactician with strong cadence across time zones."],
+  crypto: [
+    "Reads tape flow on majors and memes with tight risk control.",
+    "Event-driven trades with strong position sizing discipline.",
+    "Momentum plays on altcoins backed by volume confirmation.",
+    "Scalps BTC and SOL sessions with consistent daily returns.",
+    "Catches trend shifts early and manages drawdown aggressively.",
+  ],
+  metals: [
+    "Macro-driven positions in gold with patient holding periods.",
+    "Session grinder who turns XAU/XAG ranges into weekly edge.",
+    "Consistent accumulator with focus on risk-adjusted returns.",
+    "Trades macro catalysts with structured entry and exit rules.",
+    "Low-volatility approach to metals with clean trade distribution.",
+  ],
+  energy: [
+    "Catches OPEC-driven volatility windows with tactical sizing.",
+    "Structured approach to energy markets with event-window focus.",
+    "High-conviction plays on WTI with controlled drawdown.",
+    "Reads supply-demand dynamics for directional energy trades.",
+    "Combines technical and fundamental edge in volatile markets.",
+  ],
+  forex: [
+    "Session-based trader with strong London and Tokyo coverage.",
+    "Macro swing positions on major pairs with weekly rebalancing.",
+    "Precision entries on news releases with tight stop management.",
+    "Carry trade specialist with consistent daily return profile.",
+    "Session tactician with strong cadence across time zones.",
+  ],
 };
-const WC_DIVISION_RANGES: Record<string, { raroiBase: number; raroiSpread: number; consistBase: number; consistSpread: number; volumeBase: number; volumeSpread: number; tradeBase: number; tradeSpread: number }> = {
+const WC_DIVISION_RANGES: Record<
+  string,
+  {
+    raroiBase: number;
+    raroiSpread: number;
+    consistBase: number;
+    consistSpread: number;
+    volumeBase: number;
+    volumeSpread: number;
+    tradeBase: number;
+    tradeSpread: number;
+  }
+> = {
   // crypto: volatile pool — wide talent spectrum from raw underdogs to elite tape readers
-  crypto: { raroiBase: 40, raroiSpread: 55, consistBase: 38, consistSpread: 55, volumeBase: 120000, volumeSpread: 180000, tradeBase: 12, tradeSpread: 40 },
+  crypto: {
+    raroiBase: 40,
+    raroiSpread: 55,
+    consistBase: 38,
+    consistSpread: 55,
+    volumeBase: 120000,
+    volumeSpread: 180000,
+    tradeBase: 12,
+    tradeSpread: 40,
+  },
   // metals: steadier market, consistency differentiates — still broad range but tighter extremes
-  metals: { raroiBase: 46, raroiSpread: 46, consistBase: 52, consistSpread: 42, volumeBase: 90000, volumeSpread: 140000, tradeBase: 10, tradeSpread: 30 },
+  metals: {
+    raroiBase: 46,
+    raroiSpread: 46,
+    consistBase: 52,
+    consistSpread: 42,
+    volumeBase: 90000,
+    volumeSpread: 140000,
+    tradeBase: 10,
+    tradeSpread: 30,
+  },
   // energy: highest event-driven volatility — biggest spread, most upsets
-  energy: { raroiBase: 38, raroiSpread: 58, consistBase: 36, consistSpread: 58, volumeBase: 130000, volumeSpread: 180000, tradeBase: 10, tradeSpread: 38 },
+  energy: {
+    raroiBase: 38,
+    raroiSpread: 58,
+    consistBase: 36,
+    consistSpread: 58,
+    volumeBase: 130000,
+    volumeSpread: 180000,
+    tradeBase: 10,
+    tradeSpread: 38,
+  },
   // forex: balanced session specialists — moderate spread, reliable middle tier
-  forex:  { raroiBase: 44, raroiSpread: 48, consistBase: 50, consistSpread: 44, volumeBase: 100000, volumeSpread: 160000, tradeBase: 10, tradeSpread: 36 },
+  forex: {
+    raroiBase: 44,
+    raroiSpread: 48,
+    consistBase: 50,
+    consistSpread: 44,
+    volumeBase: 100000,
+    volumeSpread: 160000,
+    tradeBase: 10,
+    tradeSpread: 36,
+  },
 };
 
 const QUEST_IDS = [
@@ -206,11 +850,46 @@ const QUEST_IDS = [
 ];
 
 const BEAT_TYPES = [
-  { type: "lead_change", headlines: ["Lead changes hands!", "New leader emerges on the board", "Upset at the top of the leaderboard"] },
-  { type: "milestone", headlines: ["$100K volume milestone reached", "10-trade milestone hit", "Consistency score breaks 90"] },
-  { type: "streak", headlines: ["5-day trading streak!", "Streak broken after 8 days", "Warning: streak at risk"] },
-  { type: "sybil_alert", headlines: ["Suspicious activity flagged", "Pattern correlation detected", "Manual review triggered"] },
-  { type: "cohort_update", headlines: ["Cohort entering final hours", "Halfway through the challenge", "New enrollments surging"] },
+  {
+    type: "lead_change",
+    headlines: [
+      "Lead changes hands!",
+      "New leader emerges on the board",
+      "Upset at the top of the leaderboard",
+    ],
+  },
+  {
+    type: "milestone",
+    headlines: [
+      "$100K volume milestone reached",
+      "10-trade milestone hit",
+      "Consistency score breaks 90",
+    ],
+  },
+  {
+    type: "streak",
+    headlines: [
+      "5-day trading streak!",
+      "Streak broken after 8 days",
+      "Warning: streak at risk",
+    ],
+  },
+  {
+    type: "sybil_alert",
+    headlines: [
+      "Suspicious activity flagged",
+      "Pattern correlation detected",
+      "Manual review triggered",
+    ],
+  },
+  {
+    type: "cohort_update",
+    headlines: [
+      "Cohort entering final hours",
+      "Halfway through the challenge",
+      "New enrollments surging",
+    ],
+  },
 ];
 
 // ── Seed functions ───────────────────────────────────────────────────────────
@@ -275,16 +954,19 @@ async function seedEnrollments() {
     const rng = createRng(hashStr(cohort.id));
     for (let i = 0; i < cohort.walletCount && walletIdx < WALLETS.length; i++) {
       const wallet = WALLETS[walletIdx % WALLETS.length];
-      const startingEquity = cohort.state === "upcoming"
-        ? null
-        : Number((500 + rng() * 9500).toFixed(2));
+      const startingEquity =
+        cohort.state === "upcoming"
+          ? null
+          : Number((500 + rng() * 9500).toFixed(2));
 
       await prisma.enrollment.create({
         data: {
           wallet,
           cohortId: cohort.id,
           startingEquity,
-          enrolledAt: new Date(new Date(cohort.startTime).getTime() - rng() * 86_400_000),
+          enrolledAt: new Date(
+            new Date(cohort.startTime).getTime() - rng() * 86_400_000
+          ),
         },
       });
       walletIdx++;
@@ -317,13 +999,15 @@ async function seedTraderScores() {
       const activeDays = Math.round(1 + rng() * 6);
 
       const w = cohortsData.config.scoringWeights;
-      const tournamentScore = Number((
-        pnlPercent * w.pnlPercent +
-        Math.log10(volumeUsd + 1) * w.volumeUsd +
-        consistencyScore * w.consistency +
-        winRate * w.winRate -
-        maxDrawdownPercent * w.drawdownPenalty
-      ).toFixed(2));
+      const tournamentScore = Number(
+        (
+          pnlPercent * w.pnlPercent +
+          Math.log10(volumeUsd + 1) * w.volumeUsd +
+          consistencyScore * w.consistency +
+          winRate * w.winRate -
+          maxDrawdownPercent * w.drawdownPenalty
+        ).toFixed(2)
+      );
 
       await prisma.traderScore.create({
         data: {
@@ -355,7 +1039,12 @@ async function seedQuestProgress() {
     const wallet = WALLETS[i];
     for (const questId of QUEST_IDS) {
       if (rng() < 0.4) continue; // not every wallet has every quest
-      const target = questId === "challenge-volume" ? 200 : questId === "positive-sessions" ? 6 : 1;
+      const target =
+        questId === "challenge-volume"
+          ? 200
+          : questId === "positive-sessions"
+            ? 6
+            : 1;
       const progress = Math.min(target, Math.round(rng() * target * 1.2));
       const completed = progress >= target;
 
@@ -364,7 +1053,9 @@ async function seedQuestProgress() {
           wallet,
           questId,
           progress,
-          completedAt: completed ? new Date(Date.now() - rng() * 3 * 86_400_000) : null,
+          completedAt: completed
+            ? new Date(Date.now() - rng() * 3 * 86_400_000)
+            : null,
         },
       });
       count++;
@@ -430,7 +1121,11 @@ async function seedWorldCup() {
   for (let g = 0; g < groupNames.length; g++) {
     const groupWallets = WALLETS.filter((_, i) => i % 4 === g).slice(0, 4);
     await prisma.worldCupGroup.create({
-      data: { seasonId: season.id, groupName: groupNames[g], wallets: groupWallets },
+      data: {
+        seasonId: season.id,
+        groupName: groupNames[g],
+        wallets: groupWallets,
+      },
     });
   }
 
@@ -453,13 +1148,19 @@ async function seedWorldCup() {
       }
     }
   }
-  console.log(`  → 1 season, ${groupNames.length} groups, ${matchCount} matches`);
+  console.log(
+    `  → 1 season, ${groupNames.length} groups, ${matchCount} matches`
+  );
 }
 
 async function seedDailyMissions() {
   console.log("  Daily missions...");
   const today = new Date().toISOString().slice(0, 10);
-  const missionTypes = ["best_roi_today", "most_trades_today", "highest_volume_today"];
+  const missionTypes = [
+    "best_roi_today",
+    "most_trades_today",
+    "highest_volume_today",
+  ];
   let count = 0;
 
   for (const cohort of COHORTS.filter((c) => c.state === "live")) {
@@ -568,7 +1269,8 @@ async function seedNarrativeBeats() {
     const numBeats = 5 + Math.round(rng() * 10);
     for (let b = 0; b < numBeats; b++) {
       const beatType = BEAT_TYPES[Math.floor(rng() * BEAT_TYPES.length)];
-      const headline = beatType.headlines[Math.floor(rng() * beatType.headlines.length)];
+      const headline =
+        beatType.headlines[Math.floor(rng() * beatType.headlines.length)];
       const severity = beatType.type === "sybil_alert" ? "warning" : "info";
 
       await prisma.narrativeBeat.create({
@@ -597,7 +1299,11 @@ async function seedSybilFlags() {
     for (let i = 0; i < WALLETS.length; i++) {
       if (rng() > 0.1) continue;
       const wallet = WALLETS[i];
-      const flagCodes = ["funding_cluster", "pnl_mirror", "pattern_correlation"];
+      const flagCodes = [
+        "funding_cluster",
+        "pnl_mirror",
+        "pattern_correlation",
+      ];
       const flagCode = flagCodes[Math.floor(rng() * flagCodes.length)];
 
       await prisma.sybilFlag.create({
@@ -644,7 +1350,9 @@ function generateWorldCupTraders(division: string, count: number) {
     const name = `${WC_FIRST_NAMES[firstIdx]} ${WC_LAST_NAMES[lastIdx]}`;
     const alias = `${WC_ALIAS_PREFIXES[prefixIdx]}${WC_ALIAS_SUFFIXES[suffixIdx]}`;
     const raroi = Math.round(ranges.raroiBase + rng() * ranges.raroiSpread);
-    const consist = Math.round(ranges.consistBase + rng() * ranges.consistSpread);
+    const consist = Math.round(
+      ranges.consistBase + rng() * ranges.consistSpread
+    );
     const mission = Math.round(50 + rng() * 40);
     const streak = Math.round(45 + rng() * 40);
     const raffle = Math.round(35 + rng() * 40);
@@ -700,8 +1408,12 @@ async function seedWorldCupTraders() {
         tag: trader.tag,
         bio: trader.bio,
         baseline: trader.baseline,
-        scenarioOverrides: (trader as Record<string, unknown>).scenarioOverrides as object ?? undefined,
-        manualFlags: (trader as Record<string, unknown>).manualFlags as object ?? undefined,
+        scenarioOverrides:
+          ((trader as Record<string, unknown>).scenarioOverrides as object) ??
+          undefined,
+        manualFlags:
+          ((trader as Record<string, unknown>).manualFlags as object) ??
+          undefined,
       },
     });
     count++;
@@ -755,7 +1467,9 @@ async function seedRaffleEntries() {
 async function seedDailyMissionResults() {
   console.log("  Daily mission results...");
   const today = new Date().toISOString().slice(0, 10);
-  const missions = await prisma.dailyMission.findMany({ where: { date: today } });
+  const missions = await prisma.dailyMission.findMany({
+    where: { date: today },
+  });
   let count = 0;
 
   for (const mission of missions) {

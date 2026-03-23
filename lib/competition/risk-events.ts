@@ -27,11 +27,15 @@ function hashSeed(str: string): number {
 
 // ── Risk Event Catalog ───────────────────────────────────────────────────────
 
-export const RISK_EVENT_CATALOG: Record<RiskEventId, Omit<RiskEvent, "triggeredAt">> = {
+export const RISK_EVENT_CATALOG: Record<
+  RiskEventId,
+  Omit<RiskEvent, "triggeredAt">
+> = {
   flash_crash: {
     id: "flash_crash",
     label: "Flash Crash",
-    description: "Sudden 15%+ market drop across correlated assets. Tests stop-loss discipline.",
+    description:
+      "Sudden 15%+ market drop across correlated assets. Tests stop-loss discipline.",
     severity: "severe",
     affectedMetric: "pnlPercent",
     modifier: -0.35,
@@ -41,7 +45,8 @@ export const RISK_EVENT_CATALOG: Record<RiskEventId, Omit<RiskEvent, "triggeredA
   liquidity_drain: {
     id: "liquidity_drain",
     label: "Liquidity Drain",
-    description: "Order book thins out, spreads widen. Slippage increases on all entries and exits.",
+    description:
+      "Order book thins out, spreads widen. Slippage increases on all entries and exits.",
     severity: "moderate",
     affectedMetric: "volumeUsd",
     modifier: -0.2,
@@ -51,7 +56,8 @@ export const RISK_EVENT_CATALOG: Record<RiskEventId, Omit<RiskEvent, "triggeredA
   volatility_spike: {
     id: "volatility_spike",
     label: "Volatility Spike",
-    description: "Realized vol doubles. High-leverage positions face amplified P&L swings.",
+    description:
+      "Realized vol doubles. High-leverage positions face amplified P&L swings.",
     severity: "moderate",
     affectedMetric: "maxDrawdownPercent",
     modifier: 0.4,
@@ -61,7 +67,8 @@ export const RISK_EVENT_CATALOG: Record<RiskEventId, Omit<RiskEvent, "triggeredA
   forced_market: {
     id: "forced_market",
     label: "Forced Market",
-    description: "Traders must execute in a specific market for the window duration.",
+    description:
+      "Traders must execute in a specific market for the window duration.",
     severity: "mild",
     affectedMetric: "consistencyScore",
     modifier: -0.15,
@@ -71,7 +78,8 @@ export const RISK_EVENT_CATALOG: Record<RiskEventId, Omit<RiskEvent, "triggeredA
   correlation_break: {
     id: "correlation_break",
     label: "Correlation Break",
-    description: "Historical correlations diverge. Multi-asset strategies face unexpected moves.",
+    description:
+      "Historical correlations diverge. Multi-asset strategies face unexpected moves.",
     severity: "moderate",
     affectedMetric: "winRate",
     modifier: -0.12,
@@ -81,7 +89,8 @@ export const RISK_EVENT_CATALOG: Record<RiskEventId, Omit<RiskEvent, "triggeredA
   news_blackout: {
     id: "news_blackout",
     label: "News Blackout",
-    description: "No economic calendar data. Traders must rely on price action alone.",
+    description:
+      "No economic calendar data. Traders must rely on price action alone.",
     severity: "mild",
     affectedMetric: "consistencyScore",
     modifier: -0.1,
@@ -101,7 +110,8 @@ export const RISK_EVENT_CATALOG: Record<RiskEventId, Omit<RiskEvent, "triggeredA
   spread_widening: {
     id: "spread_widening",
     label: "Spread Widening",
-    description: "Bid-ask spreads increase 3x. Scalping strategies become unprofitable.",
+    description:
+      "Bid-ask spreads increase 3x. Scalping strategies become unprofitable.",
     severity: "moderate",
     affectedMetric: "volumeUsd",
     modifier: -0.15,
@@ -181,15 +191,15 @@ export function applyRiskEventModifiers(
     if (metric === "attainedAt") continue;
 
     const currentValue = modified[metric] ?? 0;
-    const adjusted = Number(
-      (currentValue * (1 + event.modifier)).toFixed(2)
-    );
+    const adjusted = Number((currentValue * (1 + event.modifier)).toFixed(2));
 
     if (metric === "pnlPercent") modified.pnlPercent = adjusted;
     else if (metric === "volumeUsd") modified.volumeUsd = adjusted;
     else if (metric === "winRate") modified.winRate = adjusted;
-    else if (metric === "consistencyScore") modified.consistencyScore = adjusted;
-    else if (metric === "maxDrawdownPercent") modified.maxDrawdownPercent = adjusted;
+    else if (metric === "consistencyScore")
+      modified.consistencyScore = adjusted;
+    else if (metric === "maxDrawdownPercent")
+      modified.maxDrawdownPercent = adjusted;
   }
 
   return modified;

@@ -5,8 +5,7 @@ import type {
 } from "./types.ts";
 
 export function getCompetitionIntegrationStatus(): CompetitionIntegrationStatus {
-  const competitionApiBaseUrl =
-    process.env.ADRENA_COMPETITION_API_BASE_URL;
+  const competitionApiBaseUrl = process.env.ADRENA_COMPETITION_API_BASE_URL;
   const dataApiBaseUrl =
     process.env.ADRENA_DATA_API_BASE_URL ?? "https://datapi.adrena.trade";
   const apiBaseUrl = competitionApiBaseUrl ?? dataApiBaseUrl;
@@ -16,7 +15,9 @@ export function getCompetitionIntegrationStatus(): CompetitionIntegrationStatus 
     detail: competitionApiBaseUrl
       ? "Adrena provider active. Data is fetched from the Competition Service API."
       : "Adrena provider active. Position data is fetched from datapi.adrena.trade.",
-    label: competitionApiBaseUrl ? "Adrena Competition Service" : "Adrena Data API",
+    label: competitionApiBaseUrl
+      ? "Adrena Competition Service"
+      : "Adrena Data API",
     provider: "adrena",
   };
 }

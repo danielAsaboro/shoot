@@ -97,7 +97,11 @@ const TIER_DESK_MAP: Record<ChallengeTierId, string[]> = {
   scout: ["forex-precision-desk", "energy-macro-desk"],
   ranger: ["forex-precision-desk", "energy-macro-desk"],
   veteran: ["forex-orbit-desk", "energy-macro-desk", "metals-vault-desk"],
-  elite: ["crypto-impulse-desk", "commodities-vault-desk", "multi-rotation-desk"],
+  elite: [
+    "crypto-impulse-desk",
+    "commodities-vault-desk",
+    "multi-rotation-desk",
+  ],
   apex: ["crypto-apex-desk", "multi-alpha-desk"],
 };
 
@@ -135,11 +139,15 @@ export function computeDeskStandings(
   for (const entry of standings) {
     // Determine desk from wallet hash + tier guess (use rank as proxy)
     const tierId: ChallengeTierId =
-      entry.rank <= 5 ? "apex"
-      : entry.rank <= 10 ? "elite"
-      : entry.rank <= 15 ? "veteran"
-      : entry.rank <= 20 ? "ranger"
-      : "scout";
+      entry.rank <= 5
+        ? "apex"
+        : entry.rank <= 10
+          ? "elite"
+          : entry.rank <= 15
+            ? "veteran"
+            : entry.rank <= 20
+              ? "ranger"
+              : "scout";
 
     const desk = assignTraderToDesk(entry.wallet, tierId);
     if (!desk) continue;
@@ -198,9 +206,7 @@ export function resolveDeskMatchup(
   deskA: DeskStanding,
   deskB: DeskStanding
 ): { winner: DeskTeam; margin: number } {
-  const margin = Number(
-    (deskA.deskScore - deskB.deskScore).toFixed(2)
-  );
+  const margin = Number((deskA.deskScore - deskB.deskScore).toFixed(2));
 
   return {
     winner: margin >= 0 ? deskA.desk : deskB.desk,

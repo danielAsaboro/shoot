@@ -18,7 +18,11 @@ const windowStart = new Date("2026-03-19T00:00:00Z");
 const windowEnd = new Date("2026-03-22T00:00:00Z");
 
 function makePosition(
-  overrides: Partial<AdrenaPosition> & { entry_date: string; exit_date: string; pnl: number }
+  overrides: Partial<AdrenaPosition> & {
+    entry_date: string;
+    exit_date: string;
+    pnl: number;
+  }
 ): AdrenaPosition {
   return {
     pubkey: "test-pos",
@@ -53,7 +57,11 @@ test("positions held longer than MIN_HOLD_SECONDS are included", () => {
       pnl: 10,
     }),
   ];
-  const metrics = computeMetricsFromPositions(positions, windowStart, windowEnd);
+  const metrics = computeMetricsFromPositions(
+    positions,
+    windowStart,
+    windowEnd
+  );
   assert.equal(metrics.tradeCount, 1);
 });
 
@@ -66,7 +74,11 @@ test("positions held less than MIN_HOLD_SECONDS are excluded (wash trade)", () =
       entry_size: 100_000, // large volume that would inflate scoring
     }),
   ];
-  const metrics = computeMetricsFromPositions(positions, windowStart, windowEnd);
+  const metrics = computeMetricsFromPositions(
+    positions,
+    windowStart,
+    windowEnd
+  );
   assert.equal(metrics.tradeCount, 0, "Wash trade should be filtered out");
   assert.equal(metrics.volumeUsd, 0);
 });
@@ -86,7 +98,11 @@ test("mix of valid and wash trades: only valid counted", () => {
       entry_size: 1000,
     }),
   ];
-  const metrics = computeMetricsFromPositions(positions, windowStart, windowEnd);
+  const metrics = computeMetricsFromPositions(
+    positions,
+    windowStart,
+    windowEnd
+  );
   assert.equal(metrics.tradeCount, 1, "Only the valid trade should count");
 });
 
@@ -99,7 +115,11 @@ test("position at exact MIN_HOLD_SECONDS boundary is excluded", () => {
       pnl: 10,
     }),
   ];
-  const metrics = computeMetricsFromPositions(positions, windowStart, windowEnd);
+  const metrics = computeMetricsFromPositions(
+    positions,
+    windowStart,
+    windowEnd
+  );
   assert.equal(metrics.tradeCount, 0, "Position at 59s should be excluded");
 });
 
@@ -111,8 +131,16 @@ test("position at exactly 60 seconds is included", () => {
       pnl: 10,
     }),
   ];
-  const metrics = computeMetricsFromPositions(positions, windowStart, windowEnd);
-  assert.equal(metrics.tradeCount, 1, "Position at exactly 60s should be included");
+  const metrics = computeMetricsFromPositions(
+    positions,
+    windowStart,
+    windowEnd
+  );
+  assert.equal(
+    metrics.tradeCount,
+    1,
+    "Position at exactly 60s should be included"
+  );
 });
 
 // ── Trade event wash trade filter ───────────────────────────────────────────
@@ -148,5 +176,9 @@ test("trade events: events without openedAt are included (backwards compat)", ()
     },
   ];
   const metrics = computeMetricsFromTradeEvents(events, windowStart, windowEnd);
-  assert.equal(metrics.tradeCount, 1, "Events without openedAt should pass through");
+  assert.equal(
+    metrics.tradeCount,
+    1,
+    "Events without openedAt should pass through"
+  );
 });

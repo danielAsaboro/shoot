@@ -8,12 +8,14 @@ Version 1.0 | March 2026
 ## Prerequisites
 
 ### Infrastructure (this prototype)
-| Component | Version | Notes |
-|---|---|---|
-| Node.js | >= 20 LTS | Frontend and API server |
-| PostgreSQL | >= 14 | **Optional** — for persistent state (enrollments, scores, quests, streaks, sybil flags) |
+
+| Component  | Version   | Notes                                                                                   |
+| ---------- | --------- | --------------------------------------------------------------------------------------- |
+| Node.js    | >= 20 LTS | Frontend and API server                                                                 |
+| PostgreSQL | >= 14     | **Optional** — for persistent state (enrollments, scores, quests, streaks, sybil flags) |
 
 The prototype can run in two modes:
+
 1. **Without DB** — Uses localStorage + JSON files (default). Good for UI review.
 2. **With DB** — Set `DATABASE_URL` in `.env.local` for shared persistence across users.
 
@@ -34,6 +36,7 @@ The prototype can run in two modes:
 - **Trade indexer** — For streaming trade events from Adrena's program via Yellowstone gRPC instead of polling the REST API.
 
 ### Access Required from Adrena Team (for production)
+
 1. **Market list** with asset class tags (crypto/metals/energy/forex)
 2. **Admin multisig address** for prize distribution authorization
 3. **ADX token mint address** for reward payouts
@@ -178,6 +181,7 @@ curl "http://localhost:3000/api/adrena-live/pool-stats"
 ```
 
 **Data flow in Adrena mode:**
+
 1. `adrena-live-adapter.ts` reads `data/competition-cohorts.json` for enrolled wallets
 2. Fetches positions for each wallet from `datapi.adrena.trade/position?user_wallet=...`
 3. `computeMetricsFromPositions()` derives PnL%, volume, win rate, consistency, drawdown
@@ -213,30 +217,31 @@ vercel --prod
 
 ### Environment variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `DATABASE_URL` | — | Optional. PostgreSQL connection string for persistent state. |
-| `NEXT_PUBLIC_PRIVY_APP_ID` | — | Required. Privy app ID. |
-| `NEXT_PUBLIC_COMPETITION_PROVIDER` | `mock` | `mock` or `adrena`. |
-| `ADRENA_DATA_API_BASE_URL` | `https://datapi.adrena.trade` | Adrena Data API base URL. |
-| `ADRENA_COMPETITION_API_BASE_URL` | — | Optional. Competition Service API (if Adrena team provides one). |
-| `NEXT_PUBLIC_SOLANA_RPC` | `api.devnet.solana.com` | Solana RPC for balance/tx. |
-| `NEXT_PUBLIC_DEMO_TREASURY` | hardcoded | Devnet demo treasury address. |
+| Variable                           | Default                       | Description                                                      |
+| ---------------------------------- | ----------------------------- | ---------------------------------------------------------------- |
+| `DATABASE_URL`                     | —                             | Optional. PostgreSQL connection string for persistent state.     |
+| `NEXT_PUBLIC_PRIVY_APP_ID`         | —                             | Required. Privy app ID.                                          |
+| `NEXT_PUBLIC_COMPETITION_PROVIDER` | `mock`                        | `mock` or `adrena`.                                              |
+| `ADRENA_DATA_API_BASE_URL`         | `https://datapi.adrena.trade` | Adrena Data API base URL.                                        |
+| `ADRENA_COMPETITION_API_BASE_URL`  | —                             | Optional. Competition Service API (if Adrena team provides one). |
+| `NEXT_PUBLIC_SOLANA_RPC`           | `api.devnet.solana.com`       | Solana RPC for balance/tx.                                       |
+| `NEXT_PUBLIC_DEMO_TREASURY`        | hardcoded                     | Devnet demo treasury address.                                    |
 
 ### Tier parameters (adjustable in `data/competition-cohorts.json`)
 
-| Parameter | Scout | Ranger | Veteran | Elite | Apex |
-|---|---|---|---|---|---|
-| Entry fee (USDC) | 2 | 5 | 10 | 25 | 50 |
-| Min capital ($) | 50 | 200 | 500 | 2,000 | 5,000 |
-| Profit target (%) | 8 | 10 | 12 | 15 | 15 |
-| Max drawdown (%) | 5 | 8 | 6 | 5 | 4 |
-| Daily loss limit (%) | 3 | 4 | 3 | 3 | 2 |
-| Duration (days) | 7 | 10 | 10 | 14 | 14 |
-| Funded eligible | No | No | No | Yes | Yes |
-| Retry discount | 30% | 30% | 30% | 30% | 30% |
+| Parameter            | Scout | Ranger | Veteran | Elite | Apex  |
+| -------------------- | ----- | ------ | ------- | ----- | ----- |
+| Entry fee (USDC)     | 2     | 5      | 10      | 25    | 50    |
+| Min capital ($)      | 50    | 200    | 500     | 2,000 | 5,000 |
+| Profit target (%)    | 8     | 10     | 12      | 15    | 15    |
+| Max drawdown (%)     | 5     | 8      | 6       | 5     | 4     |
+| Daily loss limit (%) | 3     | 4      | 3       | 3     | 2     |
+| Duration (days)      | 7     | 10     | 10      | 14    | 14    |
+| Funded eligible      | No    | No     | No      | Yes   | Yes   |
+| Retry discount       | 30%   | 30%    | 30%     | 30%   | 30%   |
 
 **When to adjust:**
+
 - Pass rate > 40%: tighten profit target by 2pp or reduce max drawdown by 1pp
 - Pass rate < 15%: relax drawdown limit by 1pp or extend duration by 2 days
 - Retry rate < 20%: increase discount to 40%
@@ -251,8 +256,8 @@ Edit `data/competition-cohorts.json` and add wallet addresses to a cohort's `enr
 
 ## Contacts
 
-| Role | Contact |
-|---|---|
-| Frontend issues | Open GitHub issue on this repo |
+| Role                   | Contact                         |
+| ---------------------- | ------------------------------- |
+| Frontend issues        | Open GitHub issue on this repo  |
 | Adrena API integration | Coordinate with Adrena dev team |
-| Sybil alerts | Ops channel in Adrena Discord |
+| Sybil alerts           | Ops channel in Adrena Discord   |

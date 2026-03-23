@@ -15,11 +15,19 @@ import {
 import type { ActivatedPowerUp } from "../lib/world-cup/types.ts";
 import { KNOCKOUT_BUYIN_USDC } from "../lib/world-cup/types.ts";
 import { drawGroups } from "../lib/world-cup/group-draw.ts";
-import type { LeaderboardEntry, TraderMetrics } from "../lib/world-cup/types.ts";
+import type {
+  LeaderboardEntry,
+  TraderMetrics,
+} from "../lib/world-cup/types.ts";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function makeEntry(id: string, rank: number, raroi = 10, consistency = 50): LeaderboardEntry {
+function makeEntry(
+  id: string,
+  rank: number,
+  raroi = 10,
+  consistency = 50
+): LeaderboardEntry {
   const metrics: TraderMetrics = {
     weeklyVolume: 100000,
     realizedPnl: 5000,
@@ -37,7 +45,11 @@ function makeEntry(id: string, rank: number, raroi = 10, consistency = 50): Lead
     metrics,
     rank,
     eligible: true,
-    qualification: { qualified: true, reason: "qualified", route: "group-stage" },
+    qualification: {
+      qualified: true,
+      reason: "qualified",
+      route: "group-stage",
+    },
     reward: { tier: "participation", label: "Participation", adxAmount: 0 },
   };
 }
@@ -87,7 +99,11 @@ test("challenge fails on starting equity below minimum (not paused)", () => {
     startingEquity: 30, // below minCapital of 50
   });
   assert.equal(result.passed, false);
-  assert.equal(result.paused, undefined, "starting equity failure should NOT be paused");
+  assert.equal(
+    result.paused,
+    undefined,
+    "starting equity failure should NOT be paused"
+  );
   assert.ok(result.reason?.includes("Insufficient capital"));
 });
 
@@ -102,13 +118,19 @@ test("pass-rate guardrail: <10 samples returns no adjustment", () => {
 test("pass-rate guardrail: >40% pass rate tightens profit target", () => {
   const result = evaluatePassRateGuardrail(challengeTiers.scout, 5, 10);
   assert.equal(result.adjustment, "tighten");
-  assert.equal(result.adjustedProfitTarget, challengeTiers.scout.profitTarget + 1);
+  assert.equal(
+    result.adjustedProfitTarget,
+    challengeTiers.scout.profitTarget + 1
+  );
 });
 
 test("pass-rate guardrail: <15% pass rate relaxes max drawdown", () => {
   const result = evaluatePassRateGuardrail(challengeTiers.scout, 1, 10);
   assert.equal(result.adjustment, "relax");
-  assert.equal(result.adjustedMaxDrawdown, challengeTiers.scout.maxDrawdown + 1);
+  assert.equal(
+    result.adjustedMaxDrawdown,
+    challengeTiers.scout.maxDrawdown + 1
+  );
 });
 
 test("pass-rate guardrail: 15-40% pass rate makes no adjustment", () => {
@@ -160,7 +182,10 @@ test("overtime_shield activates when margin < 5", () => {
     consumed: false,
   };
   const result = applyPowerUp(10, powerUp, 3); // margin 3 < 5
-  assert.ok(result.adjustedRaroi > 10, "overtime shield should boost when margin < 5");
+  assert.ok(
+    result.adjustedRaroi > 10,
+    "overtime shield should boost when margin < 5"
+  );
   assert.equal(result.powerUpUsed, true);
 });
 
@@ -211,12 +236,21 @@ test("resolveKnockoutMatch applies power-ups and marks consumed", () => {
   ];
 
   const match = resolveKnockoutMatch(
-    "match-1", "QF1", "quarterfinal",
-    left, right, undefined, powerUps
+    "match-1",
+    "QF1",
+    "quarterfinal",
+    left,
+    right,
+    undefined,
+    powerUps
   );
 
   assert.ok(match.winner, "should have a winner");
-  assert.equal(powerUps[0].consumed, true, "power-up should be consumed after use");
+  assert.equal(
+    powerUps[0].consumed,
+    true,
+    "power-up should be consumed after use"
+  );
 });
 
 // ── Knockout Buy-in ──────────────────────────────────────────────────────────
@@ -233,10 +267,34 @@ test("funded traders are exempt from knockout buy-in", () => {
 
 test("funded traders get priority seeding", () => {
   const records = [
-    { wallet: "funded1", tier: "Elite", passed: true, finalScore: 80, completedAt: 1 },
-    { wallet: "funded2", tier: "Apex", passed: true, finalScore: 90, completedAt: 2 },
-    { wallet: "regular1", tier: "Veteran", passed: true, finalScore: 95, completedAt: 3 },
-    { wallet: "regular2", tier: "Scout", passed: true, finalScore: 85, completedAt: 4 },
+    {
+      wallet: "funded1",
+      tier: "Elite",
+      passed: true,
+      finalScore: 80,
+      completedAt: 1,
+    },
+    {
+      wallet: "funded2",
+      tier: "Apex",
+      passed: true,
+      finalScore: 90,
+      completedAt: 2,
+    },
+    {
+      wallet: "regular1",
+      tier: "Veteran",
+      passed: true,
+      finalScore: 95,
+      completedAt: 3,
+    },
+    {
+      wallet: "regular2",
+      tier: "Scout",
+      passed: true,
+      finalScore: 85,
+      completedAt: 4,
+    },
   ];
 
   const seeding = computeWorldCupSeeding(records, 4);
@@ -251,8 +309,20 @@ test("funded traders get priority seeding", () => {
 
 test("failed challenges are excluded from seeding", () => {
   const records = [
-    { wallet: "winner", tier: "Elite", passed: true, finalScore: 80, completedAt: 1 },
-    { wallet: "loser", tier: "Elite", passed: false, finalScore: 90, completedAt: 2 },
+    {
+      wallet: "winner",
+      tier: "Elite",
+      passed: true,
+      finalScore: 80,
+      completedAt: 1,
+    },
+    {
+      wallet: "loser",
+      tier: "Elite",
+      passed: false,
+      finalScore: 90,
+      completedAt: 2,
+    },
   ];
 
   const seeding = computeWorldCupSeeding(records, 4);
@@ -262,8 +332,20 @@ test("failed challenges are excluded from seeding", () => {
 
 test("seeding deduplicates wallets, keeps best score", () => {
   const records = [
-    { wallet: "trader1", tier: "Elite", passed: true, finalScore: 60, completedAt: 1 },
-    { wallet: "trader1", tier: "Apex", passed: true, finalScore: 90, completedAt: 2 },
+    {
+      wallet: "trader1",
+      tier: "Elite",
+      passed: true,
+      finalScore: 60,
+      completedAt: 1,
+    },
+    {
+      wallet: "trader1",
+      tier: "Apex",
+      passed: true,
+      finalScore: 90,
+      completedAt: 2,
+    },
   ];
 
   const seeding = computeWorldCupSeeding(records, 4);

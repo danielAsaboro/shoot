@@ -12,7 +12,10 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
   const wallet = request.nextUrl.searchParams.get("wallet");
   if (!wallet) {
-    return NextResponse.json({ error: "wallet parameter required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "wallet parameter required" },
+      { status: 400 }
+    );
   }
 
   const windowStartParam = request.nextUrl.searchParams.get("windowStart");
@@ -26,7 +29,11 @@ export async function GET(request: NextRequest) {
 
   try {
     const positions = await fetchPositions(wallet, limit);
-    const metrics = computeMetricsFromPositions(positions, windowStart, windowEnd);
+    const metrics = computeMetricsFromPositions(
+      positions,
+      windowStart,
+      windowEnd
+    );
 
     const closedInWindow = positions.filter((p) => {
       if (p.status !== "close" && p.status !== "liquidate") return false;

@@ -15,7 +15,7 @@ import type { AdrenaPosition } from "../lib/adrena/client.ts";
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function mockPosition(
-  overrides: Partial<AdrenaPosition> & { exit_date: string },
+  overrides: Partial<AdrenaPosition> & { exit_date: string }
 ): AdrenaPosition {
   return {
     position_id: 1,
@@ -53,18 +53,23 @@ describe("selectDailyMissions", () => {
     const b = selectDailyMissions(new Date("2026-03-22"));
     assert.deepStrictEqual(
       a.map((m) => m.type),
-      b.map((m) => m.type),
+      b.map((m) => m.type)
     );
   });
 
   it("different dates produce at least some variety", () => {
     const results = new Set<string>();
     for (let day = 1; day <= 10; day++) {
-      const missions = selectDailyMissions(new Date(`2026-03-${String(day).padStart(2, "0")}`));
+      const missions = selectDailyMissions(
+        new Date(`2026-03-${String(day).padStart(2, "0")}`)
+      );
       results.add(missions.map((m) => m.type).join(","));
     }
     // With 5-choose-3 = 10 combos, 10 different days should yield more than 1 distinct set
-    assert.ok(results.size > 1, `Expected variety across 10 days, got ${results.size} unique set(s)`);
+    assert.ok(
+      results.size > 1,
+      `Expected variety across 10 days, got ${results.size} unique set(s)`
+    );
   });
 
   it("every returned mission exists in the catalog", () => {
@@ -83,11 +88,23 @@ describe("evaluateBestRoi", () => {
     const positions = new Map<string, AdrenaPosition[]>([
       [
         "walletA",
-        [mockPosition({ pnl: 100, collateral_amount: 200, exit_date: "2026-03-22T10:00:00.000Z" })],
+        [
+          mockPosition({
+            pnl: 100,
+            collateral_amount: 200,
+            exit_date: "2026-03-22T10:00:00.000Z",
+          }),
+        ],
       ],
       [
         "walletB",
-        [mockPosition({ pnl: 300, collateral_amount: 200, exit_date: "2026-03-22T12:00:00.000Z" })],
+        [
+          mockPosition({
+            pnl: 300,
+            collateral_amount: 200,
+            exit_date: "2026-03-22T12:00:00.000Z",
+          }),
+        ],
       ],
     ]);
 
@@ -103,7 +120,13 @@ describe("evaluateBestRoi", () => {
     const positions = new Map<string, AdrenaPosition[]>([
       [
         "walletA",
-        [mockPosition({ pnl: 500, collateral_amount: 100, exit_date: "2026-03-21T23:59:59.000Z" })],
+        [
+          mockPosition({
+            pnl: 500,
+            collateral_amount: 100,
+            exit_date: "2026-03-21T23:59:59.000Z",
+          }),
+        ],
       ],
     ]);
 
@@ -125,10 +148,7 @@ describe("evaluateMostTrades", () => {
           mockPosition({ exit_date: "2026-03-22T03:00:00.000Z" }),
         ],
       ],
-      [
-        "walletB",
-        [mockPosition({ exit_date: "2026-03-22T05:00:00.000Z" })],
-      ],
+      ["walletB", [mockPosition({ exit_date: "2026-03-22T05:00:00.000Z" })]],
     ]);
 
     const results = evaluateMostTrades(positions, WINDOW_START, WINDOW_END);
@@ -143,7 +163,10 @@ describe("evaluateMostTrades", () => {
       [
         "walletA",
         [
-          mockPosition({ status: "open", exit_date: null as unknown as string }),
+          mockPosition({
+            status: "open",
+            exit_date: null as unknown as string,
+          }),
           mockPosition({ exit_date: "2026-03-22T01:00:00.000Z" }),
         ],
       ],
@@ -162,13 +185,24 @@ describe("evaluateHighestVolume", () => {
       [
         "walletA",
         [
-          mockPosition({ entry_size: 5000, exit_date: "2026-03-22T10:00:00.000Z" }),
-          mockPosition({ entry_size: 3000, exit_date: "2026-03-22T11:00:00.000Z" }),
+          mockPosition({
+            entry_size: 5000,
+            exit_date: "2026-03-22T10:00:00.000Z",
+          }),
+          mockPosition({
+            entry_size: 3000,
+            exit_date: "2026-03-22T11:00:00.000Z",
+          }),
         ],
       ],
       [
         "walletB",
-        [mockPosition({ entry_size: 7000, exit_date: "2026-03-22T12:00:00.000Z" })],
+        [
+          mockPosition({
+            entry_size: 7000,
+            exit_date: "2026-03-22T12:00:00.000Z",
+          }),
+        ],
       ],
     ]);
 

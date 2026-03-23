@@ -121,7 +121,12 @@ export function EquityDetailChart({
             <rect x={offsetX} y={0} width={chartW} height={baselineY} />
           </clipPath>
           <clipPath id="eq-clip-below">
-            <rect x={offsetX} y={baselineY} width={chartW} height={chartH - baselineY + padding * 2} />
+            <rect
+              x={offsetX}
+              y={baselineY}
+              width={chartW}
+              height={chartH - baselineY + padding * 2}
+            />
           </clipPath>
         </defs>
 

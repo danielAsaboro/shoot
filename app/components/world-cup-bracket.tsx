@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import type { FinalsBracket, FinalsMatch, LeaderboardEntry } from "@/lib/world-cup/types";
+import type {
+  FinalsBracket,
+  FinalsMatch,
+  LeaderboardEntry,
+} from "@/lib/world-cup/types";
 import type { AssetClassId } from "@/lib/world-cup/types";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -15,11 +19,14 @@ interface Props {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const cupColors: Record<AssetClassId, { accent: string; dim: string; label: string }> = {
+const cupColors: Record<
+  AssetClassId,
+  { accent: string; dim: string; label: string }
+> = {
   crypto: { accent: "#3D7FFF", dim: "#1a2a4f", label: "CRYPTO CUP" },
   metals: { accent: "#BFFF00", dim: "#2a3300", label: "METALS CUP" },
   energy: { accent: "#FF3D3D", dim: "#3d1111", label: "ENERGY CUP" },
-  forex:  { accent: "#00FF87", dim: "#0d2e1a", label: "FOREX CUP" },
+  forex: { accent: "#00FF87", dim: "#0d2e1a", label: "FOREX CUP" },
 };
 
 // ── Trader slot ────────────────────────────────────────────────────────────────
@@ -57,7 +64,9 @@ function TraderSlot({
         onClick={onToggle}
         style={{
           borderRadius: "2px",
-          background: isWinner ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.02)",
+          background: isWinner
+            ? "rgba(255,255,255,0.04)"
+            : "rgba(255,255,255,0.02)",
           borderColor: isWinner ? `${accent}60` : "rgba(255,255,255,0.08)",
           borderLeft: isWinner ? `4px solid ${accent}` : undefined,
           boxShadow: isWinner ? `0 0 16px ${accent}22` : "none",
@@ -82,7 +91,9 @@ function TraderSlot({
             >
               {entry.trader.alias}
             </p>
-            <p className="text-[10px] text-white/30 truncate">{entry.trader.name}</p>
+            <p className="text-[10px] text-white/30 truncate">
+              {entry.trader.name}
+            </p>
           </div>
         </div>
         <div className="flex-shrink-0 text-right">
@@ -96,7 +107,9 @@ function TraderSlot({
             {entry.score.toFixed(1)}
           </p>
           {!entry.eligible && (
-            <p className="text-[9px] font-bold" style={{ color: "#FF3D3D" }}>FLAGGED</p>
+            <p className="text-[9px] font-bold" style={{ color: "#FF3D3D" }}>
+              FLAGGED
+            </p>
           )}
         </div>
         {isWinner && (
@@ -119,10 +132,42 @@ function TraderSlot({
           className="mt-1 grid grid-cols-2 gap-1 border border-white/5 bg-black/40 p-2 text-[10px]"
           style={{ borderRadius: "2px" }}
         >
-          <div><span className="text-white/40">RAROI:</span> <span className="text-white/70" style={{ fontFamily: "var(--font-mono)" }}>{entry.metrics.riskAdjustedPnl.toFixed(1)}</span></div>
-          <div><span className="text-white/40">Win Rate:</span> <span className="text-white/70" style={{ fontFamily: "var(--font-mono)" }}>{entry.metrics.consistency.toFixed(0)}%</span></div>
-          <div><span className="text-white/40">Trades:</span> <span className="text-white/70" style={{ fontFamily: "var(--font-mono)" }}>{entry.metrics.tradeCount}</span></div>
-          <div><span className="text-white/40">Drawdown:</span> <span className="text-white/70" style={{ fontFamily: "var(--font-mono)" }}>{entry.metrics.drawdown.toFixed(1)}%</span></div>
+          <div>
+            <span className="text-white/40">RAROI:</span>{" "}
+            <span
+              className="text-white/70"
+              style={{ fontFamily: "var(--font-mono)" }}
+            >
+              {entry.metrics.riskAdjustedPnl.toFixed(1)}
+            </span>
+          </div>
+          <div>
+            <span className="text-white/40">Win Rate:</span>{" "}
+            <span
+              className="text-white/70"
+              style={{ fontFamily: "var(--font-mono)" }}
+            >
+              {entry.metrics.consistency.toFixed(0)}%
+            </span>
+          </div>
+          <div>
+            <span className="text-white/40">Trades:</span>{" "}
+            <span
+              className="text-white/70"
+              style={{ fontFamily: "var(--font-mono)" }}
+            >
+              {entry.metrics.tradeCount}
+            </span>
+          </div>
+          <div>
+            <span className="text-white/40">Drawdown:</span>{" "}
+            <span
+              className="text-white/70"
+              style={{ fontFamily: "var(--font-mono)" }}
+            >
+              {entry.metrics.drawdown.toFixed(1)}%
+            </span>
+          </div>
         </div>
       )}
     </div>
@@ -157,21 +202,25 @@ function MatchBlock({
   expandedId?: string | null;
   onToggleExpand?: (id: string) => void;
 }) {
-  const marginText = match.winner
-    ? `+${match.margin.toFixed(1)} pts`
-    : null;
+  const marginText = match.winner ? `+${match.margin.toFixed(1)} pts` : null;
 
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between mb-1.5">
         <p
           className="text-[10px] tracking-wider text-white/30 font-bold"
-          style={{ fontFamily: "var(--font-display)", textTransform: "uppercase" }}
+          style={{
+            fontFamily: "var(--font-display)",
+            textTransform: "uppercase",
+          }}
         >
           {label}
         </p>
         {isLive && (
-          <span className="flex items-center gap-1.5 text-[10px] font-bold" style={{ color: "#FF3D3D" }}>
+          <span
+            className="flex items-center gap-1.5 text-[10px] font-bold"
+            style={{ color: "#FF3D3D" }}
+          >
             <span
               className="animate-live-blink"
               style={{
@@ -186,7 +235,12 @@ function MatchBlock({
           </span>
         )}
         {marginText && (
-          <span className="text-[10px] text-white/30" style={{ fontFamily: "var(--font-mono)" }}>{marginText} margin</span>
+          <span
+            className="text-[10px] text-white/30"
+            style={{ fontFamily: "var(--font-mono)" }}
+          >
+            {marginText} margin
+          </span>
         )}
       </div>
       <TraderSlot
@@ -198,7 +252,10 @@ function MatchBlock({
         onToggle={() => match.left && onToggleExpand?.(match.left.trader.id)}
       />
       <div className="flex items-center gap-2 px-3">
-        <div className="flex-1 border-t" style={{ borderColor: `${accent}30` }} />
+        <div
+          className="flex-1 border-t"
+          style={{ borderColor: `${accent}30` }}
+        />
         {!match.winner && match.left && match.right ? (
           <button
             type="button"
@@ -222,7 +279,10 @@ function MatchBlock({
             VS
           </span>
         )}
-        <div className="flex-1 border-t" style={{ borderColor: `${accent}30` }} />
+        <div
+          className="flex-1 border-t"
+          style={{ borderColor: `${accent}30` }}
+        />
       </div>
       <TraderSlot
         entry={match.right}
@@ -245,14 +305,24 @@ const SF_CONNECTOR_W = 32;
 
 // ── Main bracket ──────────────────────────────────────────────────────────────
 
-export function WorldCupBracket({ bracket, cupId, divisionChampions, onBracketUpdate }: Props) {
+export function WorldCupBracket({
+  bracket,
+  cupId,
+  divisionChampions,
+  onBracketUpdate,
+}: Props) {
   const c = cupColors[cupId];
   const [liveBracket, setLiveBracket] = useState<FinalsBracket>(bracket);
   const [expandedTraderId, setExpandedTraderId] = useState<string | null>(null);
-  const [redemptionMatch, setRedemptionMatch] = useState<FinalsMatch | null>(null);
+  const [redemptionMatch, setRedemptionMatch] = useState<FinalsMatch | null>(
+    null
+  );
 
   // Sync with props when bracket changes externally
-  const bracketKey = JSON.stringify({ sf: bracket.semiFinals.map(m => m.winner?.trader.id), f: bracket.final.winner?.trader.id });
+  const bracketKey = JSON.stringify({
+    sf: bracket.semiFinals.map((m) => m.winner?.trader.id),
+    f: bracket.final.winner?.trader.id,
+  });
   const [lastBracketKey, setLastBracketKey] = useState(bracketKey);
   if (bracketKey !== lastBracketKey) {
     setLiveBracket(bracket);
@@ -266,7 +336,7 @@ export function WorldCupBracket({ bracket, cupId, divisionChampions, onBracketUp
     updated.semiFinals[index] = simulateMatch(updated.semiFinals[index]);
 
     // If both semis are resolved, populate the final
-    if (updated.semiFinals.every(sf => sf.winner)) {
+    if (updated.semiFinals.every((sf) => sf.winner)) {
       updated.final = {
         ...updated.final,
         left: updated.semiFinals[0].winner,
@@ -290,7 +360,7 @@ export function WorldCupBracket({ bracket, cupId, divisionChampions, onBracketUp
         updated.semiFinals[i] = simulateMatch(updated.semiFinals[i]);
       }
     }
-    if (updated.semiFinals.every(sf => sf.winner)) {
+    if (updated.semiFinals.every((sf) => sf.winner)) {
       updated.final = {
         ...updated.final,
         left: updated.semiFinals[0].winner,
@@ -305,7 +375,7 @@ export function WorldCupBracket({ bracket, cupId, divisionChampions, onBracketUp
   }
 
   function toggleExpand(id: string) {
-    setExpandedTraderId(prev => prev === id ? null : id);
+    setExpandedTraderId((prev) => (prev === id ? null : id));
   }
 
   return (
@@ -328,13 +398,20 @@ export function WorldCupBracket({ bracket, cupId, divisionChampions, onBracketUp
         <div>
           <p
             className="text-[10px] tracking-wider text-white/40"
-            style={{ fontFamily: "var(--font-display)", textTransform: "uppercase" }}
+            style={{
+              fontFamily: "var(--font-display)",
+              textTransform: "uppercase",
+            }}
           >
             FINALS BRACKET
           </p>
           <h3
             className="font-bold text-white text-lg"
-            style={{ fontFamily: "var(--font-display)", textTransform: "uppercase", letterSpacing: "0.05em" }}
+            style={{
+              fontFamily: "var(--font-display)",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            }}
           >
             {c.label}
           </h3>
@@ -372,7 +449,10 @@ export function WorldCupBracket({ bracket, cupId, divisionChampions, onBracketUp
           <div style={{ flex: 1, minWidth: 0 }}>
             <p
               className="text-center text-[10px] tracking-wider text-white/30 mb-2 font-bold"
-              style={{ fontFamily: "var(--font-display)", textTransform: "uppercase" }}
+              style={{
+                fontFamily: "var(--font-display)",
+                textTransform: "uppercase",
+              }}
             >
               SEMI-FINALS
             </p>
@@ -412,20 +492,39 @@ export function WorldCupBracket({ bracket, cupId, divisionChampions, onBracketUp
             style={{ flexShrink: 0, marginTop: 24 }}
           >
             {/* SF1 center → midpoint */}
-            <path d={`M 0 ${SF_CELL_H * 0.5} H ${SF_CONNECTOR_W / 2}`} stroke={c.accent} strokeWidth="3" />
+            <path
+              d={`M 0 ${SF_CELL_H * 0.5} H ${SF_CONNECTOR_W / 2}`}
+              stroke={c.accent}
+              strokeWidth="3"
+            />
             {/* SF2 center → midpoint */}
-            <path d={`M 0 ${SF_CELL_H * 1.5} H ${SF_CONNECTOR_W / 2}`} stroke={c.accent} strokeWidth="3" />
+            <path
+              d={`M 0 ${SF_CELL_H * 1.5} H ${SF_CONNECTOR_W / 2}`}
+              stroke={c.accent}
+              strokeWidth="3"
+            />
             {/* Vertical bar joining them */}
-            <path d={`M ${SF_CONNECTOR_W / 2} ${SF_CELL_H * 0.5} V ${SF_CELL_H * 1.5}`} stroke={c.accent} strokeWidth="3" />
+            <path
+              d={`M ${SF_CONNECTOR_W / 2} ${SF_CELL_H * 0.5} V ${SF_CELL_H * 1.5}`}
+              stroke={c.accent}
+              strokeWidth="3"
+            />
             {/* Output line to Final at midpoint = SF_TOTAL_H / 2 */}
-            <path d={`M ${SF_CONNECTOR_W / 2} ${SF_TOTAL_H / 2} H ${SF_CONNECTOR_W}`} stroke={c.accent} strokeWidth="3" />
+            <path
+              d={`M ${SF_CONNECTOR_W / 2} ${SF_TOTAL_H / 2} H ${SF_CONNECTOR_W}`}
+              stroke={c.accent}
+              strokeWidth="3"
+            />
           </svg>
 
           {/* Final column */}
           <div style={{ flex: 1, minWidth: 0 }}>
             <p
               className="text-center text-[10px] tracking-wider text-white/30 mb-2 font-bold"
-              style={{ fontFamily: "var(--font-display)", textTransform: "uppercase" }}
+              style={{
+                fontFamily: "var(--font-display)",
+                textTransform: "uppercase",
+              }}
             >
               GRAND FINAL
             </p>
@@ -489,7 +588,9 @@ export function WorldCupBracket({ bracket, cupId, divisionChampions, onBracketUp
                     >
                       {finalMatch.winner.trader.alias}
                     </p>
-                    <p className="text-xs text-white/50 mt-1">{finalMatch.winner.trader.name}</p>
+                    <p className="text-xs text-white/50 mt-1">
+                      {finalMatch.winner.trader.name}
+                    </p>
                     <p
                       className="mt-2 font-bold"
                       style={{
@@ -509,7 +610,7 @@ export function WorldCupBracket({ bracket, cupId, divisionChampions, onBracketUp
       </div>
 
       {/* Simulate all button */}
-      {(!semiFinals.every(sf => sf.winner) || !finalMatch.winner) && (
+      {(!semiFinals.every((sf) => sf.winner) || !finalMatch.winner) && (
         <div className="flex justify-center">
           <button
             type="button"
@@ -530,8 +631,10 @@ export function WorldCupBracket({ bracket, cupId, divisionChampions, onBracketUp
       {/* Redemption bracket */}
       {(() => {
         const sfLosers = semiFinals
-          .filter(sf => sf.winner && sf.left && sf.right)
-          .map(sf => sf.winner!.trader.id === sf.left!.trader.id ? sf.right! : sf.left!);
+          .filter((sf) => sf.winner && sf.left && sf.right)
+          .map((sf) =>
+            sf.winner!.trader.id === sf.left!.trader.id ? sf.right! : sf.left!
+          );
         if (sfLosers.length < 2) {
           return (
             <div
@@ -542,17 +645,26 @@ export function WorldCupBracket({ bracket, cupId, divisionChampions, onBracketUp
                 <div>
                   <p
                     className="text-xs font-bold text-white/60"
-                    style={{ fontFamily: "var(--font-display)", textTransform: "uppercase", letterSpacing: "0.05em" }}
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                    }}
                   >
                     REDEMPTION BRACKET
                   </p>
                   <p className="text-[11px] text-white/30">
-                    All SF losers continue here · Separate prize pool · &ldquo;Comeback&rdquo; badge for winner
+                    All SF losers continue here · Separate prize pool ·
+                    &ldquo;Comeback&rdquo; badge for winner
                   </p>
                 </div>
                 <span
                   className="px-3 py-1 text-[10px] font-bold text-white/40 border border-white/10"
-                  style={{ borderRadius: "2px", fontFamily: "var(--font-display)", textTransform: "uppercase" }}
+                  style={{
+                    borderRadius: "2px",
+                    fontFamily: "var(--font-display)",
+                    textTransform: "uppercase",
+                  }}
                 >
                   WAITING FOR SF RESULTS
                 </span>
@@ -560,7 +672,12 @@ export function WorldCupBracket({ bracket, cupId, divisionChampions, onBracketUp
             </div>
           );
         }
-        const rm = redemptionMatch ?? { label: "Redemption", left: sfLosers[0], right: sfLosers[1], margin: 0 };
+        const rm = redemptionMatch ?? {
+          label: "Redemption",
+          left: sfLosers[0],
+          right: sfLosers[1],
+          margin: 0,
+        };
         return (
           <div
             className="border p-4"
@@ -574,7 +691,12 @@ export function WorldCupBracket({ bracket, cupId, divisionChampions, onBracketUp
               <div>
                 <p
                   className="text-xs font-bold"
-                  style={{ color: "#BFFF00", fontFamily: "var(--font-display)", textTransform: "uppercase", letterSpacing: "0.05em" }}
+                  style={{
+                    color: "#BFFF00",
+                    fontFamily: "var(--font-display)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                  }}
                 >
                   REDEMPTION BRACKET
                 </p>
@@ -617,7 +739,8 @@ export function WorldCupBracket({ bracket, cupId, divisionChampions, onBracketUp
           className="border p-5"
           style={{
             borderRadius: "4px",
-            background: "linear-gradient(135deg, rgba(0,240,255,0.06), rgba(0,240,255,0.02))",
+            background:
+              "linear-gradient(135deg, rgba(0,240,255,0.06), rgba(0,240,255,0.02))",
             borderColor: "rgba(0,240,255,0.25)",
             boxShadow: "0 0 60px rgba(0,240,255,0.08)",
           }}
@@ -641,16 +764,24 @@ export function WorldCupBracket({ bracket, cupId, divisionChampions, onBracketUp
             <div>
               <p
                 className="font-bold text-white text-lg"
-                style={{ fontFamily: "var(--font-display)", textTransform: "uppercase", letterSpacing: "0.08em" }}
+                style={{
+                  fontFamily: "var(--font-display)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                }}
               >
                 GRAND CHAMPIONSHIP
               </p>
-              <p className="text-xs text-white/40">4 Division Champions · 48-hour battle across all markets</p>
+              <p className="text-xs text-white/40">
+                4 Division Champions · 48-hour battle across all markets
+              </p>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {divisionChampions.map((champ) => {
-              const cc = cupColors[champ.trader.specialization as AssetClassId] ?? cupColors.crypto;
+              const cc =
+                cupColors[champ.trader.specialization as AssetClassId] ??
+                cupColors.crypto;
               return (
                 <div
                   key={champ.trader.id}
@@ -672,8 +803,12 @@ export function WorldCupBracket({ bracket, cupId, divisionChampions, onBracketUp
                   >
                     {cc.label.replace(" CUP", "")}
                   </p>
-                  <p className="text-xs font-bold text-white mt-1">{champ.trader.alias}</p>
-                  <p className="text-[10px] text-white/40">{champ.trader.name}</p>
+                  <p className="text-xs font-bold text-white mt-1">
+                    {champ.trader.alias}
+                  </p>
+                  <p className="text-[10px] text-white/40">
+                    {champ.trader.name}
+                  </p>
                 </div>
               );
             })}
@@ -688,7 +823,11 @@ export function WorldCupBracket({ bracket, cupId, divisionChampions, onBracketUp
           >
             <span
               className="text-xs font-bold"
-              style={{ color: "#00F0FF", fontFamily: "var(--font-display)", textTransform: "uppercase" }}
+              style={{
+                color: "#00F0FF",
+                fontFamily: "var(--font-display)",
+                textTransform: "uppercase",
+              }}
             >
               GRAND CHAMPION PRIZE
             </span>

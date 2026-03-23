@@ -10,74 +10,104 @@ All features below are fully implemented with PostgreSQL persistence, real Adren
 
 ### Core Competition Engine
 
-| Feature | Description | Key Files |
-|---------|-------------|-----------|
-| Leaderboard & Scoring | Multi-dimensional scoring from real closed positions | `lib/competition/engine.ts` |
-| Challenge Evaluation | 5-tier prop challenges with profit targets, drawdown limits, daily loss caps | `lib/competition/engine.ts` |
-| Enrollment & Entry Payments | On-chain USDC enrollment via Shoot Anchor program with PDA vaults | `lib/solana/program.ts`, `programs/shoot/src/lib.rs` |
-| Settlement Pipeline | On-chain USDC payouts from vault to traders on cohort settlement | `lib/solana/settle.ts`, `app/api/admin/settle/route.ts` |
-| Sybil Detection | 3-heuristic convergence filter (funding clustering, pattern correlation, PnL mirroring) | `lib/competition/sybil-detector.ts` |
-| Adrena Live Adapter | Real-time position fetch from `datapi.adrena.trade`, metric computation, snapshot assembly | `lib/competition/adrena-live-adapter.ts` |
-| Projection Lab | Interactive what-if scoring with slider inputs against live cohort data | `app/components/projection-lab.tsx` |
-| Specialist Challenges | Asset-class restrictions (Forex, Commodities, Crypto, Multi-Asset) driving RWA adoption | `lib/competition/config.ts` |
-| Cron Score Refresh | 5-minute automated score refresh + cohort rotation via external POST triggers | `app/api/cron/refresh-scores/route.ts` |
+| Feature                     | Description                                                                                | Key Files                                               |
+| --------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------- |
+| Leaderboard & Scoring       | Multi-dimensional scoring from real closed positions                                       | `lib/competition/engine.ts`                             |
+| Challenge Evaluation        | 5-tier prop challenges with profit targets, drawdown limits, daily loss caps               | `lib/competition/engine.ts`                             |
+| Enrollment & Entry Payments | On-chain USDC enrollment via Shoot Anchor program with PDA vaults                          | `lib/solana/program.ts`, `programs/shoot/src/lib.rs`    |
+| Settlement Pipeline         | On-chain USDC payouts from vault to traders on cohort settlement                           | `lib/solana/settle.ts`, `app/api/admin/settle/route.ts` |
+| Sybil Detection             | 3-heuristic convergence filter (funding clustering, pattern correlation, PnL mirroring)    | `lib/competition/sybil-detector.ts`                     |
+| Adrena Live Adapter         | Real-time position fetch from `datapi.adrena.trade`, metric computation, snapshot assembly | `lib/competition/adrena-live-adapter.ts`                |
+| Projection Lab              | Interactive what-if scoring with slider inputs against live cohort data                    | `app/components/projection-lab.tsx`                     |
+| Specialist Challenges       | Asset-class restrictions (Forex, Commodities, Crypto, Multi-Asset) driving RWA adoption    | `lib/competition/config.ts`                             |
+| Cron Score Refresh          | 5-minute automated score refresh + cohort rotation via external POST triggers              | `app/api/cron/refresh-scores/route.ts`                  |
 
 ### Engagement Systems
 
-| Feature | Description | Key Files |
-|---------|-------------|-----------|
-| Quests (server-side) | 10 quests across 3 phases, DB-backed progress tracking, trigger-based completion | `lib/competition/quests.ts`, `app/api/competition/quests/route.ts` |
-| Streaks (server-side) | DB-backed streak state machine with multiplier bands (up to 5x at 10+ days) | `lib/competition/streaks.ts`, `app/api/competition/streak/route.ts` |
-| Raffle Drawings | Cryptographic weighted random selection with DB persistence | `lib/competition/raffle.ts` |
-| Head-to-Head Matchups | Paired trader comparisons with momentum tracking | `app/api/competition/matchups/route.ts` |
-| Rivalry Tracking | Multi-match rivalry detection with intensity scoring and narrative tags | `lib/competition/rivalries.ts` |
-| Live Commentary | Narrative beat generation (rank surges, upsets, comebacks) with SSE streaming + DB persistence | `lib/competition/narrative.ts`, `app/api/competition/stream/route.ts` |
-| Spectator Voting | DB-persisted votes with aggregation and crowd favorites computation | `app/api/world-cup/vote/route.ts`, `lib/competition/spectator.ts` |
-| Desk Wars | 8 desks with aggregate scoring, promotion/relegation, and UI | `lib/competition/desks.ts`, `app/components/competition-funded-desk.tsx` |
+| Feature               | Description                                                                                    | Key Files                                                                |
+| --------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Quests (server-side)  | 10 quests across 3 phases, DB-backed progress tracking, trigger-based completion               | `lib/competition/quests.ts`, `app/api/competition/quests/route.ts`       |
+| Streaks (server-side) | DB-backed streak state machine with multiplier bands (up to 5x at 10+ days)                    | `lib/competition/streaks.ts`, `app/api/competition/streak/route.ts`      |
+| Raffle Drawings       | Cryptographic weighted random selection with DB persistence                                    | `lib/competition/raffle.ts`                                              |
+| Head-to-Head Matchups | Paired trader comparisons with momentum tracking                                               | `app/api/competition/matchups/route.ts`                                  |
+| Rivalry Tracking      | Multi-match rivalry detection with intensity scoring and narrative tags                        | `lib/competition/rivalries.ts`                                           |
+| Live Commentary       | Narrative beat generation (rank surges, upsets, comebacks) with SSE streaming + DB persistence | `lib/competition/narrative.ts`, `app/api/competition/stream/route.ts`    |
+| Spectator Voting      | DB-persisted votes with aggregation and crowd favorites computation                            | `app/api/world-cup/vote/route.ts`, `lib/competition/spectator.ts`        |
+| Desk Wars             | 8 desks with aggregate scoring, promotion/relegation, and UI                                   | `lib/competition/desks.ts`, `app/components/competition-funded-desk.tsx` |
 
 ### World Cup Tournament
 
-| Feature | Description | Key Files |
-|---------|-------------|-----------|
-| Group Stage | Seeded group draw with round-robin scheduling and tiebreakers | `lib/world-cup/group-draw.ts` |
-| Knockout Bracket | Single-elimination bracket with RAROI head-to-head scoring | `lib/world-cup/engine.ts` |
-| Redemption Bracket | Re-entry path for eliminated traders | `app/api/world-cup/redemption/route.ts` |
-| 4 Divisions | Crypto Cup, Metals Cup, Energy Cup, Forex Cup with division-specific market restrictions | `lib/world-cup/engine.ts` |
-| Live World Cup Data | Fetches live positions for World Cup traders from Adrena API | `lib/world-cup/live-adapter.ts` |
+| Feature             | Description                                                                              | Key Files                               |
+| ------------------- | ---------------------------------------------------------------------------------------- | --------------------------------------- |
+| Group Stage         | Seeded group draw with round-robin scheduling and tiebreakers                            | `lib/world-cup/group-draw.ts`           |
+| Knockout Bracket    | Single-elimination bracket with RAROI head-to-head scoring                               | `lib/world-cup/engine.ts`               |
+| Redemption Bracket  | Re-entry path for eliminated traders                                                     | `app/api/world-cup/redemption/route.ts` |
+| 4 Divisions         | Crypto Cup, Metals Cup, Energy Cup, Forex Cup with division-specific market restrictions | `lib/world-cup/engine.ts`               |
+| Live World Cup Data | Fetches live positions for World Cup traders from Adrena API                             | `lib/world-cup/live-adapter.ts`         |
 
 ### Financial
 
-| Feature | Description | Key Files |
-|---------|-------------|-----------|
-| Fee Allocation | 60% rewards, 25% ADX buyback, 15% raffle — computed on settlement | `lib/competition/engine.ts` |
-| ADX Buyback | Jupiter V6 swap (USDC → ADX) executed on cohort settlement | `lib/competition/buyback.ts` |
+| Feature                    | Description                                                         | Key Files                          |
+| -------------------------- | ------------------------------------------------------------------- | ---------------------------------- |
+| Fee Allocation             | 60% rewards, 25% ADX buyback, 15% raffle — computed on settlement   | `lib/competition/engine.ts`        |
+| ADX Buyback                | Jupiter V6 swap (USDC → ADX) executed on cohort settlement          | `lib/competition/buyback.ts`       |
 | Funded Ladder (evaluation) | 5-tier evaluation logic (Watchlist → Partner) with point thresholds | `lib/competition/funded-ladder.ts` |
+
+### Autopilot (24/7 Autonomous Trading)
+
+| Feature              | Description                                                                          | Key Files                           |
+| -------------------- | ------------------------------------------------------------------------------------ | ----------------------------------- |
+| Autopilot SDK        | TypeScript SDK with 5 playbooks, risk harness, autonomous execution loop             | `sdk/src/`                          |
+| TrendSurfer Playbook | MACD histogram zero-line crossover for trend detection                               | `sdk/src/playbooks/trend-surfer.ts` |
+| FadeTrader Playbook  | Keltner Channel + Stochastic confirmation fade                                       | `sdk/src/playbooks/fade-trader.ts`  |
+| RangeSniper Playbook | ATR squeeze-expansion with VWAP directional bias                                     | `sdk/src/playbooks/range-sniper.ts` |
+| FundingArb Playbook  | Perpetual funding rate mean-reversion (unique to perps)                              | `sdk/src/playbooks/funding-arb.ts`  |
+| GridRunner Playbook  | Dynamic ATR-based grid around VWAP anchor                                            | `sdk/src/playbooks/grid-runner.ts`  |
+| Indicators           | VWAP, ATR, MACD, Stochastic, Keltner Channels — all pure functions                   | `sdk/src/indicators/`               |
+| RiskHarness          | Risk enforcement: ceiling leverage, exposure fraction, cut-loss, lock-gain, cooldown | `sdk/src/cockpit/risk-harness.ts`   |
+| Agent Registration   | On-chain agent PDA with ELO, W/L, strategy hash                                      | `programs/shoot/src/lib.rs`         |
+| OracleTap Price Feed | Real-time prices from Pyth Hermes with ReplayTap for testing                         | `sdk/src/feed/oracle-tap.ts`        |
+
+### Keeper Service (Rust)
+
+| Feature                     | Description                                                          | Key Files                       |
+| --------------------------- | -------------------------------------------------------------------- | ------------------------------- |
+| Yellowstone gRPC Subscriber | Real-time Adrena position monitoring with auto-reconnect             | `keeper/src/grpc/subscriber.rs` |
+| Position Decoder            | Borsh deserialization of Adrena's position struct                    | `keeper/src/grpc/decoder.rs`    |
+| Scoring Engine              | Pure-function composite score computation                            | `keeper/src/scoring/engine.rs`  |
+| Metrics Suite               | Net PnL, max drawdown, Sharpe, win rate, profit factor, equity curve | `keeper/src/scoring/metrics.rs` |
+| Lifecycle FSM               | Strict linear state machine (Upcoming → Live → Scoring → Settled)    | `keeper/src/lifecycle/fsm.rs`   |
+| REST API                    | Health, competitions, agents, leaderboard, SSE, Prometheus metrics   | `keeper/src/api/`               |
 
 ### Infrastructure
 
-| Component | Status |
-|-----------|--------|
-| PostgreSQL (Prisma) | 18 models, all state persisted to DB |
-| Anchor Program (devnet) | [`4HVnwG8...2iMG`](https://explorer.solana.com/address/4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG?cluster=devnet) — USDC vaults, enrollment PDAs, settlement |
-| Adrena Data API | Live position data from `datapi.adrena.trade` |
-| Discord Webhooks | Leaderboard changes, sybil alerts, challenge completions |
-| SSE Stream | Real-time leaderboard updates + narrative beats via Server-Sent Events |
-| Cron Endpoints | Score refresh (5min) + cohort rotation (15min) via external POST triggers |
-| Railway (Docker) | Multi-stage Docker build, deployed at [shoot-production-f218.up.railway.app](https://shoot-production-f218.up.railway.app/) |
+| Component               | Status                                                                                                                                                      |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PostgreSQL (Prisma)     | 18 models, all state persisted to DB                                                                                                                        |
+| Anchor Program (devnet) | [`4HVnwG8...2iMG`](https://explorer.solana.com/address/4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG?cluster=devnet) — 11 instructions, 22 errors, 11 events |
+| Keeper Service (Rust)   | Yellowstone gRPC + PostgreSQL + Axum — matches Adrena's keeper infrastructure                                                                               |
+| Adrena Data API         | Live position data from `datapi.adrena.trade`                                                                                                               |
+| Health Endpoint         | `/api/health` — DB ping, latency, status                                                                                                                    |
+| Discord Webhooks        | Leaderboard changes, sybil alerts, challenge completions                                                                                                    |
+| SSE Stream              | Real-time leaderboard updates + narrative beats via Server-Sent Events                                                                                      |
+| Cron Endpoints          | Score refresh (5min) + cohort rotation (15min) via external POST triggers                                                                                   |
+| Railway (Docker)        | Multi-stage Docker build, deployed at [shoot-production-f218.up.railway.app](https://shoot-production-f218.up.railway.app/)                                 |
 
 ## Phase 2 Design Proposals
 
 These features have type definitions and UI mockups but require additional infrastructure before production:
 
-| Feature | Requires | Description |
-|---------|----------|-------------|
-| Dynamic Risk Events | Real-time market data feed, event scheduler | 8 event types that modify trader metrics mid-competition |
+| Feature                  | Requires                                       | Description                                                                           |
+| ------------------------ | ---------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Dynamic Risk Events      | Real-time market data feed, event scheduler    | 8 event types that modify trader metrics mid-competition                              |
 | Funded Trader (on-chain) | On-chain revenue share program, admin multisig | Revenue share payouts on-chain (evaluation logic is implemented, distribution is not) |
 
 ## How to Test
 
 ```bash
-npm run dev           # http://localhost:3000 — live Adrena data
-npm test              # 191 tests across 21 suites
-npm run build         # production build
+npm run dev                         # http://localhost:3000 — live Adrena data
+npm test                            # 278 tests (main app)
+cd sdk && npm test                  # 144 tests (autopilot SDK)
+cd keeper && cargo test             # 60+ tests (keeper service)
+npm run build                       # production build
 ```

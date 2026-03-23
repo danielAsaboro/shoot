@@ -1,6 +1,4 @@
-import {
-  competitionConfig,
-} from "./config.ts";
+import { competitionConfig } from "./config.ts";
 import type {
   AbusePolicyResult,
   ChallengeTier,
@@ -109,7 +107,9 @@ export interface ChallengeEvaluation {
   pausedAt?: string;
 }
 
-function withConsolation(result: Omit<ChallengeEvaluation, "consolationRaffleTicket">): ChallengeEvaluation {
+function withConsolation(
+  result: Omit<ChallengeEvaluation, "consolationRaffleTicket">
+): ChallengeEvaluation {
   return { ...result, consolationRaffleTicket: result.passed ? 0 : 1 };
 }
 
@@ -164,7 +164,7 @@ export function evaluateChallenge(
 
   // Minimum trades check (default: 5)
   const minTrades = config?.minTrades ?? 5;
-  const tradeCount = performance.tradeCount ?? (trades?.length ?? minTrades);
+  const tradeCount = performance.tradeCount ?? trades?.length ?? minTrades;
   if (tradeCount < minTrades) {
     return withConsolation({
       passed: false,
@@ -329,7 +329,7 @@ export interface FeeAllocation {
 
 export function calculateFeeAllocation(totalFees: number): FeeAllocation {
   return {
-    rewards: Number((totalFees * 0.60).toFixed(2)),
+    rewards: Number((totalFees * 0.6).toFixed(2)),
     buyback: Number((totalFees * 0.25).toFixed(2)),
     raffle: Number((totalFees * 0.15).toFixed(2)),
     total: totalFees,
@@ -377,7 +377,7 @@ export function evaluatePassRateGuardrail(
 
   const passRate = passCount / totalCount;
 
-  if (passRate > 0.40) {
+  if (passRate > 0.4) {
     return {
       tierId: tier.id as ChallengeTierId,
       passRate,
@@ -404,4 +404,3 @@ export function evaluatePassRateGuardrail(
     adjustment: "none",
   };
 }
-

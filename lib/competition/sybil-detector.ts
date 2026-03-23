@@ -121,9 +121,7 @@ export function detectSybilClusters(wallets: WalletInfo[]): SybilCluster[] {
 
     const flagged = clustered.length >= FLAG_THRESHOLD;
     const confidence: SybilCluster["confidence"] =
-      flagged && tightEntry ? "high"
-      : flagged ? "medium"
-      : "low";
+      flagged && tightEntry ? "high" : flagged ? "medium" : "low";
 
     const reason = flagged
       ? `${clustered.length} wallets funded from ${source.slice(0, 8)}... within ${Math.round(FUNDING_WINDOW_MS / 60000)} min${tightEntry ? ", with synchronized competition entry" : ""}`
@@ -150,7 +148,10 @@ export function detectSybilClusters(wallets: WalletInfo[]): SybilCluster[] {
  * @param clusters - Pre-computed sybil clusters
  * @returns true if the wallet is in a flagged cluster
  */
-export function isWalletFlagged(wallet: string, clusters: SybilCluster[]): boolean {
+export function isWalletFlagged(
+  wallet: string,
+  clusters: SybilCluster[]
+): boolean {
   return clusters.some((c) => c.flagged && c.wallets.includes(wallet));
 }
 
@@ -201,7 +202,10 @@ const MAX_PAIRWISE_BATCH = 100;
  * Used as a fast pre-filter to skip Pearson correlation for wallets
  * that traded at completely different times.
  */
-function hasActivityOverlap(a: TradeTimestampProfile, b: TradeTimestampProfile): boolean {
+function hasActivityOverlap(
+  a: TradeTimestampProfile,
+  b: TradeTimestampProfile
+): boolean {
   if (a.timestamps.length === 0 || b.timestamps.length === 0) return false;
   const aMin = a.timestamps[0];
   const aMax = a.timestamps[a.timestamps.length - 1];
@@ -226,7 +230,11 @@ export function detectTradingPatternCorrelation(
   const flagged = new Set<string>();
 
   // Process in batches to bound comparisons
-  for (let batchStart = 0; batchStart < profiles.length; batchStart += MAX_PAIRWISE_BATCH) {
+  for (
+    let batchStart = 0;
+    batchStart < profiles.length;
+    batchStart += MAX_PAIRWISE_BATCH
+  ) {
     const batch = profiles.slice(batchStart, batchStart + MAX_PAIRWISE_BATCH);
 
     for (let i = 0; i < batch.length; i++) {
@@ -239,7 +247,10 @@ export function detectTradingPatternCorrelation(
 
         const corr = pearsonCorrelation(a.timestamps, b.timestamps);
 
-        if (corr >= PATTERN_CORRELATION_THRESHOLD && !flagged.has(`${a.wallet}-${b.wallet}`)) {
+        if (
+          corr >= PATTERN_CORRELATION_THRESHOLD &&
+          !flagged.has(`${a.wallet}-${b.wallet}`)
+        ) {
           flagged.add(`${a.wallet}-${b.wallet}`);
           clusters.push({
             heuristicType: "pattern",
@@ -274,9 +285,7 @@ export interface PnlProfile {
  * first, then only compares across buckets (O(p×n) where p=positive,
  * n=negative, instead of O(total^2)).
  */
-export function detectPnlMirroring(
-  profiles: PnlProfile[]
-): SybilCluster[] {
+export function detectPnlMirroring(profiles: PnlProfile[]): SybilCluster[] {
   const clusters: SybilCluster[] = [];
   const PNL_MIRROR_THRESHOLD = 2; // P&L magnitudes must be within 2% to flag
 

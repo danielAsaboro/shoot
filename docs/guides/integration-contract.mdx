@@ -8,18 +8,18 @@ This is the backend handoff for the `adrena` provider path.
 
 ## Endpoint
 
-| Route | URL |
-|---|---|
-| App provider expects | `GET {ADRENA_COMPETITION_API_BASE_URL}/snapshot` |
-| Example local route | `/api/adrena-upstream/snapshot` |
-| Source-mapped local route | `/api/adrena-upstream/mapped-snapshot` |
-| Machine-readable schema + example | `/api/adrena-upstream/schema` |
+| Route                             | URL                                              |
+| --------------------------------- | ------------------------------------------------ |
+| App provider expects              | `GET {ADRENA_COMPETITION_API_BASE_URL}/snapshot` |
+| Example local route               | `/api/adrena-upstream/snapshot`                  |
+| Source-mapped local route         | `/api/adrena-upstream/mapped-snapshot`           |
+| Machine-readable schema + example | `/api/adrena-upstream/schema`                    |
 
 ## Query Parameters
 
-| Parameter | Type | Description |
-|---|---|---|
-| `wallet` | string (optional) | Wallet address used to personalize viewer state |
+| Parameter          | Type              | Description                                     |
+| ------------------ | ----------------- | ----------------------------------------------- |
+| `wallet`           | string (optional) | Wallet address used to personalize viewer state |
 | `enrolledCohortId` | string (optional) | Cohort ID used to personalize viewer enrollment |
 
 ## Response Contract
@@ -51,7 +51,8 @@ The repo includes a concrete mapping layer in `lib/competition/adrena-source-ada
 ## Field Rules
 
 <Warning>
-All of the following rules are enforced at runtime — invalid payloads fail fast with descriptive field-level errors.
+  All of the following rules are enforced at runtime — invalid payloads fail
+  fast with descriptive field-level errors.
 </Warning>
 
 - All timestamps must be ISO strings.

@@ -9,20 +9,90 @@ import { useSafePrivy } from "@/app/hooks/use-safe-privy";
 // ── Badge definitions (config — keep as constant) ───────────────────────────
 
 const ALL_BADGES = [
-  { id: "scout_complete",           label: "Scout Complete",           icon: "🔵", earnHow: "Pass a Scout challenge" },
-  { id: "ranger_complete",          label: "Ranger Complete",          icon: "🟢", earnHow: "Pass a Ranger challenge" },
-  { id: "veteran_complete",         label: "Veteran Complete",         icon: "🟣", earnHow: "Pass a Veteran challenge" },
-  { id: "elite_complete",           label: "Elite Complete",           icon: "🟡", earnHow: "Pass an Elite challenge" },
-  { id: "apex_complete",            label: "Apex Complete",            icon: "🔴", earnHow: "Pass an Apex challenge" },
-  { id: "funded_trader",            label: "Funded Trader",            icon: "🏆", earnHow: "Pass Elite or Apex" },
-  { id: "forex_specialist",         label: "Forex Specialist",         icon: "💱", earnHow: "Pass Forex Specialist challenge" },
-  { id: "commodities_specialist",   label: "Commodities Specialist",   icon: "🥇", earnHow: "Pass Commodities Specialist" },
-  { id: "crypto_specialist",        label: "Crypto Specialist",        icon: "⚡", earnHow: "Pass Crypto Specialist" },
-  { id: "multi_asset_master",       label: "Multi-Asset Master",       icon: "🌐", earnHow: "Pass Multi-Asset Specialist" },
-  { id: "unbreakable",              label: "Unbreakable",              icon: "💎", earnHow: "10-day trading streak" },
-  { id: "world_cup_champion",       label: "World Cup Champion",       icon: "🌍", earnHow: "Win a World Cup division" },
-  { id: "grand_champion",           label: "Grand Champion",           icon: "👑", earnHow: "Win the Grand Championship" },
-  { id: "comeback",                 label: "Comeback King",            icon: "⚔️",  earnHow: "Win the Redemption Bracket" },
+  {
+    id: "scout_complete",
+    label: "Scout Complete",
+    icon: "🔵",
+    earnHow: "Pass a Scout challenge",
+  },
+  {
+    id: "ranger_complete",
+    label: "Ranger Complete",
+    icon: "🟢",
+    earnHow: "Pass a Ranger challenge",
+  },
+  {
+    id: "veteran_complete",
+    label: "Veteran Complete",
+    icon: "🟣",
+    earnHow: "Pass a Veteran challenge",
+  },
+  {
+    id: "elite_complete",
+    label: "Elite Complete",
+    icon: "🟡",
+    earnHow: "Pass an Elite challenge",
+  },
+  {
+    id: "apex_complete",
+    label: "Apex Complete",
+    icon: "🔴",
+    earnHow: "Pass an Apex challenge",
+  },
+  {
+    id: "funded_trader",
+    label: "Funded Trader",
+    icon: "🏆",
+    earnHow: "Pass Elite or Apex",
+  },
+  {
+    id: "forex_specialist",
+    label: "Forex Specialist",
+    icon: "💱",
+    earnHow: "Pass Forex Specialist challenge",
+  },
+  {
+    id: "commodities_specialist",
+    label: "Commodities Specialist",
+    icon: "🥇",
+    earnHow: "Pass Commodities Specialist",
+  },
+  {
+    id: "crypto_specialist",
+    label: "Crypto Specialist",
+    icon: "⚡",
+    earnHow: "Pass Crypto Specialist",
+  },
+  {
+    id: "multi_asset_master",
+    label: "Multi-Asset Master",
+    icon: "🌐",
+    earnHow: "Pass Multi-Asset Specialist",
+  },
+  {
+    id: "unbreakable",
+    label: "Unbreakable",
+    icon: "💎",
+    earnHow: "10-day trading streak",
+  },
+  {
+    id: "world_cup_champion",
+    label: "World Cup Champion",
+    icon: "🌍",
+    earnHow: "Win a World Cup division",
+  },
+  {
+    id: "grand_champion",
+    label: "Grand Champion",
+    icon: "👑",
+    earnHow: "Win the Grand Championship",
+  },
+  {
+    id: "comeback",
+    label: "Comeback King",
+    icon: "⚔️",
+    earnHow: "Win the Redemption Bracket",
+  },
 ] as const;
 
 // ── Types for API response ──────────────────────────────────────────────────
@@ -81,7 +151,10 @@ function rankToHeight(rank: number): number {
   const maxRank = 8;
   const minHeight = 12;
   if (rank <= 0) return 100;
-  return Math.round(minHeight + ((maxRank - Math.min(rank, maxRank)) / (maxRank - 1)) * (100 - minHeight));
+  return Math.round(
+    minHeight +
+      ((maxRank - Math.min(rank, maxRank)) / (maxRank - 1)) * (100 - minHeight)
+  );
 }
 
 /** Return initials for a display name (up to 2 chars). */
@@ -104,18 +177,24 @@ export default function ProfilePage() {
 
   // Extract wallet address from Privy user
   const wallet = user?.wallet?.address ?? null;
-  const walletShort = wallet ? wallet.slice(0, 4) + "..." + wallet.slice(-4) : null;
+  const walletShort = wallet
+    ? wallet.slice(0, 4) + "..." + wallet.slice(-4)
+    : null;
 
   useEffect(() => {
     if (!wallet) {
-      setProfile(null);
-      setNotFound(false);
+      requestAnimationFrame(() => {
+        setProfile(null);
+        setNotFound(false);
+      });
       return;
     }
 
     let cancelled = false;
-    setLoading(true);
-    setNotFound(false);
+    requestAnimationFrame(() => {
+      setLoading(true);
+      setNotFound(false);
+    });
 
     fetch(`/api/profile?wallet=${encodeURIComponent(wallet)}`)
       .then((res) => res.json())
@@ -151,7 +230,13 @@ export default function ProfilePage() {
       <div className="competition-shell">
         <div className="mx-auto max-w-5xl px-4 py-10 space-y-8">
           <div style={{ textAlign: "center", padding: "4rem 0" }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: "1rem", color: "var(--text-tertiary)" }}>
+            <div
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "1rem",
+                color: "var(--text-tertiary)",
+              }}
+            >
               Loading...
             </div>
           </div>
@@ -167,11 +252,20 @@ export default function ProfilePage() {
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-sm"
-            style={{ fontFamily: "var(--font-display)", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: "#00F0FF" }}
+            style={{
+              fontFamily: "var(--font-display)",
+              fontWeight: 700,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase" as const,
+              color: "#00F0FF",
+            }}
           >
             &larr; Arena Hub
           </Link>
-          <div className="hero-panel" style={{ textAlign: "center", padding: "4rem 2rem" }}>
+          <div
+            className="hero-panel"
+            style={{ textAlign: "center", padding: "4rem 2rem" }}
+          >
             <h1
               style={{
                 fontFamily: "var(--font-display)",
@@ -185,8 +279,16 @@ export default function ProfilePage() {
             >
               Connect Your Wallet
             </h1>
-            <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", maxWidth: "28rem", margin: "0 auto" }}>
-              Connect your wallet to view your profile, challenge history, badges, and performance stats.
+            <p
+              style={{
+                fontSize: "0.9rem",
+                color: "var(--text-secondary)",
+                maxWidth: "28rem",
+                margin: "0 auto",
+              }}
+            >
+              Connect your wallet to view your profile, challenge history,
+              badges, and performance stats.
             </p>
           </div>
         </div>
@@ -203,7 +305,13 @@ export default function ProfilePage() {
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-sm"
-            style={{ fontFamily: "var(--font-display)", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: "#00F0FF" }}
+            style={{
+              fontFamily: "var(--font-display)",
+              fontWeight: 700,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase" as const,
+              color: "#00F0FF",
+            }}
           >
             &larr; Arena Hub
           </Link>
@@ -219,7 +327,15 @@ export default function ProfilePage() {
                 margin: "0 auto 1rem",
               }}
             />
-            <div style={{ fontFamily: "var(--font-display)", fontSize: "0.85rem", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+            <div
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "0.85rem",
+                color: "var(--text-tertiary)",
+                textTransform: "uppercase",
+                letterSpacing: "0.1em",
+              }}
+            >
               Loading Profile...
             </div>
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
@@ -238,11 +354,20 @@ export default function ProfilePage() {
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-sm"
-            style={{ fontFamily: "var(--font-display)", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: "#00F0FF" }}
+            style={{
+              fontFamily: "var(--font-display)",
+              fontWeight: 700,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase" as const,
+              color: "#00F0FF",
+            }}
           >
             &larr; Arena Hub
           </Link>
-          <div className="hero-panel" style={{ textAlign: "center", padding: "4rem 2rem" }}>
+          <div
+            className="hero-panel"
+            style={{ textAlign: "center", padding: "4rem 2rem" }}
+          >
             <h1
               style={{
                 fontFamily: "var(--font-display)",
@@ -256,11 +381,25 @@ export default function ProfilePage() {
             >
               No Competition Data Yet
             </h1>
-            <p style={{ fontSize: "0.8rem", color: "var(--text-tertiary)", fontFamily: "var(--font-mono)" }}>
+            <p
+              style={{
+                fontSize: "0.8rem",
+                color: "var(--text-tertiary)",
+                fontFamily: "var(--font-mono)",
+              }}
+            >
               {walletShort}
             </p>
-            <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", maxWidth: "28rem", margin: "1rem auto 0" }}>
-              You haven&apos;t participated in any challenges yet. Enroll in a competition to start building your profile.
+            <p
+              style={{
+                fontSize: "0.9rem",
+                color: "var(--text-secondary)",
+                maxWidth: "28rem",
+                margin: "1rem auto 0",
+              }}
+            >
+              You haven&apos;t participated in any challenges yet. Enroll in a
+              competition to start building your profile.
             </p>
           </div>
         </div>
@@ -276,26 +415,39 @@ export default function ProfilePage() {
   return (
     <div className="competition-shell">
       <div className="mx-auto max-w-5xl px-4 py-10 space-y-8">
-
         {/* ── Back link ── */}
         <Link
           href="/"
           className="inline-flex items-center gap-2 text-sm"
-          style={{ fontFamily: "var(--font-display)", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: "#00F0FF" }}
+          style={{
+            fontFamily: "var(--font-display)",
+            fontWeight: 700,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase" as const,
+            color: "#00F0FF",
+          }}
         >
           &larr; Arena Hub
         </Link>
 
         {/* ── PROFILE HEADER ─────────────────────────────────────────────────── */}
-        <div className="hero-panel glow-gold" style={{ display: "flex", flexWrap: "wrap", gap: "1.75rem", alignItems: "center" }}>
-
+        <div
+          className="hero-panel glow-gold"
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "1.75rem",
+            alignItems: "center",
+          }}
+        >
           {/* Hex avatar */}
           <div
             style={{
               flexShrink: 0,
               width: "5.5rem",
               height: "5.5rem",
-              clipPath: "polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)",
+              clipPath:
+                "polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)",
               background: "linear-gradient(135deg, #00F0FF, #00C8D9)",
               display: "flex",
               alignItems: "center",
@@ -333,7 +485,15 @@ export default function ProfilePage() {
               {displayName}
             </h1>
 
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.6rem", marginBottom: "0.75rem" }}>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                gap: "0.6rem",
+                marginBottom: "0.75rem",
+              }}
+            >
               <code
                 style={{
                   fontFamily: "var(--font-mono)",
@@ -355,27 +515,75 @@ export default function ProfilePage() {
             <div style={{ display: "flex", flexWrap: "wrap", gap: "1.5rem" }}>
               {profile.seasonRank != null && (
                 <div>
-                  <span style={{ fontFamily: "var(--font-display)", fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.16em", color: "var(--text-tertiary)" }}>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      fontSize: "0.72rem",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.16em",
+                      color: "var(--text-tertiary)",
+                    }}
+                  >
                     Season Rank
                   </span>
-                  <div style={{ fontFamily: "var(--font-display)", fontSize: "1.6rem", fontWeight: 700, color: "#00F0FF", lineHeight: 1.1 }}>
+                  <div
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      fontSize: "1.6rem",
+                      fontWeight: 700,
+                      color: "#00F0FF",
+                      lineHeight: 1.1,
+                    }}
+                  >
                     #{profile.seasonRank}
                   </div>
                 </div>
               )}
               <div>
-                <span style={{ fontFamily: "var(--font-display)", fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.16em", color: "var(--text-tertiary)" }}>
+                <span
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontSize: "0.72rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.16em",
+                    color: "var(--text-tertiary)",
+                  }}
+                >
                   Overall Score
                 </span>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: "1.6rem", fontWeight: 700, color: "#F0F0F0", lineHeight: 1.1 }}>
+                <div
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "1.6rem",
+                    fontWeight: 700,
+                    color: "#F0F0F0",
+                    lineHeight: 1.1,
+                  }}
+                >
                   {profile.overallScore.toLocaleString()}
                 </div>
               </div>
               <div>
-                <span style={{ fontFamily: "var(--font-display)", fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.16em", color: "var(--text-tertiary)" }}>
+                <span
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontSize: "0.72rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.16em",
+                    color: "var(--text-tertiary)",
+                  }}
+                >
                   Streak
                 </span>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: "1.6rem", fontWeight: 700, color: "#00FF87", lineHeight: 1.1 }}>
+                <div
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontSize: "1.6rem",
+                    fontWeight: 700,
+                    color: "#00FF87",
+                    lineHeight: 1.1,
+                  }}
+                >
                   {profile.streakDays}D
                 </div>
               </div>
@@ -387,26 +595,52 @@ export default function ProfilePage() {
         {profile.performance && (
           <section>
             <p className="eyebrow">Season Performance</p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(11rem, 1fr))", gap: "1rem" }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(11rem, 1fr))",
+                gap: "1rem",
+              }}
+            >
               <div className="stat-card">
                 <span>Total P&amp;L</span>
-                <strong className={profile.performance.pnlPercent >= 0 ? "value-positive" : "value-negative"}>
-                  {profile.performance.pnlPercent >= 0 ? "+" : ""}{profile.performance.pnlPercent.toFixed(1)}%
+                <strong
+                  className={
+                    profile.performance.pnlPercent >= 0
+                      ? "value-positive"
+                      : "value-negative"
+                  }
+                >
+                  {profile.performance.pnlPercent >= 0 ? "+" : ""}
+                  {profile.performance.pnlPercent.toFixed(1)}%
                 </strong>
               </div>
               <div className="stat-card">
                 <span>Win Rate</span>
-                <strong className="value-positive">{(profile.performance.winRate * 100).toFixed(0)}%</strong>
+                <strong className="value-positive">
+                  {(profile.performance.winRate * 100).toFixed(0)}%
+                </strong>
               </div>
               <div className="stat-card">
                 <span>Consistency</span>
-                <strong style={{ display: "block", marginTop: "0.5rem", fontFamily: "var(--font-mono)", fontSize: "1.4rem", fontWeight: 700, color: "#00F0FF" }}>
+                <strong
+                  style={{
+                    display: "block",
+                    marginTop: "0.5rem",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "1.4rem",
+                    fontWeight: 700,
+                    color: "#00F0FF",
+                  }}
+                >
                   {profile.performance.consistencyScore.toFixed(0)}
                 </strong>
               </div>
               <div className="stat-card">
                 <span>Max Drawdown</span>
-                <strong className="value-positive">{profile.performance.maxDrawdownPercent.toFixed(1)}%</strong>
+                <strong className="value-positive">
+                  {profile.performance.maxDrawdownPercent.toFixed(1)}%
+                </strong>
               </div>
             </div>
           </section>
@@ -415,9 +649,25 @@ export default function ProfilePage() {
         {/* ── ACHIEVEMENT WALL ───────────────────────────────────────────────── */}
         <section className="panel">
           <p className="eyebrow">Achievement Wall</p>
-          <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.15rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "1.25rem" }}>
+          <h2
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "1.15rem",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              marginBottom: "1.25rem",
+            }}
+          >
             Badges &amp; Titles
-            <span style={{ marginLeft: "0.75rem", fontSize: "0.78rem", color: "var(--text-tertiary)", fontWeight: 400 }}>
+            <span
+              style={{
+                marginLeft: "0.75rem",
+                fontSize: "0.78rem",
+                color: "var(--text-tertiary)",
+                fontWeight: 400,
+              }}
+            >
               {profile.earnedBadgeIds.length}/{ALL_BADGES.length} earned
             </span>
           </h2>
@@ -455,7 +705,9 @@ export default function ProfilePage() {
                     cursor: "default",
                   }}
                 >
-                  <span style={{ fontSize: "1.75rem", lineHeight: 1 }}>{badge.icon}</span>
+                  <span style={{ fontSize: "1.75rem", lineHeight: 1 }}>
+                    {badge.icon}
+                  </span>
                   <span
                     style={{
                       fontFamily: "var(--font-display)",
@@ -494,7 +746,16 @@ export default function ProfilePage() {
         {profile.challengeHistory.length > 0 && (
           <section className="panel">
             <p className="eyebrow">Challenge History</p>
-            <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.15rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "1.25rem" }}>
+            <h2
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "1.15rem",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                marginBottom: "1.25rem",
+              }}
+            >
               Past Attempts
             </h2>
 
@@ -514,7 +775,12 @@ export default function ProfilePage() {
                   {profile.challengeHistory.map((row, i) => {
                     const passed = row.result === "Passed";
                     return (
-                      <tr key={i} style={passed ? { background: "rgba(0,255,135,0.03)" } : {}}>
+                      <tr
+                        key={i}
+                        style={
+                          passed ? { background: "rgba(0,255,135,0.03)" } : {}
+                        }
+                      >
                         <td>
                           <span
                             style={{
@@ -529,32 +795,66 @@ export default function ProfilePage() {
                           </span>
                         </td>
                         <td>
-                          <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", color: "var(--text-secondary)" }}>
+                          <span
+                            style={{
+                              fontFamily: "var(--font-mono)",
+                              fontSize: "0.8rem",
+                              color: "var(--text-secondary)",
+                            }}
+                          >
                             {row.date}
                           </span>
                         </td>
                         <td>
-                          <span className={passed ? "status-okay" : "status-flagged"}>
+                          <span
+                            className={
+                              passed ? "status-okay" : "status-flagged"
+                            }
+                          >
                             {row.result}
                           </span>
                         </td>
                         <td style={{ textAlign: "right" }}>
-                          <span style={{ fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums", color: "var(--text-secondary)" }}>
+                          <span
+                            style={{
+                              fontFamily: "var(--font-mono)",
+                              fontVariantNumeric: "tabular-nums",
+                              color: "var(--text-secondary)",
+                            }}
+                          >
                             #{row.finalRank}
                           </span>
                         </td>
                         <td style={{ textAlign: "right" }}>
-                          <span style={{ fontFamily: "var(--font-mono)", fontVariantNumeric: "tabular-nums" }}>
+                          <span
+                            style={{
+                              fontFamily: "var(--font-mono)",
+                              fontVariantNumeric: "tabular-nums",
+                            }}
+                          >
                             {row.finalScore.toFixed(0)}
                           </span>
                         </td>
                         <td style={{ textAlign: "right" }}>
                           {row.payoutUsd != null ? (
-                            <span className="value-positive" style={{ fontFamily: "var(--font-mono)", fontWeight: 700 }}>
+                            <span
+                              className="value-positive"
+                              style={{
+                                fontFamily: "var(--font-mono)",
+                                fontWeight: 700,
+                              }}
+                            >
                               ${row.payoutUsd.toLocaleString()}
                             </span>
                           ) : (
-                            <span style={{ color: "var(--text-tertiary)", fontSize: "0.8rem" }}>&mdash;</span>
+                            <span
+                              style={{
+                                color: "var(--text-tertiary)",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              &mdash;
+                            </span>
                           )}
                         </td>
                       </tr>
@@ -570,7 +870,16 @@ export default function ProfilePage() {
         {profile.rankHistory.length > 0 && (
           <section className="panel">
             <p className="eyebrow">Rank Progression</p>
-            <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.15rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "1.5rem" }}>
+            <h2
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "1.15rem",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                marginBottom: "1.5rem",
+              }}
+            >
               Recent Cohorts
             </h2>
 
@@ -644,8 +953,15 @@ export default function ProfilePage() {
               })}
             </div>
 
-            <p style={{ marginTop: "1rem", fontSize: "0.76rem", color: "var(--text-tertiary)" }}>
-              Rank trajectory over recent cohorts. Bar height indicates relative standing -- taller = higher rank.
+            <p
+              style={{
+                marginTop: "1rem",
+                fontSize: "0.76rem",
+                color: "var(--text-tertiary)",
+              }}
+            >
+              Rank trajectory over recent cohorts. Bar height indicates relative
+              standing -- taller = higher rank.
             </p>
           </section>
         )}
@@ -654,33 +970,74 @@ export default function ProfilePage() {
         {profile.worldCup && (
           <section className="funded-card glow-gold">
             <p className="eyebrow">World Cup Record</p>
-            <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.15rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "1.25rem" }}>
+            <h2
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "1.15rem",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                marginBottom: "1.25rem",
+              }}
+            >
               Tournament History
             </h2>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(10rem, 1fr))", gap: "1rem" }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(10rem, 1fr))",
+                gap: "1rem",
+              }}
+            >
               <div className="stat-card">
                 <span>Matches Played</span>
-                <strong style={{ display: "block", marginTop: "0.5rem", fontFamily: "var(--font-mono)", fontSize: "1.4rem", fontWeight: 700, color: "#00F0FF" }}>
+                <strong
+                  style={{
+                    display: "block",
+                    marginTop: "0.5rem",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "1.4rem",
+                    fontWeight: 700,
+                    color: "#00F0FF",
+                  }}
+                >
                   {profile.worldCup.matchesPlayed}
                 </strong>
               </div>
               <div className="stat-card">
                 <span>Record</span>
-                <strong style={{ display: "block", marginTop: "0.5rem", fontFamily: "var(--font-display)", fontSize: "1.4rem", fontWeight: 700, color: "#00F0FF" }}>
+                <strong
+                  style={{
+                    display: "block",
+                    marginTop: "0.5rem",
+                    fontFamily: "var(--font-display)",
+                    fontSize: "1.4rem",
+                    fontWeight: 700,
+                    color: "#00F0FF",
+                  }}
+                >
                   {profile.worldCup.wins}W - {profile.worldCup.losses}L
                 </strong>
               </div>
               <div className="stat-card">
                 <span>Best Round</span>
-                <strong style={{ display: "block", marginTop: "0.5rem", fontFamily: "var(--font-display)", fontSize: "1rem", fontWeight: 700, color: "#00F0FF" }}>
+                <strong
+                  style={{
+                    display: "block",
+                    marginTop: "0.5rem",
+                    fontFamily: "var(--font-display)",
+                    fontSize: "1rem",
+                    fontWeight: 700,
+                    color: "#00F0FF",
+                  }}
+                >
                   {profile.worldCup.bestRound}
                 </strong>
               </div>
             </div>
           </section>
         )}
-
       </div>
     </div>
   );

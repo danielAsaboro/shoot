@@ -76,7 +76,11 @@ test("live P&L race is ordered by PnL", () => {
 
   const race = createLivePnlRace(standings, "race-test");
   assert.equal(race.entries[0].wallet, "b", "Highest PnL should be first");
-  assert.ok(race.entries.every((e) => ["surging", "stable", "fading"].includes(e.momentum)));
+  assert.ok(
+    race.entries.every((e) =>
+      ["surging", "stable", "fading"].includes(e.momentum)
+    )
+  );
 });
 
 test("matchup odds sum approximately to 1.0", () => {
@@ -86,11 +90,11 @@ test("matchup odds sum approximately to 1.0", () => {
   const odds = computeMatchupOdds(a, b);
   const sum = odds.aWinProb + odds.bWinProb + odds.drawProb;
 
+  assert.ok(Math.abs(sum - 1.0) < 0.01, `Odds should sum to ~1.0, got ${sum}`);
   assert.ok(
-    Math.abs(sum - 1.0) < 0.01,
-    `Odds should sum to ~1.0, got ${sum}`
+    odds.aWinProb > odds.bWinProb,
+    "Higher score should have higher win prob"
   );
-  assert.ok(odds.aWinProb > odds.bWinProb, "Higher score should have higher win prob");
 });
 
 test("empty standings returns no matchups", () => {
@@ -99,9 +103,6 @@ test("empty standings returns no matchups", () => {
 });
 
 test("single trader returns no matchups", () => {
-  const matchups = generateCohortMatchups(
-    [makeEntry("solo", 150, 18)],
-    "solo"
-  );
+  const matchups = generateCohortMatchups([makeEntry("solo", 150, 18)], "solo");
   assert.equal(matchups.length, 0);
 });

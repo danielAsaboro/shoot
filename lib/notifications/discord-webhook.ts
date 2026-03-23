@@ -19,7 +19,11 @@ function getWebhookUrl(): string | null {
 }
 
 function getOpsWebhookUrl(): string | null {
-  return process.env.DISCORD_OPS_WEBHOOK_URL ?? process.env.DISCORD_WEBHOOK_URL ?? null;
+  return (
+    process.env.DISCORD_OPS_WEBHOOK_URL ??
+    process.env.DISCORD_WEBHOOK_URL ??
+    null
+  );
 }
 
 // ── Core sender ─────────────────────────────────────────────────────────────
@@ -33,7 +37,10 @@ interface DiscordEmbed {
   timestamp?: string;
 }
 
-async function sendEmbed(embed: DiscordEmbed, webhookUrl?: string | null): Promise<boolean> {
+async function sendEmbed(
+  embed: DiscordEmbed,
+  webhookUrl?: string | null
+): Promise<boolean> {
   const url = webhookUrl ?? getWebhookUrl();
   if (!url) return false;
 
@@ -42,7 +49,9 @@ async function sendEmbed(embed: DiscordEmbed, webhookUrl?: string | null): Promi
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        embeds: [{ ...embed, timestamp: embed.timestamp ?? new Date().toISOString() }],
+        embeds: [
+          { ...embed, timestamp: embed.timestamp ?? new Date().toISOString() },
+        ],
       }),
     });
     return res.ok;
@@ -86,7 +95,11 @@ export async function notifyChallengeResult(data: {
       { name: "Tier", value: data.tierName, inline: true },
       { name: "Cohort", value: data.cohortName, inline: true },
       { name: "P&L", value: `${data.pnlPercent.toFixed(1)}%`, inline: true },
-      { name: "Max DD", value: `${data.maxDrawdown.toFixed(1)}%`, inline: true },
+      {
+        name: "Max DD",
+        value: `${data.maxDrawdown.toFixed(1)}%`,
+        inline: true,
+      },
     ],
     footer: { text: `${data.wallet.slice(0, 8)}...${data.wallet.slice(-4)}` },
   });
@@ -105,7 +118,11 @@ export async function notifyFundedPromotion(data: {
     color: COLORS.promotion,
     fields: [
       { name: "New Level", value: data.toLevel, inline: true },
-      { name: "Revenue Share", value: `${data.revenueShareBps} bps`, inline: true },
+      {
+        name: "Revenue Share",
+        value: `${data.revenueShareBps} bps`,
+        inline: true,
+      },
     ],
     footer: { text: `${data.wallet.slice(0, 8)}...${data.wallet.slice(-4)}` },
   });
@@ -134,11 +151,17 @@ export async function notifyBracketAdvancement(data: {
 
 export async function notifyLeaderboardChange(data: {
   cohortName: string;
-  topThree: Array<{ rank: number; displayName: string; score: number; pnlPercent: number }>;
+  topThree: Array<{
+    rank: number;
+    displayName: string;
+    score: number;
+    pnlPercent: number;
+  }>;
 }): Promise<boolean> {
   const medals = ["🥇", "🥈", "🥉"];
   const lines = data.topThree.map(
-    (t, i) => `${medals[i] ?? `${t.rank}.`} **${t.displayName}** — ${t.score.toFixed(1)} pts (${t.pnlPercent.toFixed(1)}% P&L)`
+    (t, i) =>
+      `${medals[i] ?? `${t.rank}.`} **${t.displayName}** — ${t.score.toFixed(1)} pts (${t.pnlPercent.toFixed(1)}% P&L)`
   );
 
   return sendEmbed({

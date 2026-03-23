@@ -40,7 +40,9 @@ export async function POST(request: Request) {
   }
 
   for (const cohort of pending) {
-    const preset = competitionConfig.presets.find((p) => p.id === cohort.presetId);
+    const preset = competitionConfig.presets.find(
+      (p) => p.id === cohort.presetId
+    );
     await createCohort({
       id: cohort.id,
       name: cohort.name,
@@ -49,7 +51,9 @@ export async function POST(request: Request) {
       startTime: new Date(cohort.startTime),
       endTime: new Date(cohort.endTime),
       narrative: preset?.tagline ?? "",
-      rewardPoolUsd: Math.round(cohort.entryFeeUsd * cohort.participantCap * 0.6),
+      rewardPoolUsd: Math.round(
+        cohort.entryFeeUsd * cohort.participantCap * 0.6
+      ),
       entryFeeUsd: cohort.entryFeeUsd,
       participantCap: cohort.participantCap,
     });

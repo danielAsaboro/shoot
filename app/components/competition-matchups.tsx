@@ -25,16 +25,33 @@ interface MatchupsSectionProps {
   pnlRace: LivePnlRace | null;
   deskStandings: DeskStanding[];
   activeRiskEvents: RiskEvent[];
-  standings: Array<{ wallet: string; displayName: string; tournamentScore: number; pnlPercent: number }>;
+  standings: Array<{
+    wallet: string;
+    displayName: string;
+    tournamentScore: number;
+    pnlPercent: number;
+  }>;
 }
 
 // ── Risk Event Badge ─────────────────────────────────────────────────────────
 
 function RiskEventBadge({ event }: { event: RiskEvent }) {
   const severityColors = {
-    mild: { bg: "rgba(129,140,248,0.1)", border: "rgba(129,140,248,0.3)", text: "#818cf8" },
-    moderate: { bg: "rgba(191,255,0,0.1)", border: "rgba(191,255,0,0.3)", text: "#BFFF00" },
-    severe: { bg: "rgba(255,61,61,0.1)", border: "rgba(255,61,61,0.3)", text: "#FF3D3D" },
+    mild: {
+      bg: "rgba(129,140,248,0.1)",
+      border: "rgba(129,140,248,0.3)",
+      text: "#818cf8",
+    },
+    moderate: {
+      bg: "rgba(191,255,0,0.1)",
+      border: "rgba(191,255,0,0.3)",
+      text: "#BFFF00",
+    },
+    severe: {
+      bg: "rgba(255,61,61,0.1)",
+      border: "rgba(255,61,61,0.3)",
+      text: "#FF3D3D",
+    },
   };
   const colors = severityColors[event.severity];
 
@@ -59,7 +76,13 @@ function RiskEventBadge({ event }: { event: RiskEvent }) {
 
 // ── Win Probability Bar ──────────────────────────────────────────────────────
 
-function WinProbBar({ prob, align }: { prob: number; align: "left" | "right" }) {
+function WinProbBar({
+  prob,
+  align,
+}: {
+  prob: number;
+  align: "left" | "right";
+}) {
   return (
     <div
       className="h-1 w-full mt-1"
@@ -98,8 +121,32 @@ function MatchupCard({
   if (!traderA || !traderB) return null;
 
   const odds = computeMatchupOdds(
-    { ...traderA, rank: 0, badge: "", volumeUsd: 0, winRate: 0, consistencyScore: 0, maxDrawdownPercent: 0, attainedAt: "", eligible: true, questRewardPoints: 0, raffleTicketsAwarded: 0 },
-    { ...traderB, rank: 0, badge: "", volumeUsd: 0, winRate: 0, consistencyScore: 0, maxDrawdownPercent: 0, attainedAt: "", eligible: true, questRewardPoints: 0, raffleTicketsAwarded: 0 }
+    {
+      ...traderA,
+      rank: 0,
+      badge: "",
+      volumeUsd: 0,
+      winRate: 0,
+      consistencyScore: 0,
+      maxDrawdownPercent: 0,
+      attainedAt: "",
+      eligible: true,
+      questRewardPoints: 0,
+      raffleTicketsAwarded: 0,
+    },
+    {
+      ...traderB,
+      rank: 0,
+      badge: "",
+      volumeUsd: 0,
+      winRate: 0,
+      consistencyScore: 0,
+      maxDrawdownPercent: 0,
+      attainedAt: "",
+      eligible: true,
+      questRewardPoints: 0,
+      raffleTicketsAwarded: 0,
+    }
   );
 
   const isCompleted = match.status === "completed";
@@ -109,7 +156,10 @@ function MatchupCard({
   return (
     <div
       className="border bg-white/[0.02] p-4"
-      style={{ borderRadius: "4px", borderColor: "var(--border-default, rgba(255,255,255,0.08))" }}
+      style={{
+        borderRadius: "4px",
+        borderColor: "var(--border-default, rgba(255,255,255,0.08))",
+      }}
     >
       <div className="flex items-center justify-between mb-3">
         {isLive ? (
@@ -147,11 +197,18 @@ function MatchupCard({
         <div className="text-center">
           <p
             className="text-sm font-semibold"
-            style={{ color: isCompleted && winnerId === match.traderA ? "#00FF87" : undefined }}
+            style={{
+              color:
+                isCompleted && winnerId === match.traderA
+                  ? "#00FF87"
+                  : undefined,
+            }}
           >
             {traderA.displayName}
           </p>
-          <p className="text-xs text-white/50 font-mono">{formatPercent(odds.aWinProb * 100)}</p>
+          <p className="text-xs text-white/50 font-mono">
+            {formatPercent(odds.aWinProb * 100)}
+          </p>
           <WinProbBar prob={odds.aWinProb} align="right" />
         </div>
 
@@ -184,11 +241,18 @@ function MatchupCard({
         <div className="text-center">
           <p
             className="text-sm font-semibold"
-            style={{ color: isCompleted && winnerId === match.traderB ? "#00FF87" : undefined }}
+            style={{
+              color:
+                isCompleted && winnerId === match.traderB
+                  ? "#00FF87"
+                  : undefined,
+            }}
           >
             {traderB.displayName}
           </p>
-          <p className="text-xs text-white/50 font-mono">{formatPercent(odds.bWinProb * 100)}</p>
+          <p className="text-xs text-white/50 font-mono">
+            {formatPercent(odds.bWinProb * 100)}
+          </p>
           <WinProbBar prob={odds.bWinProb} align="left" />
         </div>
       </div>
@@ -208,11 +272,17 @@ function PnlRaceSection({ race }: { race: LivePnlRace }) {
   return (
     <div
       className="border bg-white/[0.02] p-4"
-      style={{ borderRadius: "4px", borderColor: "var(--border-default, rgba(255,255,255,0.08))" }}
+      style={{
+        borderRadius: "4px",
+        borderColor: "var(--border-default, rgba(255,255,255,0.08))",
+      }}
     >
       <p
         className="mb-3 text-xs font-bold uppercase tracking-widest"
-        style={{ fontFamily: "var(--font-display)", color: "var(--accent, #00F0FF)" }}
+        style={{
+          fontFamily: "var(--font-display)",
+          color: "var(--accent, #00F0FF)",
+        }}
       >
         LIVE P&L RACE
       </p>
@@ -250,7 +320,9 @@ function PnlRaceSection({ race }: { race: LivePnlRace }) {
                 className="text-[10px] font-bold"
                 style={{ color: entry.rankDelta > 0 ? "#00FF87" : "#FF3D3D" }}
               >
-                {entry.rankDelta > 0 ? `▲${entry.rankDelta}` : `▼${Math.abs(entry.rankDelta)}`}
+                {entry.rankDelta > 0
+                  ? `▲${entry.rankDelta}`
+                  : `▼${Math.abs(entry.rankDelta)}`}
               </span>
             )}
           </div>
@@ -272,11 +344,17 @@ function DeskStandingsSection({ standings }: { standings: DeskStanding[] }) {
   return (
     <div
       className="border bg-white/[0.02] p-4"
-      style={{ borderRadius: "4px", borderColor: "var(--border-default, rgba(255,255,255,0.08))" }}
+      style={{
+        borderRadius: "4px",
+        borderColor: "var(--border-default, rgba(255,255,255,0.08))",
+      }}
     >
       <p
         className="mb-3 text-xs font-bold uppercase tracking-widest"
-        style={{ fontFamily: "var(--font-display)", color: "var(--accent, #00F0FF)" }}
+        style={{
+          fontFamily: "var(--font-display)",
+          color: "var(--accent, #00F0FF)",
+        }}
       >
         DESK STANDINGS
       </p>
@@ -312,7 +390,9 @@ function DeskStandingsSection({ standings }: { standings: DeskStanding[] }) {
             </div>
             <div className="text-right">
               <p className="font-mono text-sm font-bold">{ds.deskScore}</p>
-              <p className="text-[10px] text-white/40">{ds.desk.members.length} traders</p>
+              <p className="text-[10px] text-white/40">
+                {ds.desk.members.length} traders
+              </p>
             </div>
           </div>
         ))}
@@ -333,7 +413,9 @@ export function CompetitionMatchups({
   if (matchups.length === 0) {
     return (
       <div className="panel">
-        <p className="text-sm text-white/50">No matchups available for this cohort yet.</p>
+        <p className="text-sm text-white/50">
+          No matchups available for this cohort yet.
+        </p>
       </div>
     );
   }
@@ -353,7 +435,10 @@ export function CompetitionMatchups({
       <div>
         <p
           className="mb-3 text-xs font-bold uppercase tracking-widest"
-          style={{ fontFamily: "var(--font-display)", color: "var(--accent, #00F0FF)" }}
+          style={{
+            fontFamily: "var(--font-display)",
+            color: "var(--accent, #00F0FF)",
+          }}
         >
           HEAD-TO-HEAD MATCHUPS
         </p>
