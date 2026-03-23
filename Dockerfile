@@ -8,7 +8,17 @@ COPY prisma.config.ts ./
 RUN npm ci --ignore-scripts
 RUN npx prisma generate
 
-# ── Stage 2: Build ────────────────────────────────────────────────────────────
+# ── Stage 2: Build SDK ────────────────────────────────────────────────────────
+FROM node:20-alpine AS sdk-builder
+WORKDIR /app/sdk
+
+COPY sdk/package.json sdk/package-lock.json ./
+RUN npm ci
+COPY sdk/src ./src
+COPY sdk/tsconfig.json ./
+RUN npx tsc
+
+# ── Stage 3: Build ────────────────────────────────────────────────────────────
 FROM node:20-alpine AS builder
 WORKDIR /app
 
@@ -18,12 +28,15 @@ COPY . .
 # Prisma client was generated in deps stage
 COPY --from=deps /app/lib/generated ./lib/generated
 
+# SDK was built in sdk-builder stage
+COPY --from=sdk-builder /app/sdk/dist ./sdk/dist
+
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
 RUN npm run build
 
-# ── Stage 3: Production ──────────────────────────────────────────────────────
+# ── Stage 4: Production ──────────────────────────────────────────────────────
 FROM node:20-alpine AS runner
 WORKDIR /app
 

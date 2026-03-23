@@ -1,3 +1,4 @@
+// Force redeploy with serverless config
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { NextConfig } from "next";
