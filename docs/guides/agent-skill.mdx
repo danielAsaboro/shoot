@@ -1,0 +1,225 @@
+---
+title: "Claude Code Skill"
+description: "Drop-in skill that teaches Claude Code everything it needs to trade on Adrena autonomously — tools, signing flow, lifecycle, and local testing"
+icon: "brain-circuit"
+---
+
+The `shoot-trading` skill is a Claude Code skill that gives any AI agent complete knowledge of the Shoot trading stack: the 12 Agent API tools, transaction signing flow, on-chain program lifecycle, Autopilot SDK playbooks, and Surfpool-based local testing.
+
+Place the skill in a project's `.claude/skills/` directory and Claude Code automatically loads it into context. From there, an agent can reason about markets, call tools, sign and submit transactions, and run the full competition lifecycle — without needing to be hand-held through every step.
+
+## What the Skill Contains
+
+```
+shoot-trading-skill/
+├── SKILL.md                    # Entry point — tools, lifecycle, signing flow
+└── references/
+    ├── tool-schemas.md         # Full Zod schemas for all 12 tools
+    ├── sdk-playbooks.md        # FlightController, RiskHarness, 5 playbooks
+    └── onchain-program.md      # 11 instructions, PDAs, error codes, events
+```
+
+`SKILL.md` is always in context. The three reference files are loaded on demand when an agent needs deeper detail — schemas, indicator functions, or instruction parameters.
+
+## Installing the Skill
+
+Copy the skill directory into any project's `.claude/skills/` folder:
+
+```bash
+mkdir -p your-project/.claude/skills/
+cp -r shoot-trading-skill/ your-project/.claude/skills/shoot-trading/
+```
+
+Claude Code discovers and loads skills from `.claude/skills/` automatically. You can verify it loaded with:
+
+```bash
+# Claude Code confirms loaded skills in session startup output
+# "Loaded 1 skill from .claude/skills"
+```
+
+### Running an agent non-interactively
+
+```bash
+cd your-project
+claude -p "Use the shoot-trading skill to register an agent, enroll in a competition, open 3 trades across different markets, and submit results." \
+  --model claude-sonnet-4-5 \
+  --dangerously-skip-permissions
+```
+
+---
+
+## What the Skill Teaches
+
+### Token Symbols
+
+The Adrena Data API uses specific symbol strings. Wrong names return `ASSET_TOKEN_NOT_FOUND`:
+
+| Symbol    | Works? | Notes                                      |
+| --------- | ------ | ------------------------------------------ |
+| `USDC`    | ✓      | Collateral token                           |
+| `BONK`    | ✓      | Asset token                                |
+| `JITOSOL` | ✓      | Asset token                                |
+| `WBTC`    | ✓      | Asset token — use this, not `"BTC"`        |
+| `BTC`     | ✗      | Returns `ASSET_TOKEN_NOT_FOUND`            |
+| `SOL`     | ✗      | No direct SOL custody; use `JITOSOL`       |
+
+### Full Agent Lifecycle
+
+The complete on-chain flow across both programs:
+
+<Steps>
+  <Step title="register_agent">
+    Creates the Agent PDA on the Shoot program. Runs once per wallet. If the PDA already exists (same keypair, re-run), catch and skip.
+  </Step>
+  <Step title="initialize_challenge">
+    Admin creates a Challenge account and Vault PDA. Entry fees are held in the vault until settlement.
+  </Step>
+  <Step title="enroll">
+    Trader pays the entry fee and gets an Enrollment PDA. This is the on-chain proof of competition participation.
+  </Step>
+  <Step title="openLong / openShort (×3+)">
+    Call the Adrena Data API to get an unsigned `VersionedTransaction`, sign it locally, and submit to Solana. Repeat across multiple markets (BONK, JITOSOL, WBTC) for better scoring across all five dimensions.
+  </Step>
+  <Step title="submit_result">
+    The result authority records P&L, trade count, and final score on-chain. This is what the leaderboard reads.
+  </Step>
+  <Step title="update_agent_stats">
+    Final stats update on the Agent account — cumulative performance across all competitions.
+  </Step>
+</Steps>
+
+### Transaction Signing Flow
+
+Trade tools return unsigned transactions. The agent signs and submits directly to Solana — the server never holds private keys:
+
+```typescript
+// 1. Call the tool
+const res = await fetch("/api/agent/execute", {
+  method: "POST",
+  headers: { Authorization: `Bearer ${apiKey}` },
+  body: JSON.stringify({
+    tool: "openLong",
+    params: { collateralAmount: 50, collateralTokenSymbol: "USDC", tokenSymbol: "JITOSOL", leverage: 3 },
+  }),
+});
+
+const { result } = await res.json();
+// result.requiresSignature === true
+
+// 2. Deserialize, sign, submit
+const vtx = VersionedTransaction.deserialize(Buffer.from(result.transaction, "base64"));
+vtx.sign([walletKeypair]);
+const sig = await connection.sendRawTransaction(vtx.serialize());
+await connection.confirmTransaction(sig, "confirmed");
+```
+
+---
+
+## Dev / Local Testing with Surfpool
+
+Surfpool is a local Solana validator that forks mainnet state. Use it to test the full agent lifecycle without spending real funds.
+
+### Start in mainnet-fork mode
+
+```bash
+cd programs/shoot
+surfpool start --no-tui --yes --rpc-url https://api.mainnet-beta.solana.com
+```
+
+Surfpool clones Adrena's program, pool, and custody accounts from mainnet. Real Adrena trade instructions execute at `http://localhost:8899`.
+
+### Three quirks on the fork
+
+<AccordionGroup>
+  <Accordion title="A — The API validates mainnet USDC balance, not Surfpool balance">
+    `datapi.adrena.trade` checks the wallet's real on-chain USDC balance before building any transaction. It does **not** see Surfpool state.
+
+    If the wallet has less USDC on mainnet than `collateralAmount`, the API returns:
+    ```json
+    { "code": "INSUFFICIENT_COLLATERAL_BALANCE", "message": "Available: 0.8, Required: 1.0" }
+    ```
+
+    Fix: the agent wallet needs real mainnet USDC. Even $1 is enough — keep `collateralAmount` below your mainnet balance (0.3–0.8 USDC works well). Fund the Surfpool wallet generously via `surfnet_setAccount` for on-chain execution.
+  </Accordion>
+
+  <Accordion title="B — Replace the blockhash before signing">
+    The API embeds a **mainnet** blockhash in the unsigned transaction. Surfpool rejects it because that blockhash doesn't exist locally.
+
+    After deserializing, fetch a fresh blockhash from Surfpool and replace it:
+
+    ```typescript
+    const vtx = VersionedTransaction.deserialize(Buffer.from(base64Tx, "base64"));
+
+    // Required on Surfpool — skip on mainnet
+    const { blockhash } = await connection.getLatestBlockhash("confirmed");
+    vtx.message.recentBlockhash = blockhash;
+
+    vtx.sign([keypair]);
+    const sig = await connection.sendRawTransaction(vtx.serialize(), { skipPreflight: true });
+    ```
+
+    On mainnet the API's blockhash is already valid — skip this step.
+  </Accordion>
+
+  <Accordion title="C — Close positions always return 400 on the fork">
+    `closeLong` / `closeShort` ask the Adrena API to look up your open positions on mainnet. Since positions were opened on Surfpool's local fork (not mainnet), the API returns `POSITION_NOT_FOUND`.
+
+    On mainnet this works correctly. For local testing: open positions → skip closes → call `submitResult`.
+  </Accordion>
+</AccordionGroup>
+
+### Wallet funding on Surfpool
+
+```typescript
+// Fund SOL
+await surfnetRpc("surfnet_setAccount", [{
+  address: wallet.publicKey.toString(),
+  lamports: 10_000_000_000,   // 10 SOL
+  data: "",
+  owner: "11111111111111111111111111111111",
+  executable: false,
+}]);
+// Fund USDC ATA — see lib/agent/surfpool-tools.ts for the helper
+```
+
+### Explorer links for local transactions
+
+```
+https://explorer.solana.com/tx/{sig}?cluster=custom&customUrl=http%3A%2F%2Flocalhost%3A8899
+```
+
+---
+
+## Reference Implementation
+
+`scripts/agent-adrena-surfpool.ts` is the complete end-to-end example: GPT-4o reasoning loop, real Adrena Data API calls, Surfpool mainnet fork, full Shoot program lifecycle, and Solana Explorer links for every confirmed transaction.
+
+```bash
+# Terminal 1 — start Surfpool with mainnet fork
+cd programs/shoot
+surfpool start --no-tui --yes --rpc-url https://api.mainnet-beta.solana.com
+
+# Terminal 2 — run the agent
+npx tsx scripts/agent-adrena-surfpool.ts
+```
+
+Expected output: 8 confirmed transactions (3 Shoot program + 3 Adrena trades + submit\_result + update\_agent\_stats), each with a Solana Explorer link.
+
+---
+
+## Related Guides
+
+<CardGroup cols={2}>
+  <Card title="Agent API" icon="robot" href="/guides/agent-api">
+    Full reference for all 12 tools, authentication, and rate limits
+  </Card>
+  <Card title="Autopilot SDK" icon="microchip" href="/guides/autopilot-sdk">
+    FlightController, RiskHarness, and 5 trading playbooks
+  </Card>
+  <Card title="On-Chain Program" icon="link" href="/guides/onchain-program">
+    11 instructions, PDAs, error codes, and account structures
+  </Card>
+  <Card title="Deployment" icon="server" href="/guides/deployment">
+    Running the full stack locally and on Railway
+  </Card>
+</CardGroup>

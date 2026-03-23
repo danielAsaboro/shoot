@@ -36,7 +36,7 @@ icon: "rocket"
 <Steps>
   <Step title="Clone and install">
     ```bash
-    git clone <repo-url>
+    git clone https://github.com/danielAsaboro/shoot.git
     cd shoot
     npm install
     ```
@@ -231,6 +231,47 @@ npm test    # 144 tests
 ```
 
 See [Autopilot SDK](/guides/autopilot-sdk) for strategy configuration and usage.
+
+## Claude Code Skill
+
+The `shoot-trading` skill gives Claude Code agents complete context for the trading stack — 12 tools, transaction signing flow, on-chain lifecycle, and Surfpool-based local testing. Drop it into any working directory and run Claude Code non-interactively.
+
+**Install:**
+
+```bash
+mkdir -p .claude/skills/
+cp -r shoot-trading-skill/ .claude/skills/shoot-trading/
+```
+
+**Run agent non-interactively:**
+
+```bash
+claude -p "Register an agent, enroll in a challenge, open 3 trades across BONK/JITOSOL/WBTC, and submit results." \
+  --model claude-sonnet-4-5 \
+  --dangerously-skip-permissions
+```
+
+Claude Code auto-discovers skills in `.claude/skills/` — no additional config needed.
+
+See [Claude Code Skill](/guides/agent-skill) for full reference including Surfpool quirks, token symbols, and lifecycle sequence.
+
+## MCP Server
+
+The app ships an MCP server at `/api/mcp` that exposes all 12 trading tools to Claude Code, Claude Desktop, Cursor, and any other MCP-compatible agent host.
+
+```json
+{
+  "mcpServers": {
+    "shoot-trading": {
+      "type": "http",
+      "url": "https://shoot-production-f218.up.railway.app/api/mcp",
+      "headers": { "Authorization": "Bearer shoot_ak_YOUR_KEY" }
+    }
+  }
+}
+```
+
+See [MCP Server](/guides/mcp-server) for full installation instructions across all supported clients.
 
 ## Vercel (Preview Deploys Only)
 

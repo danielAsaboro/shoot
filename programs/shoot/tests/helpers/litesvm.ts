@@ -264,6 +264,9 @@ export enum FundedLevel {
 
 export function buildClaimFundedStatusIx(
   trader: PublicKey,
+  authority: PublicKey,
+  challengePda: PublicKey,
+  enrollmentPda: PublicKey,
   level: FundedLevel,
   revenueShareBps: number
 ): TransactionInstruction {
@@ -279,6 +282,9 @@ export function buildClaimFundedStatusIx(
     programId: PROGRAM_ID,
     keys: [
       { pubkey: trader, isSigner: true, isWritable: true },
+      { pubkey: authority, isSigner: true, isWritable: false },
+      { pubkey: challengePda, isSigner: false, isWritable: false },
+      { pubkey: enrollmentPda, isSigner: false, isWritable: false },
       { pubkey: fundedPda, isSigner: false, isWritable: true },
       { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
     ],
@@ -538,15 +544,24 @@ export function sendTx(
 export const SHOOT_ERRORS = {
   ChallengeNotOpen: 6000,
   ChallengeFull: 6001,
-  AlreadySettled: 6002,
-  Unauthorized: 6003,
-  InsufficientCapital: 6004,
-  InvalidPayout: 6005,
-  WrongMint: 6006,
-  WrongOwner: 6007,
-  WrongVault: 6008,
-  NotPassed: 6009,
-  InvalidStatus: 6010,
+  ChallengePaused: 6002,
+  AlreadySettled: 6003,
+  Unauthorized: 6004,
+  InsufficientCapital: 6005,
+  InvalidPayout: 6006,
+  InsufficientVaultBalance: 6007,
+  WrongMint: 6008,
+  WrongOwner: 6009,
+  WrongVault: 6010,
+  WrongChallenge: 6011,
+  NotPassed: 6012,
+  NotSettled: 6013,
+  InvalidStatus: 6014,
+  InvalidStatusTransition: 6015,
+  InvalidParameter: 6016,
+  InvalidRevenueShare: 6017,
+  StringTooLong: 6018,
+  Overflow: 6019,
 } as const;
 
 export interface TxFailure {

@@ -61,3 +61,15 @@ sdk/dist/
 
 # keeper
 keeper/target/
+
+# surfpool logs
+programs/**/.surfpool/logs/
+
+# debug scripts
+scripts/debug-*
+
+# investigation / scratch docs
+ADRENA_SURFPOOL_INVESTIGATION.md
+
+# test agent
+/test-agent/

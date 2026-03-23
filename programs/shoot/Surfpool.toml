@@ -1,0 +1,16 @@
+# Surfpool Configuration for Adrena Shoot
+#
+# Usage:
+#   surfpool start --no-tui --yes --offline    # Program deployed via runbook
+#   npm run test:e2e                            # Run E2E tests
+#
+# For Adrena mainnet account cloning (staking, rewards):
+#   surfpool start --no-tui --yes --rpc-url https://api.mainnet-beta.solana.com
+#
+# Key accounts cloned from mainnet (when using --rpc-url):
+#   - Staking account: 5Feq2MKbimA44dqgFHLWr7h77xAqY9cet5zn9eMCj78p
+#   - Reward token account: A3UJxhPtieUr1mjgJhJaTPqDReDaB2H9q7hzs2icrUeS
+#   - USDC mint: EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
+#
+# The Shoot program is deployed via the runbook (runbooks/deployment/main.tx)
+# using instant_surfnet_deployment for fast local testing.

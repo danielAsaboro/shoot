@@ -1,10 +1,92 @@
 # Adrena Prop Challenge Hub
 
 > **Live app:** [shoot-production-f218.up.railway.app](https://shoot-production-f218.up.railway.app/)
+
 > **Documentation:** [docs-1f2b6c2c.mintlify.app](https://docs-1f2b6c2c.mintlify.app/)
+
+> **Full Video Walk Through:** [Youtube.com/watch?v=3SZxSKfJbYI&list=PLeERy8YL4mpTg3B2azvvqDnSqZomPdJ3G](https://www.youtube.com/watch?v=3SZxSKfJbYI&list=PLeERy8YL4mpTg3B2azvvqDnSqZomPdJ3G)
+
 > **On-chain program:** [`4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG`](https://explorer.solana.com/address/4HVnwG8iz7wdUbEQDH8cYGD6EuxNmMuEbvCrz8Ke2iMG?cluster=devnet) (devnet)
 
 Competition module for Adrena that combines prop-style trading challenges with a World Cup knockout tournament and autonomous autopilot trading. Built on Next.js 16, React 19, Rust keeper infrastructure, and real Adrena position data.
+
+## Agent Trading Skill
+
+The `shoot-trading-skill/` directory contains a Claude Code skill that gives any AI agent full access to Adrena's perpetuals trading infrastructure — 12 tools, the Autopilot SDK, and the on-chain Shoot program.
+
+### What it enables
+
+An agent using this skill can:
+
+- **Trade perpetuals** — open/close longs and shorts on SOL, BTC, ETH, BONK, JITOSOL, XAU, XAG, EUR, GBP with up to 100x leverage
+- **Place limit orders** — set trigger and limit prices for automated entry
+- **Read market data** — pool stats, per-custody liquidity, TVL, utilization
+- **Manage competitions** — view active cohorts, check leaderboards, list enrollments
+- **Run autonomous strategies** — use the Autopilot SDK's 5 playbooks (TrendSurfer, FadeTrader, RangeSniper, FundingArb, GridRunner)
+- **Register on-chain** — create Agent PDAs and enroll in challenges via the Shoot program
+
+### Using with Claude Code
+
+Add the skill to your Claude Code project by including the skill directory in your project scope. Claude will automatically detect and load `shoot-trading-skill/SKILL.md` when you ask about trading, positions, or Adrena.
+
+```shell
+# From the shoot directory, just ask Claude:
+"Open a 3x long on JITOSOL with 50 USDC"
+"What are my open positions?"
+"Show me the leaderboard for the current competition"
+"Run a TrendSurfer strategy on BONK"
+```
+
+### Using as an MCP Server
+
+The same 12 tools are exposed as a standards-compliant [MCP server](https://modelcontextprotocol.io/) at:
+
+```
+https://shoot-production-f218.up.railway.app/api/mcp
+```
+
+Connect from any MCP client (Claude Desktop, Cursor, Windsurf, custom agents):
+
+```json
+{
+  "mcpServers": {
+    "shoot-trading": {
+      "url": "https://shoot-production-f218.up.railway.app/api/mcp",
+      "headers": {
+        "Authorization": "Bearer shoot_ak_<your-api-key>"
+      }
+    }
+  }
+}
+```
+
+Authentication uses the same API keys as the Agent API — create one by signing a challenge with your Solana wallet via `POST /api/agent/keys`.
+
+### Using via REST API
+
+For programmatic access without MCP, the Agent API exposes two endpoints:
+
+- **`POST /api/agent/chat`** — conversational agent with GPT-4o reasoning over all 12 tools
+- **`POST /api/agent/execute`** — direct tool dispatch, no LLM, lower latency
+
+```shell
+# Direct tool call
+curl -X POST https://shoot-production-f218.up.railway.app/api/agent/execute \
+  -H "Authorization: Bearer shoot_ak_..." \
+  -H "Content-Type: application/json" \
+  -d '{"tool": "getPoolStats", "params": {}}'
+```
+
+All trade tools return **unsigned transactions** — the caller must deserialize, sign with their wallet keypair, and submit to Solana.
+
+### Skill reference files
+
+| File | Contents |
+|------|----------|
+| `shoot-trading-skill/SKILL.md` | Full skill definition — API, tools, SDK, on-chain program |
+| `shoot-trading-skill/references/tool-schemas.md` | Complete Zod schemas and return types for all 12 tools |
+| `shoot-trading-skill/references/sdk-playbooks.md` | Autopilot SDK playbooks, FlightController, RiskHarness |
+| `shoot-trading-skill/references/onchain-program.md` | Shoot program instructions, PDAs, errors, events |
 
 ## Quick start
 
@@ -24,7 +106,7 @@ cd sdk && npm install && npm test   # 144 tests (autopilot SDK)
 │  Arena Hub · Leaderboard · Projection Lab · World Cup Bracket   │
 ├─────────────────────────────────────────────────────────────────┤
 │  API Routes                                                     │
-│  /competition · /world-cup · /cron · /agent · /admin · /health  │
+│  /competition · /world-cup · /cron · /agent · /mcp · /health    │
 ├──────────────────────────┬──────────────────────────────────────┤
 │  Core Engine             │  Autopilot SDK (@shoot/autopilot)    │
 │  Scoring · Sybil · Quests│  5 Playbooks · Indicators · Risk      │
@@ -223,6 +305,8 @@ GET /api/metrics                    # Prometheus
 | `sdk/src/playbooks/`                     | 5 autopilot trading playbooks (TrendSurfer, FadeTrader, RangeSniper, FundingArb, GridRunner) |
 | `sdk/src/cockpit/flight-controller.ts`   | Autonomous trading loop                                                                      |
 | `sdk/src/indicators/`                    | Pure-function indicators (VWAP, ATR, MACD, Stochastic, Keltner)                              |
+| `shoot-trading-skill/SKILL.md`           | Agent trading skill — full API, tools, SDK, on-chain program reference                       |
+| `app/api/mcp/route.ts`                  | MCP server exposing all 12 tools with API key auth                                           |
 | `data/competition-cohorts.json`          | Live cohort config with 26 real trader wallets                                               |
 
 ## Tests

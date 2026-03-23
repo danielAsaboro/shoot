@@ -33,7 +33,9 @@
               "guides/autopilot-sdk",
               "guides/keeper-service",
               "guides/revenue-model",
-              "guides/agent-api"
+              "guides/agent-api",
+              "guides/mcp-server",
+              "guides/agent-skill"
             ]
           },
           {

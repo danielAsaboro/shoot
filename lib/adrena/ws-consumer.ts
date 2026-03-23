@@ -74,8 +74,9 @@ export class AdrenaWsConsumer extends EventEmitter {
   }
 
   private getWsUrl(): string {
-    const host =
-      process.env.ADRENA_WS_HOST ?? "adrena-competition-service.onrender.com";
+    const host = (
+      process.env.ADRENA_WS_HOST ?? "adrena-competition-service.onrender.com"
+    ).replace(/\/+$/, "");
     const key = process.env.ADRENA_API_KEY;
     if (!key) throw new Error("ADRENA_API_KEY is not set");
     return `wss://${host}/${key}`;

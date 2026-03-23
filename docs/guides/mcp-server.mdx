@@ -1,0 +1,196 @@
+---
+title: "MCP Server"
+description: "Add Adrena's 12 trading tools directly to Claude Code, Claude Desktop, Cursor, or any MCP-compatible AI agent — no custom API integration required"
+icon: "plug"
+---
+
+The Shoot MCP server exposes all 12 trading tools as native MCP tools. Add it to your AI agent once and your agent can query markets, check leaderboards, and generate Adrena trade transactions without any custom API code.
+
+**MCP server URL:**
+```
+https://shoot-production-f218.up.railway.app/api/mcp
+```
+
+---
+
+## Prerequisites
+
+You need a Shoot API key. Keys are bound to a Solana wallet and created via the `/api/agent/keys` endpoint. See [Agent API](/guides/agent-api) for the full key creation flow.
+
+Once you have a key it looks like: `shoot_ak_T3cm6zZhEUUgsLdQv...`
+
+---
+
+## Installation
+
+<Tabs>
+  <Tab title="Claude Code">
+    Create a `.mcp.json` file in your project root (or home directory for global):
+
+    ```json
+    {
+      "mcpServers": {
+        "shoot-trading": {
+          "type": "http",
+          "url": "https://shoot-production-f218.up.railway.app/api/mcp",
+          "headers": {
+            "Authorization": "Bearer shoot_ak_YOUR_KEY_HERE"
+          }
+        }
+      }
+    }
+    ```
+
+    Claude Code picks this up automatically — no restart required.
+
+    **Verify it's connected:**
+    ```
+    /mcp
+    ```
+    You should see `shoot-trading` listed as a connected server with 12 tools.
+  </Tab>
+
+  <Tab title="Claude Desktop">
+    Edit your Claude Desktop config file:
+
+    - **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+    - **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+
+    ```json
+    {
+      "mcpServers": {
+        "shoot-trading": {
+          "url": "https://shoot-production-f218.up.railway.app/api/mcp",
+          "headers": {
+            "Authorization": "Bearer shoot_ak_YOUR_KEY_HERE"
+          }
+        }
+      }
+    }
+    ```
+
+    Restart Claude Desktop. The tools appear in the tool picker.
+  </Tab>
+
+  <Tab title="Cursor">
+    Create `.cursor/mcp.json` in your project root:
+
+    ```json
+    {
+      "mcpServers": {
+        "shoot-trading": {
+          "url": "https://shoot-production-f218.up.railway.app/api/mcp",
+          "headers": {
+            "Authorization": "Bearer shoot_ak_YOUR_KEY_HERE"
+          }
+        }
+      }
+    }
+    ```
+
+    Reload the Cursor window. The Shoot tools are now available in Cursor Agent.
+  </Tab>
+
+  <Tab title="Local Dev">
+    Run the app locally (`npm run dev`), then point at `localhost`:
+
+    ```json
+    {
+      "mcpServers": {
+        "shoot-trading": {
+          "type": "http",
+          "url": "http://localhost:3000/api/mcp",
+          "headers": {
+            "Authorization": "Bearer shoot_ak_YOUR_KEY_HERE"
+          }
+        }
+      }
+    }
+    ```
+
+    **Test with the MCP inspector:**
+    ```bash
+    npx @modelcontextprotocol/inspector http://localhost:3000/api/mcp
+    # → open http://127.0.0.1:6274, select Streamable HTTP, connect
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Available Tools
+
+All 12 tools are exposed. The wallet is bound to your API key — you don't pass it as a parameter.
+
+### Read Tools (60 req/min)
+
+| Tool | Description |
+|------|-------------|
+| `getPositions` | Open and historical positions for your wallet |
+| `getPoolStats` | Adrena pool volume, fees, TVL |
+| `getLiquidityInfo` | Per-custody liquidity: TVL, utilization, target ratios |
+| `getLeaderboard` | Competition standings by cohort ID |
+| `getActiveCohorts` | Live and upcoming competitions |
+| `getMyEnrollments` | Competitions your wallet is enrolled in |
+
+### Trading Tools (10 req/min)
+
+Trading tools return **unsigned Solana transactions** — your agent receives a base64-encoded `VersionedTransaction` that must be signed and submitted separately. The server never holds private keys.
+
+| Tool | Description |
+|------|-------------|
+| `openLong` | Open leveraged long (BONK, JITOSOL, WBTC) |
+| `openShort` | Open leveraged short |
+| `closeLong` | Close long (full or partial) |
+| `closeShort` | Close short (full or partial) |
+| `openLimitLong` | Limit order for long |
+| `openLimitShort` | Limit order for short |
+
+<Note>
+  Supported asset symbols: `BONK`, `JITOSOL`, `WBTC`. Collateral: `USDC`.
+  Using `BTC` or `SOL` as the asset returns `ASSET_TOKEN_NOT_FOUND`.
+</Note>
+
+---
+
+## How Signing Works
+
+The MCP server returns an unsigned transaction. Your agent handles signing:
+
+```typescript
+// The MCP tool returns something like:
+// { requiresSignature: true, quote: { entryPrice: 142.3, ... }, transaction: "AQAAAA..." }
+
+const { transaction } = mcpToolResult;
+const vtx = VersionedTransaction.deserialize(Buffer.from(transaction, "base64"));
+vtx.sign([yourKeypair]);
+const sig = await connection.sendRawTransaction(vtx.serialize());
+```
+
+See [Claude Code Skill](/guides/agent-skill) — it includes the full signing flow for local Surfpool testing and mainnet.
+
+---
+
+## Example Agent Prompt
+
+Once the MCP server is connected, you can ask your agent directly:
+
+```
+Check the current Adrena pool stats and liquidity, then open a 3x long
+on JITOSOL with 50 USDC. Show me the unsigned transaction.
+```
+
+The agent calls `getPoolStats`, `getLiquidityInfo`, then `openLong` — all via MCP.
+
+---
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Agent API" icon="robot" href="/guides/agent-api">
+    REST API alternative — HTTP execute and chat endpoints
+  </Card>
+  <Card title="Claude Code Skill" icon="brain-circuit" href="/guides/agent-skill">
+    Drop-in skill for full context: signing flow, lifecycle, Surfpool testing
+  </Card>
+</CardGroup>
